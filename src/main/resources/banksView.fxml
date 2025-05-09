@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/11.0.1"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="client.controllers.BanksViewController">
+
+    <TableView fx:id="banksTable" layoutX="10" layoutY="10" prefHeight="400" prefWidth="580">
+        <columns>
+            <TableColumn fx:id="idColumn" text="ID" prefWidth="50">
+                <cellValueFactory>
+                    <PropertyValueFactory property="bankId" />
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="nameColumn" text="Название" prefWidth="150">
+                <cellValueFactory>
+                    <PropertyValueFactory property="bankName" />
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="addressColumn" text="Адрес" prefWidth="200">
+                <cellValueFactory>
+                    <PropertyValueFactory property="address" />
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="phoneColumn" text="Телефон" prefWidth="100">
+                <cellValueFactory>
+                    <PropertyValueFactory property="phone" />
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="emailColumn" text="Email" prefWidth="120">
+                <cellValueFactory>
+                    <PropertyValueFactory property="email" />
+                </cellValueFactory>
+            </TableColumn>
+        </columns>
+    </TableView>
+
+    <Button layoutX="250" layoutY="420" text="Назад" onAction="#handleBack"
+            style="-fx-background-color: #568EA3; -fx-text-fill: white;"/>
+</AnchorPane>

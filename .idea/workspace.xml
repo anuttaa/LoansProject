@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="14ceceaf-42a0-42b5-a96b-c86dd60f4bb8" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/main/java/client/BankClient.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/client/MainApp.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/client/controllers/AccountController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/client/controllers/BanksViewController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/client/controllers/DeleteUserController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/client/controllers/MainController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/client/controllers/RegisterController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/config/JpaUtil.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/server/ClientHandler.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/server/DTO/BankDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/server/DTO/LoanDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/server/DTO/PaymentDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/server/DTO/PaymentScheduleDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/banksView.fxml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/deleteByID.fxml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/main.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.name" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/2c5b710d-d765-4feb-94d1-70c71d933f99.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/2c5b710d-d765-4feb-94d1-70c71d933f99.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Factories/UserFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Factories/UserFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/client/DTO/UserDTO.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/client/controllers/AuthController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/client/http/HttpClient.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/client/services/AuthService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/config/HibernateConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/config/HibernateConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/config/JerseyConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/config/JerseyConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/exeption/AuthExeption.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/exeption/AuthExeption.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/MyApp.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/server/DAO/AbstractDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/server/DAO/AbstractDAO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/server/DAO/BankDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/server/DAO/BankDAO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/server/DAO/DAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/server/DAO/DAO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/server/DAO/LoanDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/server/DAO/LoanDAO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/server/DAO/PaymentDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/server/DAO/PaymentDAO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/server/DAO/RoleDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/server/DAO/RoleDAO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/server/DAO/UserDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/server/DAO/UserDAO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/server/DTO/LoginDTO.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/server/DTO/RegisterDTO.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/server/DTO/UserDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/server/DTO/UserDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/server/Entities/Bank.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/server/Entities/Bank.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/server/Entities/Loan.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/server/Entities/Loan.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/server/Entities/Payment.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/server/Entities/Payment.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/server/Entities/Role.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/server/Entities/Role.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/server/Entities/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/server/Entities/User.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/server/Security/JwtTokenProvider.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/server/Security/PasswordHasher.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/server/Security/PasswordHasher.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/server/controller/BankController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/server/controller/LoanController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/server/controller/PaymentController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/server/controller/RoleController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/server/controller/UserController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/server/service/BankService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/server/service/BankService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/server/service/LoanService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/server/service/LoanService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/server/service/PaymentService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/server/service/PaymentService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/server/service/RoleService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/server/service/RoleService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/server/service/Service.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/server/service/Service.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/server/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/server/service/UserService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/hibernate.cfg.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/hibernate.cfg.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/logback.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/logback.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/view/auth.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/persistence.xml" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="com.intellij.jpb.JpaEntity" />
+        <option value="Interface" />
+        <option value="FxmlFile" />
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="JpbToolWindowState">
+    <option name="isToolWindowVisible" value="false" />
+  </component>
+  <component name="MavenRunner">
+    <option name="jreName" value="21" />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="Security Analysis" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 5
+}</component>
+  <component name="ProjectId" id="2vJRbN5GeSCybCRDsL7PgZGG1Fl" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Application.ClientSocket.executor&quot;: &quot;Run&quot;,
+    &quot;Application.Main.executor&quot;: &quot;Run&quot;,
+    &quot;Application.MainApp.executor&quot;: &quot;Run&quot;,
+    &quot;Application.Unnamed.executor&quot;: &quot;Run&quot;,
+    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
+    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
+    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
+    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;Spring Boot.Main.executor&quot;: &quot;Run&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/User/Desktop/SceneBuilder.lnk&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;onboarding.tips.debug.path&quot;: &quot;D:/курсовые/курсовая 4 сем/loans/src/main/java/org/example/Main.java&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.3275862&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settings.project.maven.runner&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  },
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;mysql_aurora&quot;
+    ]
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="CreateClassDialog.RecentsKey">
+      <recent name="DTO" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\курсовые\курсовая 4 сем\loans\loans-ui\src\main\resourсes" />
+      <recent name="D:\курсовые\курсовая 4 сем\loans\src\main\java\client" />
+    </key>
+    <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
+      <recent name="client" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Application.MainApp">
+    <configuration name="Main" type="Application" factoryName="Application" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="org.example.Main" />
+      <module name="credit-system" />
+      <option name="VM_PARAMETERS" value="--module-path &quot;C:\Program Files\Java\javafx-sdk-21.0.7\lib&quot; --add-modules javafx.controls,javafx.fxml" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="MainApp" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="client.MainApp" />
+      <module name="credit-system" />
+      <option name="VM_PARAMETERS" value="--module-path &quot;C:\Program Files\Java\javafx-sdk-21.0.7\lib&quot; --add-modules javafx.controls,javafx.fxml" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <list>
+      <item itemvalue="Application.Main" />
+      <item itemvalue="Application.MainApp" />
+    </list>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-a94e463ab2e7-intellij.indexing.shared.core-IU-243.26053.27" />
+        <option value="bundled-js-predefined-d6986cc7102b-1632447f56bf-JavaScript-IU-243.26053.27" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="14ceceaf-42a0-42b5-a96b-c86dd60f4bb8" name="Changes" comment="" />
+      <created>1743861263124</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1743861263124</updated>
+      <workItem from="1744222596832" duration="14435000" />
+      <workItem from="1744301835486" duration="4938000" />
+      <workItem from="1744746540468" duration="15074000" />
+      <workItem from="1745340772300" duration="12347000" />
+      <workItem from="1745361409625" duration="1528000" />
+      <workItem from="1745392969329" duration="1782000" />
+      <workItem from="1745394773104" duration="2159000" />
+      <workItem from="1745401158639" duration="3635000" />
+      <workItem from="1745406972278" duration="2390000" />
+      <workItem from="1745588905855" duration="205000" />
+      <workItem from="1745654374585" duration="11581000" />
+      <workItem from="1745749300306" duration="3422000" />
+      <workItem from="1746082500924" duration="2164000" />
+      <workItem from="1746084761670" duration="18471000" />
+      <workItem from="1746112809978" duration="15358000" />
+      <workItem from="1746157774055" duration="3907000" />
+      <workItem from="1746171949520" duration="3572000" />
+      <workItem from="1746176014308" duration="4099000" />
+      <workItem from="1746200960493" duration="13717000" />
+      <workItem from="1746224831177" duration="657000" />
+      <workItem from="1746225587937" duration="2686000" />
+      <workItem from="1746228897329" duration="19687000" />
+      <workItem from="1746266598935" duration="2240000" />
+      <workItem from="1746787930427" duration="682000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>

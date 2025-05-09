@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="client.controllers.DeleteUserController" prefHeight="200" prefWidth="400">
+
+    <Label layoutX="20" layoutY="20" text="Введите ID пользователя:" style="-fx-text-fill: #ffe8d1;"/>
+    <TextField fx:id="userIdField" layoutX="20" layoutY="50" prefWidth="360"/>
+
+    <Button layoutX="20" layoutY="100" text="Удалить" onAction="#handleDelete"
+            style="-fx-background-color: #ff4d4d; -fx-text-fill: white;" prefWidth="100"/>
+
+    <Button layoutX="140" layoutY="100" text="Назад" onAction="#handleBack"
+            style="-fx-background-color: #568EA3; -fx-text-fill: white;" prefWidth="100"/>
+
+    <TextArea fx:id="usersArea" layoutX="20" layoutY="150" prefWidth="360" prefHeight="100"
+              editable="false" wrapText="true" style="-fx-control-inner-background: #fffde8;"/>
+
+    <TextArea fx:id="statusLabel" layoutX="20" layoutY="260" prefWidth="360" prefHeight="100"
+              editable="false" wrapText="true" style="-fx-control-inner-background: #fffde8;"/>
+
+</AnchorPane>
+
