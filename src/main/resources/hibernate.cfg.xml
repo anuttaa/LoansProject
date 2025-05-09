@@ -3,23 +3,18 @@
                 "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
 <hibernate-configuration>
 <session-factory>
-    <!-- MySQL connection settings -->
     <property name="hibernate.connection.driver_class">com.mysql.cj.jdbc.Driver</property>
     <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/loans?useSSL=false&amp;allowPublicKeyRetrieval=true&amp;serverTimezone=UTC</property>
     <property name="hibernate.connection.username">root</property>
     <property name="hibernate.connection.password">anna12345</property>
 
-    <!-- SQL dialect -->
     <property name="hibernate.dialect">org.hibernate.dialect.MySQL8Dialect</property>
 
-    <!-- Echo all executed SQL to stdout -->
     <property name="hibernate.show_sql">true</property>
     <property name="hibernate.format_sql">true</property>
 
-    <!-- Automatic schema generation -->
     <property name="hibernate.hbm2ddl.auto">update</property>
 
-    <!-- Entity mapping -->
     <mapping class="server.Entities.User"/>
     <mapping class="server.Entities.Role"/>
     <mapping class="server.Entities.Payment"/>
