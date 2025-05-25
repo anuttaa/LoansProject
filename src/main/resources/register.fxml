@@ -12,7 +12,7 @@
    <children>
       <ImageView fitHeight="406.0" fitWidth="600.0" pickOnBounds="true" preserveRatio="true">
          <image>
-            <Image url="@регистрация.png" />
+            <Image url="@img/регистрация.png" />
          </image>
       </ImageView>
       <Button fx:id="register" layoutX="218.0" layoutY="328.0" mnemonicParsing="false" onAction="#handleRegister" prefHeight="35.0" prefWidth="165.0" style="-fx-background-color: #568EA3; -fx-background-radius: 10;" text="Регистрация" textFill="#ffe8d1">

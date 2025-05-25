@@ -2,42 +2,57 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.cell.PropertyValueFactory?>
 
 <AnchorPane xmlns="http://javafx.com/javafx/11.0.1"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="client.controllers.BanksViewController">
+            fx:controller="client.controllers.CreateBankController">
 
-    <TableView fx:id="banksTable" layoutX="10" layoutY="10" prefHeight="400" prefWidth="580">
-        <columns>
-            <TableColumn fx:id="idColumn" text="ID" prefWidth="50">
-                <cellValueFactory>
-                    <PropertyValueFactory property="bankId" />
-                </cellValueFactory>
-            </TableColumn>
-            <TableColumn fx:id="nameColumn" text="Название" prefWidth="150">
-                <cellValueFactory>
-                    <PropertyValueFactory property="bankName" />
-                </cellValueFactory>
-            </TableColumn>
-            <TableColumn fx:id="addressColumn" text="Адрес" prefWidth="200">
-                <cellValueFactory>
-                    <PropertyValueFactory property="address" />
-                </cellValueFactory>
-            </TableColumn>
-            <TableColumn fx:id="phoneColumn" text="Телефон" prefWidth="100">
-                <cellValueFactory>
-                    <PropertyValueFactory property="phone" />
-                </cellValueFactory>
-            </TableColumn>
-            <TableColumn fx:id="emailColumn" text="Email" prefWidth="120">
-                <cellValueFactory>
-                    <PropertyValueFactory property="email" />
-                </cellValueFactory>
-            </TableColumn>
-        </columns>
-    </TableView>
+    <VBox spacing="10">
+        <padding>
+            <Insets top="10" right="10" bottom="10" left="10"/>
+        </padding>
 
-    <Button layoutX="250" layoutY="420" text="Назад" onAction="#handleBack"
-            style="-fx-background-color: #568EA3; -fx-text-fill: white;"/>
+        <!-- Форма создания банка -->
+        <HBox spacing="10">
+            <VBox spacing="10" prefWidth="300">
+                <Label text="Добавление нового банка" style="-fx-font-weight: bold;"/>
+
+                <!-- Название банка -->
+                <Label text="Название банка*:"/>
+                <TextField fx:id="bankNameField"/>
+
+                <!-- Адрес -->
+                <Label text="Адрес:"/>
+                <TextField fx:id="addressField"/>
+
+                <!-- Телефон -->
+                <Label text="Телефон:"/>
+                <TextField fx:id="phoneField"/>
+
+                <!-- Email -->
+                <Label text="Email:"/>
+                <TextField fx:id="emailField"/>
+
+                <!-- Кнопка создания -->
+                <Button text="Создать банк" onAction="#handleCreateBank"/>
+                <Button text="Назад" onAction="#handleBack"/>
+                <!-- Сообщение об ошибке -->
+                <Label fx:id="errorLabel" style="-fx-text-fill: red;"/>
+            </VBox>
+
+            <!-- Таблица банков -->
+            <TableView fx:id="banksTable" prefHeight="400">
+                <columns>
+                    <TableColumn fx:id="idColumn" text="ID" prefWidth="50"/>
+                    <TableColumn fx:id="nameColumn" text="Название" prefWidth="150"/>
+                    <TableColumn fx:id="addressColumn" text="Адрес" prefWidth="200"/>
+                    <TableColumn fx:id="phoneColumn" text="Телефон" prefWidth="120"/>
+                    <TableColumn fx:id="emailColumn" text="Email" prefWidth="150"/>
+                    <TableColumn fx:id="actionsColumn" text="Действия" prefWidth="150"/>
+                </columns>
+            </TableView>
+        </HBox>
+    </VBox>
 </AnchorPane>

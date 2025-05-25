@@ -17,7 +17,7 @@ public class BankClient {
         in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
     }
 
-    public JsonObject sendRequest(String jsonRequest) {
+    public JsonObject sendRequest(String jsonRequest) throws IOException {
         try {
             System.out.println("[CLIENT] Отправка: " + jsonRequest);
 

@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.*;
 import java.sql.Date;
 
@@ -17,53 +19,29 @@ public class Loan {
     @Column(name = "loan_id")
     private Long loanId;
 
-    @ManyToMany
-    @JoinTable(
-            name = "loan_client",
-            joinColumns = @JoinColumn(name = "loan_id"),
-            inverseJoinColumns = @JoinColumn(name = "client_id")
-    )
-    private Set<User> clients = new HashSet<>();
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "client_id", nullable = false)
+    private User client;
 
-    @OneToMany(mappedBy = "loan", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Payment> payments = new ArrayList<>();
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "loan_type_id", nullable = false)
+    private LoanType loanType;
 
-    @ManyToOne
-    @JoinColumn(name = "bank_id", nullable = false)
-    private Bank bank;
-
-    @Column(name = "loan_type_name", nullable = false)
-    private String loanTypeName;
-
-    @Column(name = "interest_rate", nullable = false)
-    private Double interestRate;
-
-    @Column(name = "loan_amount", nullable = false)
-    private Double loanAmount;
+    @Column(name = "loan_amount", nullable = false, precision = 15, scale = 2)
+    private BigDecimal loanAmount;
 
     @Column(name = "term_months", nullable = false)
     private Integer termMonths;
 
     @Column(name = "start_date")
-    private Date startDate;
+    private LocalDate startDate;
 
     @Column(name = "end_date")
-    private Date endDate;
+    private LocalDate endDate;
 
-    @Column(name = "status")
+    @Column(name = "status", length = 50)
     private String status;
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Loan loan = (Loan) o;
-        return loanId == loan.loanId;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(loanId);
-    }
-
+    @OneToMany(mappedBy = "loan", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Payment> payments = new HashSet<>();
 }

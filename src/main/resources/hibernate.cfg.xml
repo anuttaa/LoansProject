@@ -19,6 +19,7 @@
     <mapping class="server.Entities.Role"/>
     <mapping class="server.Entities.Payment"/>
     <mapping class="server.Entities.Loan"/>
+    <mapping class="server.Entities.LoanType"/>
     <mapping class="server.Entities.Bank"/>
 </session-factory>
 </hibernate-configuration>

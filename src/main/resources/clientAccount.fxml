@@ -10,7 +10,7 @@
    <children>
       <ImageView fitHeight="406.0" fitWidth="600.0" pickOnBounds="true" preserveRatio="true">
          <image>
-            <Image url="@регистрация.png" />
+            <Image url="@img/регистрация.png" />
          </image>
       </ImageView>
       <Button fx:id="backButton" layoutX="510.0" layoutY="20.0" mnemonicParsing="false" onAction="#handleBack" prefHeight="30.0" prefWidth="70.0" style="-fx-background-color: #568EA3; -fx-background-radius: 10;" text="Назад" textFill="#ffe8d1">
@@ -39,11 +39,6 @@
          </font>
       </Button>
       <Button fx:id="account" layoutX="359.0" layoutY="201.0" mnemonicParsing="false" onAction="#handleAccount" prefHeight="35.0" prefWidth="165.0" style="-fx-background-color: #568EA3; -fx-background-radius: 10;" text="Редактировать аккаунт" textFill="#ffe8d1">
-         <font>
-            <Font size="13.0" />
-         </font>
-      </Button>
-      <Button fx:id="deleteByID" layoutX="359.0" layoutY="286.0" mnemonicParsing="false" onAction="#handleDeleteByID" prefHeight="35.0" prefWidth="165.0" style="-fx-background-color: #568EA3; -fx-background-radius: 10;" text="Удалить пользователя(ID)" textFill="#ffe8d1">
          <font>
             <Font size="13.0" />
          </font>

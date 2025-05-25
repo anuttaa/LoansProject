@@ -21,6 +21,7 @@ public class DeleteUserController {
         this.mainApp = mainApp;
         System.out.println("Setting mainApp: " + mainApp);
         loadUsers();
+        handleDelete();
     }
 
     private void loadUsers() {
@@ -70,7 +71,7 @@ public class DeleteUserController {
             if (deleteResponse != null && deleteResponse.get("status").getAsString().equals("success")) {
                 statusLabel.setText("Пользователь успешно удален");
                 statusLabel.setStyle("-fx-text-fill: green;");
-                loadUsers(); // Обновляем список после удаления
+                loadUsers();
             } else {
                 String error = deleteResponse != null ? deleteResponse.get("message").getAsString() : "Нет ответа от сервера";
                 statusLabel.setText("Ошибка: " + error);
@@ -84,7 +85,18 @@ public class DeleteUserController {
 
     @FXML
     private void handleBack() {
-        mainApp.showAccountView();
+        if(mainApp.getCurrentUserRoleId()==1){
+            mainApp.showAdminAccountView();
+            System.out.println("admin role");
+        }
+        else if(mainApp.getCurrentUserRoleId()==2) {
+            mainApp.showAccountView();
+            System.out.println("user role");
+        }
+        else {
+            System.out.println("Invalid role");
+            mainApp.clearCurrentUser();
+        }
     }
 }
 

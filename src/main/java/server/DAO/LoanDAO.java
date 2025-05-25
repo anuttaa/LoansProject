@@ -17,18 +17,30 @@ public class LoanDAO extends AbstractDAO<Loan, Long> {
         }
     }
 
-    public List<Loan> findByBankId(Long bankId) {
-        try (Session session = getCurrentSession()) {
-            return session.createQuery("FROM Loan WHERE bank.bankId = :bankId", Loan.class)
-                    .setParameter("bankId", bankId)
-                    .list();
-        }
-    }
-
     public List<Loan> findByStatus(String status) {
         try (Session session = getCurrentSession()) {
             return session.createQuery("FROM Loan WHERE status = :status", Loan.class)
                     .setParameter("status", status)
+                    .list();
+        }
+    }
+
+    public List<Loan> findByLoanTypeBankName(String bankName) {
+        try (Session session = getCurrentSession()) {
+            return session.createQuery(
+                            "SELECT l FROM Loan l JOIN l.loanType lt JOIN lt.bank b WHERE b.bankName = :bankName",
+                            Loan.class)
+                    .setParameter("bankName", bankName)
+                    .list();
+        }
+    }
+
+    public List<Loan> findByLoanTypeBankId(Long bankId) {
+        try (Session session = getCurrentSession()) {
+            return session.createQuery(
+                            "SELECT l FROM Loan l JOIN l.loanType lt WHERE lt.bank.bankId = :bankId",
+                            Loan.class)
+                    .setParameter("bankId", bankId)
                     .list();
         }
     }

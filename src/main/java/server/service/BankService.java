@@ -2,25 +2,33 @@ package server.service;
 
 import server.DAO.BankDAO;
 import server.DAO.LoanDAO;
+import server.DAO.LoanTypeDAO;
 import server.DTO.BankDTO;
 import server.Entities.Bank;
 import server.Entities.Loan;
+import server.Entities.LoanType;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-public class BankService {
+import java.util.*;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
+public class BankService {
     private static final Logger LOGGER = Logger.getLogger(BankService.class.getName());
 
     private final BankDAO bankRepository = new BankDAO();
-    private final LoanDAO loanRepository = new LoanDAO();
+    private final LoanTypeDAO loanTypeRepository = new LoanTypeDAO();
 
     public Bank createBank(BankDTO bankDTO) {
-        LOGGER.info("Создание нового банка: " + bankDTO.getBankName());
+        Objects.requireNonNull(bankDTO, "BankDTO cannot be null");
+        LOGGER.info(() -> "Creating new bank: " + bankDTO.getBankName());
 
         Bank bank = new Bank();
         bank.setBankName(bankDTO.getBankName());
@@ -28,101 +36,115 @@ public class BankService {
         bank.setPhone(bankDTO.getPhone());
         bank.setEmail(bankDTO.getEmail());
 
-        Bank saved = bankRepository.save(bank);
-        LOGGER.info("Банк успешно создан с ID: " + saved.getBankId());
-        return saved;
+        Bank savedBank = bankRepository.save(bank);
+        LOGGER.info(() -> "Bank created successfully with ID: " + savedBank.getBankId());
+        return savedBank;
     }
 
-    public List<Loan> getBankLoans(Long bankId) {
-        LOGGER.info("Получение кредитных продуктов для банка с ID: " + bankId);
+    public List<LoanType> getBankLoanTypes(Long bankId) {
+        Objects.requireNonNull(bankId, "Bank ID cannot be null");
+        LOGGER.info(() -> "Getting loan products for bank ID: " + bankId);
+
         Bank bank = bankRepository.findById(bankId)
                 .orElseThrow(() -> {
-                    LOGGER.warning("Банк с ID " + bankId + " не найден");
-                    return new NoSuchElementException("Банк с id " + bankId + " не найден");
+                    LOGGER.warning(() -> "Bank not found with ID: " + bankId);
+                    return new NoSuchElementException("Bank not found with ID: " + bankId);
                 });
 
-        return new ArrayList<>(bank.getLoans());
+        return Collections.unmodifiableList(new ArrayList<>(bank.getLoanTypes()));
     }
 
-    public double calculateEffectiveRate(Long bankId, double amount, int term) {
-        LOGGER.info("Расчёт ЭПС для банка ID " + bankId + ", сумма: " + amount + ", срок: " + term);
+    public BigDecimal calculateEffectiveRate(Long bankId, BigDecimal amount, int term) {
+        Objects.requireNonNull(bankId, "Bank ID cannot be null");
+        Objects.requireNonNull(amount, "Amount cannot be null");
+        if (term <= 0) throw new IllegalArgumentException("Term must be positive");
+
+        LOGGER.info(() -> String.format(
+                "Calculating effective rate for bank ID %s, amount: %s, term: %d",
+                bankId, amount, term));
+
         Bank bank = bankRepository.findById(bankId)
                 .orElseThrow(() -> {
-                    LOGGER.warning("Банк с ID " + bankId + " не найден");
-                    return new NoSuchElementException("Банк с id " + bankId + " не найден");
+                    LOGGER.warning(() -> "Bank not found with ID: " + bankId);
+                    return new NoSuchElementException("Bank not found with ID: " + bankId);
                 });
 
-        Set<Loan> loans = bank.getLoans();
+        List<LoanType> loans = bank.getLoanTypes();
         if (loans.isEmpty()) {
-            LOGGER.warning("У банка ID " + bankId + " нет кредитных продуктов");
-            throw new IllegalStateException("У банка нет кредитных продуктов");
+            LOGGER.warning(() -> "No loan products available for bank ID: " + bankId);
+            throw new IllegalStateException("No loan products available");
         }
 
-        Loan bestLoan = loans.stream()
-                .min(Comparator.comparingDouble(Loan::getInterestRate))
+        LoanType bestLoan = loans.stream()
+                .min(Comparator.comparing(LoanType::getInterestRate))
                 .orElseThrow(() -> {
-                    LOGGER.warning("Нет доступных кредитов у банка ID " + bankId);
-                    return new IllegalStateException("Нет доступных кредитов");
+                    LOGGER.warning(() -> "No suitable loans found for bank ID: " + bankId);
+                    return new IllegalStateException("No suitable loans found");
                 });
 
-        double baseRate = bestLoan.getInterestRate();
-        double commission = 1.0;
+        BigDecimal baseRate = bestLoan.getInterestRate();
+        BigDecimal commission = BigDecimal.ONE; // Пример комиссии
 
-        double result = baseRate + commission;
-        LOGGER.info("ЭПС рассчитана: " + result);
-        return result;
+        BigDecimal result = baseRate.add(commission);
+        LOGGER.info(() -> "Effective rate calculated: " + result);
+        return result.setScale(2, RoundingMode.HALF_UP);
     }
 
-    public BankDTO findById(Long bankId) {
-        LOGGER.info("Поиск банка по ID: " + bankId);
-        Bank bank = bankRepository.findById(bankId)
-                .orElseThrow(() -> {
-                    LOGGER.warning("Банк с ID " + bankId + " не найден");
-                    return new NoSuchElementException("Банк с id " + bankId + " не найден");
+    public Optional<BankDTO> findById(Long bankId) {
+        Objects.requireNonNull(bankId, "Bank ID cannot be null");
+        LOGGER.info(() -> "Finding bank by ID: " + bankId);
+
+        return bankRepository.findById(bankId)
+                .map(this::convertToDTO)
+                .map(dto -> {
+                    LOGGER.info(() -> "Bank found with ID: " + bankId);
+                    return dto;
                 });
-        return convertToDTO(bank);
     }
-
 
     public List<BankDTO> findAll() {
-        LOGGER.info("Получение списка всех банков");
+        LOGGER.info("Retrieving all banks");
         return bankRepository.findAll().stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
 
     public BankDTO updateBank(Long bankId, BankDTO bankDTO) {
-        LOGGER.info("Обновление банка с ID: " + bankId);
-        Bank existing = bankRepository.findById(bankId)
+        Objects.requireNonNull(bankId, "Bank ID cannot be null");
+        Objects.requireNonNull(bankDTO, "BankDTO cannot be null");
+        LOGGER.info(() -> "Updating bank with ID: " + bankId);
+
+        Bank existingBank = bankRepository.findById(bankId)
                 .orElseThrow(() -> {
-                    LOGGER.warning("Банк с ID " + bankId + " не найден для обновления");
-                    return new NoSuchElementException("Банк с id " + bankId + " не найден");
+                    LOGGER.warning(() -> "Bank not found for update with ID: " + bankId);
+                    return new NoSuchElementException("Bank not found with ID: " + bankId);
                 });
 
-        existing.setBankName(bankDTO.getBankName());
-        existing.setAddress(bankDTO.getAddress());
-        existing.setPhone(bankDTO.getPhone());
-        existing.setEmail(bankDTO.getEmail());
+        existingBank.setBankName(bankDTO.getBankName());
+        existingBank.setAddress(bankDTO.getAddress());
+        existingBank.setPhone(bankDTO.getPhone());
+        existingBank.setEmail(bankDTO.getEmail());
 
-        Bank updated = bankRepository.update(existing);
-        LOGGER.info("Банк обновлён: " + updated.getBankId());
-        return convertToDTO(updated);
+        Bank updatedBank = bankRepository.update(existingBank);
+        LOGGER.info(() -> "Bank updated successfully with ID: " + updatedBank.getBankId());
+        return convertToDTO(updatedBank);
     }
-
 
     public void deleteBank(Long bankId) {
-        LOGGER.info("Удаление банка с ID: " + bankId);
+        Objects.requireNonNull(bankId, "Bank ID cannot be null");
+        LOGGER.info(() -> "Deleting bank with ID: " + bankId);
+
         Bank bank = bankRepository.findById(bankId)
                 .orElseThrow(() -> {
-                    LOGGER.warning("Банк с ID " + bankId + " не найден для удаления");
-                    return new NoSuchElementException("Банк с id " + bankId + " не найден");
+                    LOGGER.warning(() -> "Bank not found for deletion with ID: " + bankId);
+                    return new NoSuchElementException("Bank not found with ID: " + bankId);
                 });
+
         bankRepository.delete(bank);
-        LOGGER.info("Банк с ID " + bankId + " успешно удалён");
+        LOGGER.info(() -> "Bank deleted successfully with ID: " + bankId);
     }
 
-
-    public BankDTO convertToDTO(Bank bank) {
+    private BankDTO convertToDTO(Bank bank) {
         BankDTO dto = new BankDTO();
         dto.setBankId(bank.getBankId());
         dto.setBankName(bank.getBankName());

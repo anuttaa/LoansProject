@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.util.*;
 
 @Getter
@@ -16,7 +17,7 @@ public class User {
   @Column(name = "user_id")
   private Long userId;
 
-  @Column(name = "username", unique = true, nullable = false)
+  @Column(name = "username", nullable = false, unique = true)
   private String username;
 
   @Column(name = "password_hash", nullable = false)
@@ -26,7 +27,8 @@ public class User {
   private String fullName;
 
   @Column(name = "birth_date")
-  private String birthDate;
+  @Temporal(TemporalType.DATE)
+  private LocalDate birthDate;
 
   @Column(name = "phone")
   private String phone;
@@ -37,19 +39,12 @@ public class User {
   @Column(name = "address")
   private String address;
 
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "role_id", nullable = false)
   private Role role;
 
-  @ManyToMany(mappedBy = "clients", fetch = FetchType.EAGER)
-  private Set<Loan> loans = new HashSet<>();
-
-  @ManyToMany(fetch = FetchType.EAGER)
-  @JoinTable(
-          name = "user_banks",
-          joinColumns = @JoinColumn(name = "user_id"),
-          inverseJoinColumns = @JoinColumn(name = "bank_id"))
-  private Set<Bank> banks;
+  @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<Loan> loans = new ArrayList<>();
 
   @Override
   public boolean equals(Object o) {

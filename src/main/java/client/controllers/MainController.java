@@ -1,5 +1,8 @@
 package client.controllers;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import config.LocalDateAdapter;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -7,6 +10,9 @@ import javafx.scene.control.TextField;
 import com.google.gson.JsonObject;
 import javafx.scene.control.PasswordField;
 import client.MainApp;
+import server.DTO.UserDTO;
+
+import java.time.LocalDate;
 
 
 public class MainController {
@@ -14,7 +20,9 @@ public class MainController {
     @FXML public Button exit;
     @FXML private TextField loginField;
     @FXML private PasswordField passwordField;
-
+    Gson gson = new GsonBuilder()
+            .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
+            .create();
     private MainApp mainApp;
 
     public void setMainApp(MainApp mainApp) {
@@ -54,7 +62,22 @@ public class MainController {
 
             if (response.has("status") && "success".equals(response.get("status").getAsString())) {
                 String username = loginField.getText().trim();
-                mainApp.showAccountView();
+                UserDTO userDTO = gson.fromJson(response.get("user"), UserDTO.class);
+                mainApp.setCurrentUserId(userDTO.getUserId());
+                mainApp.setCurrentUserRoleId(userDTO.getRoleId());
+
+                if(userDTO.getRoleId()==1){
+                    mainApp.showAdminAccountView();
+                    System.out.println("user role");
+                }
+                else if(userDTO.getRoleId()==2) {
+                    mainApp.showAccountView();
+                    System.out.println("admin role");
+                }
+                else {
+                    System.out.println("Invalid role");
+                    mainApp.clearCurrentUser();
+                }
             } else {
                 showError("Ошибка аутентификации");
             }

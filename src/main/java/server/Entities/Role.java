@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -17,11 +18,11 @@ public class Role {
     @Column(name = "role_id")
     private Long roleId;
 
-    @Column(name = "role_name", unique = true, nullable = false)
+    @Column(name = "role_name", nullable = false, unique = true)
     private String roleName;
 
-    @OneToMany(fetch = FetchType.EAGER)
-    private Set<User> users;
+    @OneToMany(mappedBy = "role")
+    private List<User> users;
 
     @Override
     public boolean equals(Object o) {
@@ -36,12 +37,4 @@ public class Role {
         return Objects.hash(roleId);
     }
 
-    @Override
-    public String toString() {
-        return "Role{" +
-                "roleId=" + roleId +
-                ", roleName='" + roleName + '\'' +
-                ", users=" + users +
-                '}';
-    }
 }

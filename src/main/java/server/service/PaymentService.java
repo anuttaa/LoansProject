@@ -9,13 +9,15 @@ import server.DTO.PaymentScheduleDTO;
 import server.Entities.Loan;
 import server.Entities.Payment;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.*;
 
 import static java.lang.Math.round;
 
 public class PaymentService {
-
     private final PaymentDAO paymentRepository = new PaymentDAO();
     private final LoanDAO loanRepository = new LoanDAO();
     private static final Logger LOG = LoggerFactory.getLogger(PaymentService.class);
@@ -70,71 +72,84 @@ public class PaymentService {
     }
 
     public List<PaymentScheduleDTO> generateInitialSchedule(Loan loan) {
-        double principal = loan.getLoanAmount();
-        double monthlyRate = loan.getInterestRate() / 100.0 / 12;
+        BigDecimal principal = loan.getLoanAmount();
+        BigDecimal annualRate = loan.getLoanType().getInterestRate();
+        BigDecimal monthlyRate = annualRate.divide(BigDecimal.valueOf(100), 10, RoundingMode.HALF_UP)
+                .divide(BigDecimal.valueOf(12), 10, RoundingMode.HALF_UP);
         int months = loan.getTermMonths();
 
-        double monthlyPayment = (principal * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -months));
+        BigDecimal one = BigDecimal.ONE;
+        BigDecimal temp = one.add(monthlyRate).pow(months);
+        BigDecimal monthlyPayment = principal.multiply(monthlyRate)
+                .multiply(temp)
+                .divide(temp.subtract(one), 2, RoundingMode.HALF_UP);
 
         List<PaymentScheduleDTO> schedule = new ArrayList<>();
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(loan.getStartDate());
+        LocalDate paymentDate = loan.getStartDate(); // Используем LocalDate
 
         for (int i = 0; i < months; i++) {
             PaymentScheduleDTO dto = new PaymentScheduleDTO();
             dto.setPaymentNumber(i + 1);
-            dto.setAmount(round(monthlyPayment));
-            dto.setDueDate(new java.sql.Date(calendar.getTimeInMillis()));
+            dto.setAmount(monthlyPayment);
+            dto.setDueDate(paymentDate);
             schedule.add(dto);
 
-            calendar.add(Calendar.MONTH, 1);
+            paymentDate = paymentDate.plusMonths(1); // Просто добавляем месяц
         }
 
         return schedule;
     }
 
     public List<PaymentScheduleDTO> regenerateSchedule(Loan loan, List<Payment> payments) {
-        double totalLoanAmount = loan.getLoanAmount();
-        double annualInterestRate = loan.getInterestRate();
+        BigDecimal totalLoanAmount = loan.getLoanAmount();
+        BigDecimal annualInterestRate = loan.getLoanType().getInterestRate();
         int totalMonths = loan.getTermMonths();
 
-        double totalPaid = payments.stream().mapToDouble(Payment::getAmount).sum();
-        double remainingPrincipal = totalLoanAmount - totalPaid;
+        BigDecimal totalPaid = payments.stream()
+                .map(Payment::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        if (remainingPrincipal <= 0) {
-            return Collections.emptyList(); // Всё погашено
+        BigDecimal remainingPrincipal = totalLoanAmount.subtract(totalPaid);
+
+        if (remainingPrincipal.compareTo(BigDecimal.ZERO) <= 0) {
+            return Collections.emptyList();
         }
 
         int monthsPaid = payments.size();
         int remainingMonths = totalMonths - monthsPaid;
 
-        double monthlyRate = annualInterestRate / 100.0 / 12;
-        double monthlyPayment = (remainingPrincipal * monthlyRate) /
-                (1 - Math.pow(1 + monthlyRate, -remainingMonths));
+        BigDecimal monthlyRate = annualInterestRate
+                .divide(BigDecimal.valueOf(100), 10, RoundingMode.HALF_UP)
+                .divide(BigDecimal.valueOf(12), 10, RoundingMode.HALF_UP);
+
+        BigDecimal one = BigDecimal.ONE;
+        BigDecimal temp = one.add(monthlyRate).pow(remainingMonths);
+        BigDecimal monthlyPayment = remainingPrincipal
+                .multiply(monthlyRate)
+                .multiply(temp)
+                .divide(temp.subtract(one), 2, RoundingMode.HALF_UP);
+
+        // Находим максимальную дату из существующих платежей или используем дату начала кредита
+        LocalDate lastPaymentDate = payments.stream()
+                .map(Payment::getPaymentDate)
+                .max(LocalDate::compareTo)
+                .orElse(loan.getStartDate());
+
+        LocalDate nextPaymentDate = lastPaymentDate.plusMonths(1); // Следующий месяц после последнего платежа
 
         List<PaymentScheduleDTO> schedule = new ArrayList<>();
-
-        Date startDate = payments.stream()
-                .map(Payment::getPaymentDate)
-                .max(Date::compareTo)
-                .orElse(new java.sql.Date(System.currentTimeMillis()));
-
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(startDate);
-        calendar.add(Calendar.MONTH, 1); // следующий месяц
 
         for (int i = 0; i < remainingMonths; i++) {
             PaymentScheduleDTO dto = new PaymentScheduleDTO();
             dto.setPaymentNumber(monthsPaid + i + 1);
-            dto.setAmount(round(monthlyPayment));
-            dto.setDueDate(new java.sql.Date(calendar.getTimeInMillis()));
+            dto.setAmount(monthlyPayment);
+            dto.setDueDate(nextPaymentDate);
             schedule.add(dto);
 
-            calendar.add(Calendar.MONTH, 1);
+            nextPaymentDate = nextPaymentDate.plusMonths(1);
         }
 
         return schedule;
     }
-
 }
 

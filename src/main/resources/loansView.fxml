@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import javafx.geometry.Insets?>
+<?import java.util.Comparator?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/11.0.1"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="client.controllers.LoanTypesViewController"
+            prefHeight="500" prefWidth="800">
+
+    <!-- Панель фильтрации и поиска -->
+    <HBox layoutX="10" layoutY="10" spacing="10">
+        <Label text="Банк:"/>
+        <ComboBox fx:id="bankCombo" prefWidth="150"/>
+
+        <Label text="Тип кредита:"/>
+        <TextField fx:id="typeSearchField" prefWidth="150"/>
+
+        <Label text="Ставка от:"/>
+        <TextField fx:id="minRateField" prefWidth="60"/>
+
+        <Label text="до:"/>
+        <TextField fx:id="maxRateField" prefWidth="60"/>
+
+        <Button text="Применить фильтры" onAction="#handleApplyFilters"/>
+        <Button text="Сбросить" onAction="#handleResetFilters"/>
+    </HBox>
+
+    <!-- Таблица типов кредитов -->
+    <TableView fx:id="loanTypesTable" layoutX="10" layoutY="50" prefHeight="400" prefWidth="780">
+        <columns>
+            <TableColumn fx:id="typeIdColumn" text="ID" prefWidth="50"/>
+            <TableColumn fx:id="typeNameColumn" text="Тип кредита" prefWidth="200"/>
+            <TableColumn fx:id="bankNameColumn" text="Банк" prefWidth="150"/>
+            <TableColumn fx:id="rateColumn" text="Ставка %" prefWidth="100"/>
+            <TableColumn fx:id="actionsColumn" text="Действие" prefWidth="100"/>
+        </columns>
+    </TableView>
+
+    <!-- Панель кнопок -->
+    <HBox layoutX="10" layoutY="460" spacing="10">
+        <Button text="Оформить выбранный" onAction="#handleTakeLoan"/>
+        <Button text="Назад" onAction="#handleBack"/>
+    </HBox>
+</AnchorPane>

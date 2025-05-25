@@ -1,5 +1,6 @@
 package server.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.hibernate.Hibernate;
 import server.DAO.UserDAO;
 import server.DAO.RoleDAO;
@@ -8,194 +9,111 @@ import server.DTO.UserDTO;
 import server.Entities.Bank;
 import server.Entities.Role;
 import server.Entities.User;
-import exeption.AuthExeption;
 import server.Security.PasswordHasher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import exeption.AuthExeption;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class UserService implements Service<UserDTO, Long> {
-    private final UserDAO userDAO = new UserDAO();
-    private final PasswordHasher passwordHasher = new PasswordHasher();
+    private final UserDAO userDAO;
+    private final RoleDAO roleDAO;
+    private final BankDAO bankDAO;
+    private final PasswordHasher passwordHasher;
     private static final Logger LOG = LoggerFactory.getLogger(UserService.class);
+
+    public UserService() {
+        this.userDAO = new UserDAO();
+        this.roleDAO = new RoleDAO();
+        this.bankDAO = new BankDAO();
+        this.passwordHasher = new PasswordHasher();
+    }
 
     @Override
     public UserDTO save(UserDTO userDTO) {
-        LOG.debug("Сохранение пользователя: {}", userDTO.getUsername());
-        User user = new User();
-        user.setUsername(userDTO.getUsername());
-        user.setPasswordHash(userDTO.getPassword());
-        user.setFullName(userDTO.getFullName());
-        user.setBirthDate(userDTO.getBirthDate());
-        user.setPhone(userDTO.getPhone());
-        user.setEmail(userDTO.getEmail());
-        user.setAddress(userDTO.getAddress());
-
+        validateUserDTO(userDTO);
+        User user = convertToEntity(userDTO);
         user = userDAO.save(user);
-        LOG.info("Пользователь сохранён с ID: {}", user.getUserId());
-
-        userDTO.setUserId(user.getUserId());
-        return userDTO;
+        return convertToDTO(user);
     }
 
     @Override
     public Optional<UserDTO> findById(Long id) {
-        LOG.debug("Поиск пользователя по ID: {}", id);
-        Optional<User> user = userDAO.findById(id);
-        if (user.isPresent()) {
-            UserDTO dto = new UserDTO();
-            dto.setUserId(user.get().getUserId());
-            dto.setUsername(user.get().getUsername());
-            dto.setFullName(user.get().getFullName());
-            dto.setEmail(user.get().getEmail());
-            dto.setBankIds(user.get().getBanks().stream().map(Bank::getBankId).collect(Collectors.toSet()));
-            LOG.info("Пользователь найден: {}", dto.getUsername());
-            return Optional.of(dto);
-        }
-        LOG.warn("Пользователь с ID {} не найден", id);
-        return Optional.empty();
+        return userDAO.findById(id).map(this::convertToDTO);
     }
 
     @Override
     public List<UserDTO> findAll() {
-        LOG.debug("Получение списка всех пользователей");
-        List<User> users = userDAO.findAll();
-        LOG.info("Найдено пользователей: {}", users.size());
-        return users.stream().map(user -> {
-            UserDTO dto = new UserDTO();
-            dto.setUserId(user.getUserId());
-            dto.setUsername(user.getUsername());
-            dto.setFullName(user.getFullName());
-            dto.setPassword(user.getPasswordHash());
-            dto.setBirthDate(user.getBirthDate());
-            dto.setPhone(user.getPhone());
-            dto.setAddress(user.getAddress());
-            dto.setRoleId(user.getRole().getRoleId());
-            dto.setEmail(user.getEmail());
-            dto.setBankIds(user.getBanks().stream().map(Bank::getBankId).collect(Collectors.toSet()));
-            return dto;
-        }).collect(Collectors.toList());
+        return userDAO.findAll().stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
     public UserDTO update(UserDTO userDTO) {
-        LOG.debug("Обновление пользователя с ID: {}", userDTO.getUserId());
+        User existingUser = userDAO.findById(userDTO.getUserId())
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
-        User user = userDAO.findById(userDTO.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        if (userDTO.getUsername() != null) user.setUsername(userDTO.getUsername());
-        if (userDTO.getPassword() != null) user.setPasswordHash(userDTO.getPassword());
-        if (userDTO.getFullName() != null) user.setFullName(userDTO.getFullName());
-        if (userDTO.getBirthDate() != null) user.setBirthDate(userDTO.getBirthDate());
-        if (userDTO.getPhone() != null) user.setPhone(userDTO.getPhone());
-        if (userDTO.getEmail() != null) user.setEmail(userDTO.getEmail());
-        if (userDTO.getAddress() != null) user.setAddress(userDTO.getAddress());
-
-        userDAO.update(user);
-        LOG.info("Пользователь обновлён: {}", userDTO.getUserId());
-
-        return mapToDTO(user);
+        updateUserFromDTO(existingUser, userDTO);
+        userDAO.update(existingUser);
+        return convertToDTO(existingUser);
     }
 
     @Override
     public void delete(UserDTO userDTO) {
-        LOG.debug("Удаление пользователя с ID: {}", userDTO.getUserId());
         User user = userDAO.findById(userDTO.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
         userDAO.delete(user);
-        LOG.info("Пользователь с ID {} удалён", userDTO.getUserId());
     }
 
     public User register(UserDTO userDTO) throws AuthExeption {
-        LOG.debug("Регистрация пользователя: {}", userDTO.getUsername());
-        if (userDTO.getUsername() == null || userDTO.getPassword() == null || userDTO.getFullName() == null || userDTO.getRoleId() == null) {
-            LOG.warn("Не все обязательные поля заполнены для пользователя: {}", userDTO);
-            throw new AuthExeption("Не все обязательные поля заполнены");
-        }
-        LOG.info("=== REGISTRATION DEBUG ===");
-        LOG.info("Raw password: [{}]", userDTO.getPassword());
+        validateRegistration(userDTO);
 
+        User user = convertToEntity(userDTO);
+        setUserRole(user, userDTO.getRoleId());
 
-        User user = new User();
-        user.setUsername(userDTO.getUsername());
-        PasswordHasher passwordHasher = new PasswordHasher();
-        String hashedPassword = passwordHasher.hash(userDTO.getPassword());
-        LOG.info("Generated hash: [{}]", hashedPassword);
-        user.setPasswordHash(hashedPassword);
-        user.setFullName(userDTO.getFullName());
-        user.setBirthDate(userDTO.getBirthDate());
-        user.setPhone(userDTO.getPhone());
-        user.setEmail(userDTO.getEmail());
-        user.setAddress(userDTO.getAddress());
-
-        RoleDAO roleDAO = new RoleDAO();
-        BankDAO bankDAO = new BankDAO();
-
-        Role role = roleDAO.findById(userDTO.getRoleId())
-                .orElseThrow(() -> new AuthExeption("Роль с id " + userDTO.getRoleId() + " не найдена"));
-        user.setRole(role);
-
-        Set<Bank> banks = new HashSet<>();
-        if (userDTO.getBankIds() != null) {
-            for (Long bankId : userDTO.getBankIds()) {
-                Bank bank = bankDAO.findById(bankId)
-                        .orElseThrow(() -> new AuthExeption("Банк с id " + bankId + " не найден"));
-                banks.add(bank);
-            }
-        }
-        user.setBanks(banks);
-
-        User savedUser = userDAO.save(user);
-        LOG.info("Пользователь успешно зарегистрирован с ID: {}", savedUser.getUserId());
-        return savedUser;
+        return userDAO.save(user);
     }
 
     public UserDTO login(String username, String password) throws AuthExeption {
-        LOG.debug("Attempting login for: {}", username);
-
         User user = userDAO.findByUsername(username)
-                .orElseThrow(() -> new AuthExeption("User not found"));
+                .orElseThrow(() -> new AuthExeption("Invalid credentials"));
 
-        LOG.debug("Input password: [{}]", password);
-        LOG.debug("Stored hash: [{}]", user.getPasswordHash());
-        LOG.debug("Hash length: {}", user.getPasswordHash().length());
-        debugPasswordCheck(username, password);
-        try {
-            boolean matches = passwordHasher.verify(password, user.getPasswordHash());
-            LOG.debug("Password verification result: {}", matches);
+        if (!passwordHasher.verify(password, user.getPasswordHash())) {
+            throw new AuthExeption("Invalid credentials");
+        }
 
-            if (!matches) {
-                String testHash = passwordHasher.hash(password);
-                LOG.debug("Newly generated hash: [{}]", testHash);
-                LOG.debug("New hash length: {}", testHash.length());
+        return convertToDTO(user);
+    }
 
-                throw new AuthExeption("Invalid password");
+    public void initializeFirstAdmin() {
+        if (userDAO.count() == 0) {
+            UserDTO adminDTO = createAdminDTO();
+            try {
+                User admin = register(adminDTO);
+                LOG.info("Created first admin with ID: {}", admin.getUserId());
+            } catch (AuthExeption e) {
+                LOG.error("Failed to create first admin", e);
             }
-
-            return mapToDTO(user);
-        } catch (Exception e) {
-            LOG.error("Password verification failed", e);
-            throw new AuthExeption("Authentication error");
         }
     }
-    public void debugPasswordCheck(String username, String password) {
-        User user = userDAO.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
 
-        LOG.info("=== PASSWORD DEBUG ===");
-        LOG.info("Input password: [{}]", password);
-        LOG.info("Stored hash: [{}]", user.getPasswordHash());
-
-        String newHash = passwordHasher.hash(password);
-        LOG.info("Newly generated hash: [{}]", newHash);
-
-        LOG.info("Verification result: {}", passwordHasher.verify(password, user.getPasswordHash()));
-        LOG.info("Compare hashes directly: {}", user.getPasswordHash().equals(newHash));
+    // Вспомогательные методы
+    private User convertToEntity(UserDTO dto) {
+        User user = new User();
+        user.setUsername(dto.getUsername());
+        user.setPasswordHash(passwordHasher.hash(dto.getPassword()));
+        user.setFullName(dto.getFullName());
+        user.setBirthDate(dto.getBirthDate());
+        user.setPhone(dto.getPhone());
+        user.setEmail(dto.getEmail());
+        user.setAddress(dto.getAddress());
+        return user;
     }
-    private UserDTO mapToDTO(User user) {
+
+    private UserDTO convertToDTO(User user) {
         UserDTO dto = new UserDTO();
         dto.setUserId(user.getUserId());
         dto.setUsername(user.getUsername());
@@ -204,37 +122,69 @@ public class UserService implements Service<UserDTO, Long> {
         dto.setPhone(user.getPhone());
         dto.setAddress(user.getAddress());
         dto.setBirthDate(user.getBirthDate());
-        dto.setRoleId(user.getRole() != null ? user.getRole().getRoleId() : null);
-
-        if (user.getBanks() != null) {
-            Set<Long> bankIds = user.getBanks()
-                    .stream()
-                    .map(Bank::getBankId)
-                    .collect(Collectors.toSet());
-            dto.setBankIds(bankIds);
-        }
+        dto.setRoleId(user.getRole().getRoleId());
 
         return dto;
     }
 
-    public void addBankToUser(Long userId, Long bankId) {
-        User user = userDAO.findById(userId)
-                .orElseThrow(() -> new NoSuchElementException("User not found"));
+    private void updateUserFromDTO(User user, UserDTO dto) {
+        if (dto.getUsername() != null) user.setUsername(dto.getUsername());
+        if (dto.getPassword() != null) user.setPasswordHash(passwordHasher.hash(dto.getPassword()));
+        if (dto.getFullName() != null) user.setFullName(dto.getFullName());
+        if (dto.getBirthDate() != null) user.setBirthDate(dto.getBirthDate());
+        if (dto.getPhone() != null) user.setPhone(dto.getPhone());
+        if (dto.getEmail() != null) user.setEmail(dto.getEmail());
+        if (dto.getAddress() != null) user.setAddress(dto.getAddress());
+    }
 
-        BankDAO bankDAO = new BankDAO();
-        Bank bank = bankDAO.findById(bankId)
-                .orElseThrow(() -> new NoSuchElementException("Bank not found"));
-
-        Set<Bank> userBanks = user.getBanks();
-        if (userBanks == null) {
-            userBanks = new HashSet<>();
-            user.setBanks(userBanks);
+    private void validateUserDTO(UserDTO dto) {
+        if (dto.getUsername() == null || dto.getUsername().isEmpty()) {
+            throw new IllegalArgumentException("Username is required");
         }
-
-        if (!userBanks.contains(bank)) {
-            userBanks.add(bank);
+        if (dto.getPassword() == null || dto.getPassword().isEmpty()) {
+            throw new IllegalArgumentException("Password is required");
         }
-        userDAO.update(user);
+    }
+
+    private void validateRegistration(UserDTO dto) throws AuthExeption {
+        if (dto.getRoleId() == 1 && userDAO.count() > 0) {
+            throw new AuthExeption("Admin registration is not allowed");
+        }
+        if (userDAO.findByUsername(dto.getUsername()).isPresent()) {
+            throw new AuthExeption("Username already exists");
+        }
+    }
+
+    private void setUserRole(User user, Long roleId) throws AuthExeption {
+        Role role = roleDAO.findById(roleId)
+                .orElseThrow(() -> {
+                    LOG.error("Role not found with id: {}", roleId);
+                    return new AuthExeption(String.format("Role not found with id: %d", roleId));
+                });
+        user.setRole(role);
+    }
+
+    private User getUserById(Long userId) {
+        return userDAO.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+    }
+
+    private Bank getBankById(Long bankId) {
+        return bankDAO.findById(bankId)
+                .orElseThrow(() -> new EntityNotFoundException("Bank not found"));
+    }
+
+    private UserDTO createAdminDTO() {
+        UserDTO adminDTO = new UserDTO();
+        adminDTO.setUsername("admin");
+        adminDTO.setPassword("admin");
+        adminDTO.setFullName("System Administrator");
+        adminDTO.setEmail("admin@bank.com");
+        adminDTO.setPhone("+375000000000");
+        adminDTO.setAddress("Headquarters");
+        adminDTO.setBirthDate(LocalDate.now().minusYears(30)); // Устанавливаем LocalDate напрямую
+        adminDTO.setRoleId(1L);
+        return adminDTO;
     }
 }
 

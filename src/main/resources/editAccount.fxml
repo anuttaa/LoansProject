@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.controllers.EditAccountController">
+    <children>
+        <ImageView fitHeight="406.0" fitWidth="600.0" pickOnBounds="true" preserveRatio="true">
+            <image>
+                <Image url="@img/регистрация.png" />
+            </image>
+        </ImageView>
+
+        <!-- Левая колонка -->
+        <TextField fx:id="usernameField" layoutX="34.0" layoutY="115.0" prefHeight="27.0" prefWidth="184.0" promptText="Логин" style="-fx-background-color: #EFEFEF; -fx-background-radius: 10; -fx-border-color: #C0C0C0; -fx-border-radius: 10;">
+            <font>
+                <Font size="13.0" />
+            </font>
+        </TextField>
+
+        <HBox layoutX="34.0" layoutY="158.0" spacing="5">
+            <PasswordField fx:id="passwordField" prefHeight="27.0" prefWidth="160.0"
+                           promptText="Пароль" style="-fx-background-color: #EFEFEF; -fx-background-radius: 10; -fx-border-color: #C0C0C0; -fx-border-radius: 10;"/>
+            <Button fx:id="showPasswordBtn" style="-fx-background-color: transparent; -fx-border-width: 0;">
+                <graphic>
+                    <ImageView fitHeight="20" fitWidth="20">
+                        <Image url="@img/icon-eye.png"/>
+                    </ImageView>
+                </graphic>
+            </Button>
+        </HBox>
+
+        <TextField fx:id="nameField" layoutX="34.0" layoutY="200.0" prefHeight="27.0" prefWidth="184.0" promptText="ФИО" style="-fx-background-color: #EFEFEF; -fx-background-radius: 10; -fx-border-color: #C0C0C0; -fx-border-radius: 10;">
+            <font>
+                <Font size="13.0" />
+            </font>
+        </TextField>
+
+        <!-- Правая колонка -->
+        <TextField fx:id="dateField" layoutX="383.0" layoutY="115.0" prefHeight="27.0" prefWidth="184.0" promptText="Дата рождения" style="-fx-background-color: #EFEFEF; -fx-background-radius: 10; -fx-border-color: #C0C0C0; -fx-border-radius: 10;">
+            <font>
+                <Font size="13.0" />
+            </font>
+        </TextField>
+
+        <TextField fx:id="phoneField" layoutX="383.0" layoutY="158.0" prefHeight="27.0" prefWidth="184.0" promptText="Номер телефона" style="-fx-background-color: #EFEFEF; -fx-background-radius: 10; -fx-border-color: #C0C0C0; -fx-border-radius: 10;">
+            <font>
+                <Font size="13.0" />
+            </font>
+        </TextField>
+
+        <TextField fx:id="emailField" layoutX="383.0" layoutY="200.0" prefHeight="27.0" prefWidth="184.0" promptText="Email" style="-fx-background-color: #EFEFEF; -fx-background-radius: 10; -fx-border-color: #C0C0C0; -fx-border-radius: 10;">
+            <font>
+                <Font size="13.0" />
+            </font>
+        </TextField>
+
+        <!-- Центральное поле -->
+        <TextField fx:id="addressField" layoutX="209.0" layoutY="258.0" prefHeight="27.0" prefWidth="184.0" promptText="Адрес" style="-fx-background-color: #EFEFEF; -fx-background-radius: 10; -fx-border-color: #C0C0C0; -fx-border-radius: 10;">
+            <font>
+                <Font size="13.0" />
+            </font>
+        </TextField>
+
+        <!-- Кнопки -->
+        <Button fx:id="saveButton" layoutX="218.0" layoutY="328.0" mnemonicParsing="false" onAction="#handleSave" prefHeight="35.0" prefWidth="165.0" style="-fx-background-color: #568EA3; -fx-background-radius: 10;" text="Сохранить изменения" textFill="#ffe8d1">
+            <font>
+                <Font size="13.0" />
+            </font>
+        </Button>
+
+        <Button fx:id="backButton" layoutX="500.0" layoutY="10.0" mnemonicParsing="false" onAction="#handleBack" prefHeight="30.0" prefWidth="70.0" style="-fx-background-color: #568EA3; -fx-background-radius: 10;" text="Назад" textFill="#ffe8d1">
+            <font>
+                <Font size="13.0" />
+            </font>
+        </Button>
+
+        <!-- Статусная строка -->
+        <Label fx:id="statusLabel" layoutX="50.0" layoutY="300.0" textFill="#ffe8d1" prefWidth="500.0" wrapText="true" style="-fx-text-alignment: center;">
+            <font>
+                <Font size="12.0" />
+            </font>
+        </Label>
+    </children>
+</AnchorPane>

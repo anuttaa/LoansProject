@@ -1,8 +1,7 @@
 package client.controllers;
 
-import javafx.fxml.FXML;
 import client.MainApp;
-
+import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -10,8 +9,9 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.stage.Stage;
 
-public class AccountController {
-    @FXML public Button backButton;
+public class AdminAccountController {
+    @FXML
+    public Button backButton;
     @FXML public Button deleteByID;
     @FXML private Button banks;
     @FXML private Button loans;
@@ -42,7 +42,7 @@ public class AccountController {
     private void handleBanks() {
         mainApp.showBanksView();
     }
-    
+
     @FXML
     private void handleDeleteByID() {
         mainApp.showDeleteByID();
@@ -50,7 +50,7 @@ public class AccountController {
 
     @FXML
     private void handleLoans() {
-        openWindow("/loans.fxml", "Мои кредиты");
+        mainApp.showLoanTypesView();
     }
 
     @FXML

@@ -6,7 +6,6 @@ import org.glassfish.jersey.server.ServerProperties;
 
 public class JerseyConfig extends ResourceConfig {
     public JerseyConfig() {
-        // Отключаем автоматическое сканирование Jackson
         property(ServerProperties.FEATURE_AUTO_DISCOVERY_DISABLE, true);
 
         packages("server/controller");

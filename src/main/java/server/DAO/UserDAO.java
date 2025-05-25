@@ -24,5 +24,12 @@ public class UserDAO extends AbstractDAO<User, Long> {
                     .uniqueResultOptional();
         }
     }
+
+    public long count() {
+        try (Session session = getCurrentSession()) {
+            return session.createQuery("SELECT COUNT(*) FROM User", Long.class)
+                    .uniqueResult();
+        }
+    }
 }
 

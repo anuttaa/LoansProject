@@ -4,8 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 @Getter
 @Setter
@@ -29,11 +28,8 @@ public class Bank {
     @Column(name = "email")
     private String email;
 
-    @ManyToMany(mappedBy = "banks")
-    private Set<User> users;
-
     @OneToMany(mappedBy = "bank")
-    private Set<Loan> loans;
+    private List<LoanType> loanTypes;
 
     @Override
     public boolean equals(Object o) {
@@ -48,15 +44,4 @@ public class Bank {
         return Objects.hash(bankId);
     }
 
-    @Override
-    public String toString() {
-        return "Bank{" +
-                "bankId=" + bankId +
-                ", bankName='" + bankName + '\'' +
-                ", address='" + address + '\'' +
-                ", phone='" + phone + '\'' +
-                ", email='" + email + '\'' +
-                ", loans=" + loans +
-                '}';
-    }
 }
