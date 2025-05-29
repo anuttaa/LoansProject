@@ -1,0 +1,103 @@
+/* Основные стили (аналогично предыдущим окнам) */
+.root {
+    -fx-font-family: 'Arial';
+    -fx-base: #568EA3;
+    -fx-background-color: #f5f5f5;
+}
+
+.main-container {
+    -fx-background-color: transparent;
+    -fx-spacing: 15;
+}
+
+/* Шапка */
+.header-box {
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 0 0 10 0;
+}
+
+.header-label {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2c3e50;
+}
+
+/* Таблица (единый стиль с другими окнами) */
+.data-table {
+    -fx-background-color: white;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 0;
+}
+
+.table-column {
+    -fx-alignment: CENTER_LEFT;
+    -fx-font-size: 14px;
+    -fx-padding: 10 15;
+}
+
+.table-row-cell:odd {
+    -fx-background-color: #f9f9f9;
+}
+
+.table-row-cell:selected {
+    -fx-background-color: #568EA3;
+    -fx-text-fill: white;
+}
+
+/* Детали кредита */
+.details-grid {
+    -fx-background-color: white;
+    -fx-padding: 15;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 0;
+}
+
+.details-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2c3e50;
+    -fx-padding: 0 0 10 0;
+}
+
+.detail-label {
+    -fx-font-size: 14px;
+    -fx-text-fill: #7f8c8d;
+}
+
+.detail-value {
+    -fx-font-size: 14px;
+    -fx-text-fill: #2c3e50;
+    -fx-font-weight: bold;
+}
+
+/* Кнопки (единый стиль) */
+.primary-button {
+    -fx-background-color: #568EA3;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-pref-width: 180;
+    -fx-pref-height: 35;
+    -fx-background-radius: 3;
+    -fx-font-size: 14px;
+}
+
+.secondary-button {
+    -fx-background-color: #EFEFEF;
+    -fx-text-fill: #2c3e50;
+    -fx-pref-width: 180;
+    -fx-pref-height: 35;
+    -fx-background-radius: 3;
+    -fx-font-size: 14px;
+    -fx-border-color: #C0C0C0;
+    -fx-border-radius: 3;
+}
+
+.primary-button:hover {
+    -fx-background-color: #457b8b;
+}
+
+.secondary-button:hover {
+    -fx-background-color: #e0e0e0;
+}

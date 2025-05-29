@@ -1,0 +1,105 @@
+/* Основные стили */
+.root {
+    -fx-font-family: 'Arial';
+    -fx-base: #568EA3;
+}
+
+/* Контейнер формы */
+.form-container {
+    -fx-background-color: white;
+    -fx-padding: 20;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 0);
+}
+
+/* Заголовок формы */
+.form-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2c3e50;
+    -fx-padding: 0 0 10 0;
+}
+
+/* Метки формы */
+.form-label {
+    -fx-font-size: 14px;
+    -fx-text-fill: #2c3e50;
+}
+
+/* Поля ввода */
+.form-field {
+    -fx-font-size: 14px;
+    -fx-pref-height: 35;
+    -fx-background-radius: 3;
+    -fx-border-radius: 3;
+    -fx-border-color: #C0C0C0;
+    -fx-padding: 5;
+}
+
+.form-field:focused {
+    -fx-border-color: #568EA3;
+}
+
+/* Кнопки */
+.primary-button {
+    -fx-background-color: #568EA3;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-pref-width: 150;
+    -fx-pref-height: 35;
+    -fx-background-radius: 3;
+    -fx-cursor: hand;
+}
+
+.secondary-button {
+    -fx-background-color: #EFEFEF;
+    -fx-text-fill: #2c3e50;
+    -fx-pref-width: 100;
+    -fx-pref-height: 35;
+    -fx-background-radius: 3;
+    -fx-border-color: #C0C0C0;
+    -fx-border-radius: 3;
+    -fx-cursor: hand;
+}
+
+/* Эффекты при наведении */
+.primary-button:hover {
+    -fx-background-color: #457b8b;
+}
+
+.secondary-button:hover {
+    -fx-background-color: #e0e0e0;
+}
+
+/* Таблица */
+.data-table {
+    -fx-background-color: white;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 0);
+    -fx-min-width: 800px; /* Минимальная ширина, чтобы таблица не "схлопывалась" */
+}
+
+/* Колонки таблицы */
+.table-column {
+    -fx-alignment: CENTER_LEFT;
+    -fx-font-size: 14px;
+}
+
+/* Сообщение об ошибке */
+.error-label {
+    -fx-text-fill: #E15554;
+    -fx-font-size: 13px;
+    -fx-wrap-text: true;
+}
+
+/* Строки таблицы */
+.table-row-cell:odd {
+    -fx-background-color: #f9f9f9;
+}
+
+.table-row-cell:selected {
+    -fx-background-color: #568EA3;
+    -fx-text-fill: white;
+}

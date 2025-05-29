@@ -26,12 +26,16 @@ public class ViewFactory {
             case MAIN: return new MainViewCreator();
             case EDIT_ACCOUNT: return new EditAccountViewCreator();
             case LOAN_TYPES: return new LoanTypesViewCreator();
+            case LOANS: return new LoansViewCreator();
             case BANKS: return new BankCreator();
+            case PAYMENTS: return new PaymentsCreator();
+            case ALL_LOANS: return new AllLoansCreator();
+            case EDIT_BANK: return new EditBankCreator();
             default: throw new IllegalArgumentException("Unknown view type: " + viewType);
         }
     }
 
     public enum ViewType {
-        REGISTER, CLIENT_ACCOUNT, ADMIN_ACCOUNT, BANKS, DELETE_BY_ID, MAIN, EDIT_ACCOUNT, LOANS, LOAN_TYPES
+        REGISTER, CLIENT_ACCOUNT, ADMIN_ACCOUNT, BANKS, DELETE_BY_ID, MAIN, EDIT_ACCOUNT, LOANS, LOAN_TYPES, PAYMENTS, ALL_LOANS, EDIT_BANK
     }
 }

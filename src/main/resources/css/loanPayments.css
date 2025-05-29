@@ -1,0 +1,64 @@
+/* Основные стили */
+.main-container {
+    -fx-padding: 20;
+}
+
+.title-label {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2c3e50;
+}
+
+.info-grid {
+    -fx-padding: 15;
+    -fx-background-color: #f8f9fa;
+    -fx-border-color: #dee2e6;
+    -fx-border-width: 1;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+}
+
+.info-label {
+    -fx-font-weight: bold;
+    -fx-text-fill: #495057;
+}
+
+.info-value {
+    -fx-text-fill: #212529;
+}
+
+/* Стили таблиц */
+.data-table {
+    -fx-padding: 10;
+}
+
+.table-column {
+    -fx-alignment: CENTER;
+}
+
+.custom-tab-pane {
+    -fx-tab-min-width: 150px;
+}
+
+.custom-tab {
+    -fx-background-color: #e9ecef;
+}
+
+.custom-tab:selected {
+    -fx-background-color: #ffffff;
+}
+
+/* Кнопки */
+.primary-button {
+    -fx-background-color: #007bff;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 8 16;
+}
+
+.secondary-button {
+    -fx-background-color: #6c757d;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 8 16;
+}

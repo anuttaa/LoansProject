@@ -26,9 +26,9 @@ public abstract class AbstractDAO<T, ID> implements DAO<T, ID> {
         Transaction tx = null;
         try (Session session = getCurrentSession()) {
             tx = session.beginTransaction();
-            session.persist(entity);
+            T merged = (T) session.merge(entity); // <-- вот это важно
             tx.commit();
-            return entity;
+            return merged;
         } catch (Exception e) {
             if (tx != null && tx.getStatus().canRollback()) {
                 try {
@@ -40,6 +40,7 @@ public abstract class AbstractDAO<T, ID> implements DAO<T, ID> {
             throw new RuntimeException("Failed to save " + entityClass.getSimpleName(), e);
         }
     }
+
 
     @Override
     public Optional<T> findById(ID id) {

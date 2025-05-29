@@ -54,6 +54,14 @@ public class AdminAccountController {
     }
 
     @FXML
+    private void handleMyLoans() {
+        mainApp.showLoansView();
+    }
+
+    @FXML
+    private void handleAllClientsLoans() { mainApp.showAllClientsLoansView(); }
+
+    @FXML
     private void handlePayments() {
         openWindow("/payments.fxml", "График платежей");
     }

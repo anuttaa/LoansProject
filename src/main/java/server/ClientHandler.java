@@ -1,15 +1,20 @@
 package server;
 
 import com.google.gson.*;
+import config.HibernateProxyTypeAdapter;
 import config.LocalDateAdapter;
+import enums.PaymentType;
 import exeption.AuthExeption;
+import exeption.PaymentValidationException;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
+import org.hibernate.Hibernate;
+import org.hibernate.proxy.HibernateProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import server.DTO.*;
 import server.Entities.*;
 import server.service.*;
-
 
 import java.io.*;
 import java.math.BigDecimal;
@@ -17,11 +22,11 @@ import java.net.*;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.function.BiFunction;
-import java.util.stream.Collectors;
 
 public class ClientHandler implements Runnable {
     Gson gson = new GsonBuilder()
             .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
+            .registerTypeAdapter(HibernateProxy.class, new HibernateProxyTypeAdapter())
             .create();
     private static final Map<String, BiFunction<JsonObject, String, String>> handlers = new HashMap<>();
 
@@ -53,8 +58,6 @@ public class ClientHandler implements Runnable {
         handlers.put("findUserById", this::handleFindUserById);
         handlers.put("updateUser", this::handleUpdateUser);
         handlers.put("deleteUser", this::handleDeleteUser);
-        handlers.put("generateSchedule", this::handleGenerateInitialSchedule);
-        handlers.put("regenerateSchedule", this::handleRegenerateSchedule);
         handlers.put("calculateEffectiveInterestRate", this::handleCalculateEffectiveInterestRate);
         handlers.put("createLoanType", this::handleCreateLoanType);
         handlers.put("addClientToLoan", this::handleAddClientToLoan);
@@ -66,6 +69,16 @@ public class ClientHandler implements Runnable {
         handlers.put("takeLoan", this::handleTakeLoan);
         handlers.put("getLoanTypes", this::handleGetLoanTypes);
         handlers.put("getFilteredLoanTypes", this::handleGetFilteredLoanTypes);
+        handlers.put("processPayment", this::handleCreatePayment);
+        handlers.put("getRemainingDebt", this::handleGetRemainingDebt);
+        handlers.put("getNextPayment", this::handleGetNextPayment);
+        handlers.put("getLoanDetails", this::handleGetLoanDetails);
+        handlers.put("getPaymentSchedule", this::handleGetPaymentSchedule);
+        handlers.put("getPaymentHistory", this::handleGetPaymentHistory);
+        handlers.put("deleteLoan", this::handleDeleteLoan);
+        handlers.put("getAllLoans", this::handleGetAllLoans);
+        handlers.put("updateBank", this::handleUpdateBank);
+        handlers.put("deleteBank", this::handleDeleteBank);
     }
 
     @Override
@@ -271,6 +284,46 @@ public class ClientHandler implements Runnable {
         }
     }
 
+    private String handleUpdateBank(JsonObject data, String unused) {
+        try {
+            // 1. Проверка наличия данных
+            if (!data.has("data")) {
+                return errorResponse("Данные Bank не найдены");
+            }
+
+            // 2. Парсинг входных данных
+            JsonObject bankData = data.getAsJsonObject("data");
+            BankDTO bankDTO = gson.fromJson(bankData, BankDTO.class);
+
+            // 3. Валидация обязательных полей
+            if (bankDTO.getBankId() == null) {
+                return errorResponse("ID банка обязателен");
+            }
+            if (bankDTO.getBankName() == null || bankDTO.getBankName().isEmpty()) {
+                return errorResponse("Название банка обязательно");
+            }
+            if (bankDTO.getEmail() == null || bankDTO.getEmail().isEmpty()) {
+                return errorResponse("Email обязателен");
+            }
+
+            // 4. Обновление банка через сервис
+            BankDTO updatedBank = bankService.updateBank(bankDTO.getBankId(), bankDTO);
+
+            // 5. Формирование успешного ответа
+            JsonObject response = new JsonObject();
+            response.addProperty("status", "success");
+            response.add("bank", gson.toJsonTree(updatedBank));
+            return gson.toJson(response);
+
+        } catch (NoSuchElementException e) {
+            LOG.error("Bank not found: " + e.getMessage());
+            return errorResponse("Банк не найден");
+        } catch (Exception e) {
+            LOG.error("Error updating bank: " + e.getMessage());
+            return errorResponse("Ошибка при обновлении банка: " + e.getMessage());
+        }
+    }
+
     private String handleDeleteUser(JsonObject data, String unused) {
         try {
             if (!data.has("data") || !data.getAsJsonObject("data").has("userId")) {
@@ -292,24 +345,123 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    private String handleGenerateInitialSchedule(JsonObject data, String unused) {
+    private String handleGetPaymentSchedule(JsonObject data, String unused) {
         try {
-            Loan loan = gson.fromJson(data.get("loan"), Loan.class);
-            List<PaymentScheduleDTO> schedule = paymentService.generateInitialSchedule(loan);
-            return gson.toJson(schedule);
+            Long loanId = data.get("loanId").getAsLong();
+
+            // Получаем график платежей из сервиса
+            List<PaymentScheduleDTO> schedule = paymentService.generateSchedule(loanId);
+
+            // Формируем ответ
+            JsonObject response = new JsonObject();
+            response.addProperty("status", "success");
+            response.add("schedule", gson.toJsonTree(schedule));
+
+            // Логирование
+            LOG.info("Successfully generated payment schedule for loan ID: {}", loanId);
+            return gson.toJson(response);
+
+        } catch (EntityNotFoundException e) {
+            LOG.warn("Loan not found for schedule generation: {}", e.getMessage());
+            return errorResponse("Кредит не найден: " + e.getMessage());
+
+        } catch (IllegalStateException e) {
+            LOG.error("Invalid loan state for schedule generation", e);
+            return errorResponse("Невозможно сгенерировать график: " + e.getMessage());
+
         } catch (Exception e) {
-            return errorResponse("Генерация расписания не удалась: " + e.getMessage());
+            LOG.error("Error generating payment schedule", e);
+            return errorResponse("Ошибка генерации графика: " + e.getMessage());
         }
     }
 
-    private String handleRegenerateSchedule(JsonObject data, String unused) {
+    private String handleGetPaymentHistory(JsonObject data, String unused) {
         try {
-            Loan loan = gson.fromJson(data.get("loan"), Loan.class);
-            List<Payment> payments = Arrays.asList(gson.fromJson(data.get("payments"), Payment[].class));
-            List<PaymentScheduleDTO> schedule = paymentService.regenerateSchedule(loan, payments);
-            return gson.toJson(schedule);
+            Long loanId = data.get("loanId").getAsLong();
+
+            // Получаем историю платежей из сервиса
+            List<PaymentDTO> payments = paymentService.getPaymentHistory(loanId);
+
+            // Формируем ответ
+            JsonObject response = new JsonObject();
+            response.addProperty("status", "success");
+            response.add("payments", gson.toJsonTree(payments));
+
+            // Логирование успешного выполнения
+            LOG.info("Successfully retrieved payment history for loan ID: {}", loanId);
+            return gson.toJson(response);
+
+        } catch (EntityNotFoundException e) {
+            LOG.warn("Payment history not found for loan: {}", e.getMessage());
+            return errorResponse("История платежей не найдена: " + e.getMessage());
+
+        } catch (JsonSyntaxException e) {
+            LOG.error("JSON parsing error in payment history", e);
+            return errorResponse("Ошибка формата данных");
+
         } catch (Exception e) {
-            return errorResponse("Генерация расписания не удалась: " + e.getMessage());
+            LOG.error("Error retrieving payment history", e);
+            return errorResponse("Ошибка при получении истории платежей: " + e.getMessage());
+        }
+    }
+
+    private String handleDeleteLoan(JsonObject data, String unused) {
+        try {
+            Long loanId = data.get("loanId").getAsLong();
+            Long currentUserId = data.get("userId").getAsLong();
+
+            String errorMessage = loanService.deleteLoan(loanId, currentUserId);
+
+            JsonObject response = new JsonObject();
+
+            if (errorMessage == null) {
+                response.addProperty("status", "success");
+                response.addProperty("message", "Кредит успешно удален");
+            } else {
+                response.addProperty("status", "error");
+                response.addProperty("message", errorMessage);
+            }
+
+            return gson.toJson(response);
+
+        } catch (JsonSyntaxException e) {
+            LOG.error("Ошибка формата JSON при удалении кредита", e);
+            return "{\"status\":\"error\",\"message\":\"Неверный формат данных\"}";
+        } catch (Exception e) {
+            LOG.error("Системная ошибка при удалении кредита", e);
+            return "{\"status\":\"error\",\"message\":\"Внутренняя ошибка сервера\"}";
+        }
+    }
+
+    private String handleGetRemainingDebt(JsonObject data, String unused) {
+        try {
+            Long loanId = data.get("loanId").getAsLong();
+            BigDecimal remainingDebt = paymentService.calculateRemainingDebt(
+                    loanService.getLoanById(loanId));
+
+            JsonObject response = new JsonObject();
+            response.addProperty("status", "success");
+            response.addProperty("amount", remainingDebt.toString());
+            return gson.toJson(response);
+        } catch (Exception e) {
+            return errorResponse("Ошибка расчета остатка: " + e.getMessage());
+        }
+    }
+
+    private String handleGetNextPayment(JsonObject data, String unused) {
+        try {
+            Long loanId = data.get("loanId").getAsLong();
+            Loan loan = loanService.getLoanById(loanId);
+            PaymentScheduleDTO nextPayment = paymentService.getNextPaymentSchedule(loan);
+
+            JsonObject response = new JsonObject();
+            response.addProperty("status", "success");
+            if (nextPayment != null) {
+                response.add("nextPayment", gson.toJsonTree(nextPayment));
+            }
+            return gson.toJson(response);
+        } catch (Exception e) {
+            return errorResponse("Ошибка получения следующего платежа: " + e.getMessage());
         }
     }
 
@@ -446,84 +598,140 @@ public class ClientHandler implements Runnable {
         try {
             List<LoanDTO> loans;
 
+            // Определяем тип запроса
             if (data.has("bankName")) {
                 String bankName = data.get("bankName").getAsString();
-                loans = loanService.getLoansByLoanTypeBankName(bankName).stream()
-                        .map(loanService::convertToDTO)
-                        .collect(Collectors.toList());
-            } else if (data.has("clientId")) {
-                Long clientId = data.get("clientId").getAsLong();
-                loans = loanService.getLoansByClientId(clientId).stream()
-                        .map(loanService::convertToDTO)
-                        .collect(Collectors.toList());
+                loans = loanService.getLoanDTOsByBankName(bankName);
+            } else if (data.has("userId")) {
+                LOG.info("In userId");
+                Long clientId = data.get("userId").getAsLong();
+                loans = loanService.getLoanDTOsByClientId(clientId);
             } else {
+                LOG.info("In all");
                 loans = loanService.getAllLoansWithBankInfo();
             }
 
+            // Преобразуем список DTO в JSON
             JsonArray loansArray = new JsonArray();
-            loans.forEach(loan -> loansArray.add(gson.toJsonTree(loan)));
+            for (LoanDTO loan : loans) {
+                JsonObject loanJson = new JsonObject();
+                // Основные поля кредита
+                loanJson.addProperty("id", loan.getLoanId());
+                loanJson.addProperty("amount", loan.getLoanAmount());
+                loanJson.addProperty("termMonths", loan.getTermMonths());
+                loanJson.addProperty("status", loan.getStatus());
+                loanJson.addProperty("startDate", loan.getStartDate().toString());
 
+                // Обработка endDate (может быть null)
+                if (loan.getEndDate() != null) {
+                    loanJson.addProperty("endDate", loan.getEndDate().toString());
+                } else {
+                    loanJson.add("endDate", JsonNull.INSTANCE);
+                }
+
+                // Информация о типе кредита
+                JsonObject typeJson = new JsonObject();
+                typeJson.addProperty("id", loan.getLoanTypeId());
+                typeJson.addProperty("name", loan.getLoanTypeName());
+                typeJson.addProperty("rate", loan.getInterestRate());
+
+                // Дополнительная информация о банке
+                typeJson.addProperty("bankId", loan.getBankId());
+
+                loanJson.add("loanType", typeJson);
+
+                loansArray.add(loanJson);
+            }
+
+            // Формируем ответ
             JsonObject response = new JsonObject();
             response.addProperty("status", "success");
             response.add("loans", loansArray);
             return gson.toJson(response);
 
         } catch (Exception e) {
-            return errorResponse("Ошибка при получении кредитов: " + e.getMessage());
+            LOG.error("Ошибка при получении кредитов", e);
+            return errorResponse("Ошибка сервера при получении кредитов");
         }
     }
 
     private String handleTakeLoan(JsonObject data, String unused) {
         try {
-            // 1. Проверка обязательных полей
-            if (!data.has("userId") || !data.has("loanTypeId") ||
-                    !data.has("amount") || !data.has("termMonths")) {
-                return errorResponse("Не все обязательные поля заполнены");
+            // 1. Проверка входных данных
+            if (!data.has("loanData") || data.get("loanData").isJsonNull()) {
+                return errorResponse("Отсутствует объект loanData в запросе");
             }
 
-            // 2. Создаем LoanDTO
+            JsonObject loanData = data.getAsJsonObject("loanData");
+
+            // 2. Валидация обязательных полей
+            String[] requiredFields = {"userId", "loanTypeId", "amount", "termMonths"};
+            for (String field : requiredFields) {
+                if (!loanData.has(field)) {
+                    return errorResponse("Отсутствует обязательное поле: " + field);
+                }
+                if (loanData.get(field).isJsonNull()) {
+                    return errorResponse("Поле " + field + " не может быть null");
+                }
+            }
+
+            // 3. Парсинг данных
+            BigDecimal amount = new BigDecimal(loanData.get("amount").getAsString());
+            if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+                return errorResponse("Сумма кредита должна быть положительной");
+            }
+
+            int termMonths = loanData.get("termMonths").getAsInt();
+            if (termMonths <= 0) {
+                return errorResponse("Срок кредита должен быть положительным");
+            }
+
+            // 4. Создание DTO
             LoanDTO loanDTO = new LoanDTO();
-            loanDTO.setClientId(data.get("userId").getAsLong());
-            loanDTO.setLoanTypeId(data.get("loanTypeId").getAsLong());
-            loanDTO.setLoanAmount(data.get("amount").getAsBigDecimal());
-            loanDTO.setTermMonths(data.get("termMonths").getAsInt());
+            loanDTO.setClientId(loanData.get("userId").getAsLong());
+            loanDTO.setLoanTypeId(loanData.get("loanTypeId").getAsLong());
+            loanDTO.setLoanAmount(amount);
+            loanDTO.setTermMonths(termMonths);
 
-            // 3. Создаем кредит
-            Loan createdLoan = loanService.createLoan(loanDTO);
+            // 5. Создание кредита и получение JSON
+            JsonObject response = loanService.createLoanAndReturnJson(loanDTO);
+            return new Gson().toJson(response);
 
-            // 4. Формируем ответ
-            JsonObject response = new JsonObject();
-            response.addProperty("status", "success");
-            response.add("loan", convertLoanToJson(createdLoan));
-            return gson.toJson(response);
-
+        } catch (NumberFormatException e) {
+            return errorResponse("Некорректный формат числового поля");
         } catch (EntityNotFoundException e) {
             return errorResponse(e.getMessage());
         } catch (IllegalArgumentException e) {
             return errorResponse(e.getMessage());
         } catch (Exception e) {
             LOG.error("Ошибка при оформлении кредита", e);
-            return errorResponse("Ошибка сервера при оформлении кредита");
+            return errorResponse("Внутренняя ошибка сервера при оформлении кредита");
         }
     }
 
     private JsonObject convertLoanToJson(Loan loan) {
-        JsonObject json = new JsonObject();
-        json.addProperty("id", loan.getLoanId());
-        json.addProperty("amount", loan.getLoanAmount());
-        json.addProperty("termMonths", loan.getTermMonths());
-        json.addProperty("startDate", loan.getStartDate().toString());
-        json.addProperty("endDate", loan.getEndDate().toString());
-        json.addProperty("status", loan.getStatus());
+        JsonObject loanJson = new JsonObject();
+        loanJson.addProperty("id", loan.getLoanId());
+        loanJson.addProperty("amount", loan.getLoanAmount());
+        loanJson.addProperty("termMonths", loan.getTermMonths());
+        loanJson.addProperty("startDate", loan.getStartDate().toString());
+        loanJson.addProperty("status", loan.getStatus());
 
-        // Добавляем информацию о типе кредита
+        // Теперь loanType и bank уже загружены благодаря JOIN FETCH
+        LoanType loanType = loan.getLoanType();
         JsonObject typeJson = new JsonObject();
-        typeJson.addProperty("id", loan.getLoanType().getLoanTypeId());
-        typeJson.addProperty("name", loan.getLoanType().getLoanTypeName());
-        typeJson.addProperty("rate", loan.getLoanType().getInterestRate());
-        json.add("loanType", typeJson);
+        typeJson.addProperty("id", loanType.getLoanTypeId());
+        typeJson.addProperty("name", loanType.getLoanTypeName());
+        typeJson.addProperty("rate", loanType.getInterestRate());
 
-        return json;
+        if (loanType.getBank() != null) {
+            typeJson.addProperty("bankId", loanType.getBank().getBankId());
+            typeJson.addProperty("bankName", loanType.getBank().getBankName());
+        }
+
+        loanJson.add("loanType", typeJson);
+
+        return loanJson;
     }
 
     private String handleGetLoanTypesByBank(JsonObject data, String unused) {
@@ -680,6 +888,180 @@ public class ClientHandler implements Runnable {
         obj.add("bank", bankObj);
 
         return obj;
+    }
+
+    private String handleCreatePayment(JsonObject data, String unused) {
+        if (data == null) {
+            return errorResponse("Отсутствуют данные запроса");
+        }
+
+        JsonElement paymentDataElement = data.get("paymentData");
+        if (paymentDataElement == null || paymentDataElement.isJsonNull()) {
+            return errorResponse("Отсутствует объект paymentData");
+        }
+
+        if (!paymentDataElement.isJsonObject()) {
+            return errorResponse("paymentData должен быть объектом");
+        }
+
+        JsonObject paymentData = paymentDataElement.getAsJsonObject();
+
+        String[] requiredFields = {"loanId", "amount", "type"};
+        for (String field : requiredFields) {
+            if (!paymentData.has(field)) {
+                return errorResponse("Отсутствует обязательное поле: " + field);
+            }
+
+            JsonElement fieldElement = paymentData.get(field);
+            if (fieldElement == null || fieldElement.isJsonNull()) {
+                return errorResponse("Поле " + field + " не может быть null");
+            }
+        }
+
+        long loanId;
+        try {
+            loanId = paymentData.get("loanId").getAsLong();
+        } catch (UnsupportedOperationException | NumberFormatException e) {
+            return errorResponse("Некорректный формат loanId. Ожидается число");
+        }
+
+        BigDecimal amount;
+        try {
+            amount = new BigDecimal(paymentData.get("amount").getAsString());
+        } catch (NumberFormatException | UnsupportedOperationException e) {
+            return errorResponse("Некорректный формат amount. Ожидается число");
+        }
+
+        PaymentType paymentType;
+        try {
+            String typeStr = paymentData.get("type").getAsString();
+            paymentType = PaymentType.valueOf(typeStr.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return errorResponse("Недопустимый paymentType. Допустимые значения: " +
+                    Arrays.toString(PaymentType.values()));
+        } catch (UnsupportedOperationException e) {
+            return errorResponse("Некорректный формат paymentType");
+        }
+
+        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+            return errorResponse("Сумма платежа должна быть положительной");
+        }
+
+        try {
+            Payment payment = paymentService.createPayment(loanId, amount, paymentType);
+
+            JsonObject response = new JsonObject();
+            response.addProperty("status", "success");
+            response.addProperty("message", "Платеж успешно создан");
+            response.addProperty("paymentId", payment.getPaymentId());
+            return gson.toJson(response);
+
+        } catch (EntityNotFoundException e) {
+            return errorResponse("Кредит не найден");
+        } catch (PaymentValidationException e) {
+            return errorResponse(e.getMessage());
+        } catch (Exception e) {
+            LOG.error("Системная ошибка при создании платежа", e);
+            return errorResponse("Внутренняя ошибка сервера");
+        }
+    }
+
+    private String handleGetLoanDetails(JsonObject data, String unused) {
+        try {
+            // Валидация входных данных
+            if (!data.has("loanId") || data.get("loanId").isJsonNull()) {
+                return errorResponse("Не указан ID кредита");
+            }
+
+            Long loanId = data.get("loanId").getAsLong();
+
+            // Получаем данные кредита из сервиса
+            Loan loan = loanService.getLoanById(loanId);
+
+            // Получаем актуальный график платежей
+            List<PaymentScheduleDTO> schedule = paymentService.generateSchedule(loanId);
+
+            // Получаем остаток долга
+            BigDecimal remainingDebt = paymentService.calculateRemainingDebt(loan);
+
+            // Получаем следующий платеж (если есть)
+            PaymentScheduleDTO nextPayment = paymentService.getNextPaymentSchedule(loan);
+
+            // Формируем ответ
+            JsonObject response = new JsonObject();
+            response.addProperty("status", "success");
+
+            // Добавляем основной объект кредита
+            JsonObject loanJson = gson.toJsonTree(loan).getAsJsonObject();
+
+            // Добавляем дополнительные поля
+            loanJson.add("schedule", gson.toJsonTree(schedule));
+            loanJson.addProperty("remainingDebt", remainingDebt.toString());
+
+            if (nextPayment != null) {
+                loanJson.add("nextPayment", gson.toJsonTree(nextPayment));
+            }
+
+            response.add("loan", loanJson);
+
+            return gson.toJson(response);
+
+        } catch (EntityNotFoundException e) {
+            return errorResponse("Кредит не найден: " + e.getMessage());
+        } catch (Exception e) {
+            LOG.error("Ошибка при получении данных кредита", e);
+            return errorResponse("Ошибка сервера при получении данных кредита");
+        }
+    }
+
+    private String handleGetAllLoans(JsonObject data, String unused) {
+        try {
+            LoanService loanService = new LoanService();
+            List<LoanDTO> loans = loanService.getAllLoansWithBankInfo();
+
+            JsonObject response = new JsonObject();
+            response.addProperty("status", "success");
+            response.add("loans", gson.toJsonTree(loans));
+
+            LOG.info("Successfully retrieved all loans");
+            return gson.toJson(response);
+
+        } catch (Exception e) {
+            LOG.error("Error retrieving loans", e);
+            return errorResponse("Ошибка при получении списка кредитов: " + e.getMessage());
+        }
+    }
+
+    private String handleDeleteBank(JsonObject data, String unused) {
+        try {
+            // Валидация входных данных
+            if (!data.has("data") || !data.getAsJsonObject("data").has("bankId")) {
+                return errorResponse("Invalid request format");
+            }
+
+            long bankId = data.getAsJsonObject("data").get("bankId").getAsLong();
+
+
+
+            // Каскадное удаление
+            new BankDeletionService().deleteBankCascading(bankId);
+
+            // Успешный ответ
+            JsonObject response = new JsonObject();
+            response.addProperty("status", "success");
+            response.addProperty("message", "Bank and all related loans/payments deleted");
+            return gson.toJson(response);
+
+        } catch (Exception e) {
+            LOG.error("Bank deletion error", e);
+            return errorResponse("Deletion failed: " + e.getMessage());
+        }
+    }
+
+    private JsonObject successResponse() {
+        JsonObject response = new JsonObject();
+        response.addProperty("status", "success");
+        return response;
     }
 
     private String errorResponse(String message) {

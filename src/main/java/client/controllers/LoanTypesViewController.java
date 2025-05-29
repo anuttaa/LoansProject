@@ -326,6 +326,7 @@ public class LoanTypesViewController {
                 }
 
                 JsonObject loanData = new JsonObject();
+                loanData.addProperty("userId", mainApp.getCurrentUserId());
                 loanData.addProperty("loanTypeId", loanType.get("loan_type_id").getAsString());
                 loanData.addProperty("amount", amountField.getText());
                 loanData.addProperty("termMonths", termField.getText());

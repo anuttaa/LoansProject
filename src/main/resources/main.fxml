@@ -6,35 +6,55 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
-
-
 <?import javafx.scene.control.PasswordField?>
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.controllers.MainController">
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+            prefHeight="810.0" prefWidth="1440.0"
+            stylesheets="@css/main.css"
+            xmlns="http://javafx.com/javafx/23.0.1"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="client.controllers.MainController">
    <children>
-      <ImageView fitHeight="406.0" fitWidth="600.0" pickOnBounds="true" preserveRatio="true">
+      <ImageView fitHeight="810.0" fitWidth="1440.0" pickOnBounds="true" preserveRatio="true">
          <image>
-            <Image url="@img/главноеОкно.png" />
+            <Image url="@img/меню.png" />
          </image>
       </ImageView>
-      <Button fx:id="register" layoutX="367.0" layoutY="308.0" mnemonicParsing="false" onAction="#handleRegister" prefHeight="35.0" prefWidth="165.0" style="-fx-background-color: #568EA3; -fx-background-radius: 10; -fx-font-family: 'Lato Light';" text="Регистрация" textFill="#ffe8d1">
-         <font>
-            <Font size="13.0" />
-         </font>
-      </Button>
-      <Button fx:id="exit" layoutX="72.0" layoutY="308.0" mnemonicParsing="false" onAction="#handleExit" prefHeight="35.0" prefWidth="165.0" style="-fx-background-color: #568EA3; -fx-background-radius: 10; -fx-font-family: 'Lato Light';" text="Вход" textFill="#ffe8d1">
-         <font>
-            <Font size="13.0" />
-         </font>
-      </Button>
-      <TextField fx:id="loginField" layoutX="165.0" layoutY="160.0" prefHeight="40.0" prefWidth="270.0" promptText="Логин" style="-fx-background-color: #EFEFEF; -fx-background-radius: 10; -fx-border-color: #C0C0C0; -fx-border-radius: 10; -fx-font-family: 'Lato Light';">
-         <font>
-            <Font size="13.0" />
-         </font>
-      </TextField>
-      <PasswordField fx:id="passwordField" layoutX="165.0" layoutY="217.0" prefHeight="40.0" prefWidth="270.0" promptText="Пароль" style="-fx-background-color: #EFEFEF; -fx-background-radius: 10; -fx-border-color: #C0C0C0; -fx-border-radius: 10; -fx-font-family: 'Lato Light';">
-         <font>
-            <Font size="13.0" />
-         </font>
-      </PasswordField>
+
+      <!-- Центральная панель с полями ввода -->
+      <AnchorPane layoutX="470.0" layoutY="250.0" prefWidth="500.0" prefHeight="350.0">
+         <children>
+            <!-- Поле логина -->
+            <TextField fx:id="loginField" layoutX="75.0" layoutY="0.0" prefHeight="50.0" prefWidth="350.0"
+                       promptText="Логин" styleClass="text-field">
+               <font>
+                  <Font size="16.0" />
+               </font>
+            </TextField>
+
+            <!-- Поле пароля -->
+            <PasswordField fx:id="passwordField" layoutX="75.0" layoutY="70.0" prefHeight="50.0" prefWidth="350.0"
+                           promptText="Пароль" styleClass="text-field">
+               <font>
+                  <Font size="16.0" />
+               </font>
+            </PasswordField>
+
+            <!-- Кнопки -->
+            <Button fx:id="exit" layoutX="75.0" layoutY="150.0" mnemonicParsing="false" onAction="#handleExit"
+                    prefHeight="50.0" prefWidth="160.0" styleClass="auth-button" text="Вход">
+               <font>
+                  <Font size="20.0" />
+               </font>
+            </Button>
+
+            <Button fx:id="register" layoutX="265.0" layoutY="150.0" mnemonicParsing="false" onAction="#handleRegister"
+                    prefHeight="50.0" prefWidth="160.0" styleClass="auth-button" text="Регистрация">
+               <font>
+                  <Font size="20.0" />
+               </font>
+            </Button>
+         </children>
+      </AnchorPane>
    </children>
 </AnchorPane>

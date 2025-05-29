@@ -1,12 +1,13 @@
 package server.service;
 
+import com.google.gson.JsonObject;
+import com.mysql.cj.exceptions.DataConversionException;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
+import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import server.DAO.BankDAO;
-import server.DAO.LoanDAO;
-import server.DAO.LoanTypeDAO;
-import server.DAO.UserDAO;
+import server.DAO.*;
 import server.DTO.LoanDTO;
 import server.DTO.PaymentScheduleDTO;
 import server.Entities.*;
@@ -18,56 +19,114 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Transactional
 public class LoanService {
     private final LoanDAO loanRepository = new LoanDAO();
     private final LoanTypeDAO loanTypeRepository = new LoanTypeDAO();
     private final UserDAO userRepository = new UserDAO();
     private final BankDAO bankRepository = new BankDAO();
+    private final PaymentDAO paymentRepository = new PaymentDAO();
     private static final Logger LOG = LoggerFactory.getLogger(LoanService.class);
 
-    public Loan createLoan(LoanDTO loanDTO) {
-        // 1. Проверяем существование клиента
+    @Transactional
+    public LoanDTO createLoan(LoanDTO loanDTO) {
+        // 1. Загружаем сущности с полными связями
         User client = userRepository.findById(loanDTO.getClientId())
                 .orElseThrow(() -> new EntityNotFoundException("Клиент не найден"));
 
-        // 2. Получаем тип кредита
-        LoanType loanType = loanTypeRepository.findById(loanDTO.getLoanTypeId())
+        LoanType loanType = loanTypeRepository.findByIdWithAllRelations(loanDTO.getLoanTypeId())
                 .orElseThrow(() -> new EntityNotFoundException("Тип кредита не найден"));
 
-        // 3. Проверяем валидность данных
-        if (loanDTO.getLoanAmount() == null || loanDTO.getLoanAmount().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Некорректная сумма кредита");
-        }
-        if (loanDTO.getTermMonths() == null || loanDTO.getTermMonths() <= 0) {
-            throw new IllegalArgumentException("Некорректный срок кредита");
-        }
-
-        // 4. Создаем и сохраняем кредит
+        // 2. Создаем и сохраняем кредит
         Loan loan = new Loan();
         loan.setClient(client);
         loan.setLoanType(loanType);
         loan.setLoanAmount(loanDTO.getLoanAmount());
         loan.setTermMonths(loanDTO.getTermMonths());
-        loan.setStartDate(LocalDate.now()); // Устанавливаем текущую дату
+        loan.setStartDate(LocalDate.now());
         loan.setEndDate(calculateEndDate(loan.getStartDate(), loan.getTermMonths()));
-        loan.setStatus("ACTIVE"); // Статус по умолчанию
+        loan.setStatus("PENDING");
 
-        return loanRepository.save(loan);
+        Loan savedLoan = loanRepository.save(loan);
+
+        // 3. Перезагружаем с полными связями
+        Loan fullLoan = loanRepository.findByIdWithAllRelations(savedLoan.getLoanId())
+                .orElseThrow(() -> new EntityNotFoundException("Кредит не найден после сохранения"));
+
+        // 4. Конвертируем в DTO
+        return convertToDTO(fullLoan);
+    }
+
+    @Transactional
+    public LoanDTO getLoanDTOById(Long loanId) {
+        Loan loan = loanRepository.findByIdWithAllRelations(loanId)
+                .orElseThrow(() -> new NoSuchElementException("Кредит не найден"));
+        return convertToDTO(loan);
+    }
+
+    @Transactional
+    public JsonObject createLoanAndReturnJson(LoanDTO loanDTO) {
+        LoanDTO createdLoan = createLoan(loanDTO);
+
+        JsonObject loanJson = new JsonObject();
+        loanJson.addProperty("id", createdLoan.getLoanId());
+        loanJson.addProperty("amount", createdLoan.getLoanAmount().toString());
+        loanJson.addProperty("termMonths", createdLoan.getTermMonths());
+        loanJson.addProperty("status", createdLoan.getStatus());
+        loanJson.addProperty("startDate", createdLoan.getStartDate().toString());
+
+        if (createdLoan.getEndDate() != null) {
+            loanJson.addProperty("endDate", createdLoan.getEndDate().toString());
+        }
+
+        // Информация о клиенте
+        if (createdLoan.getClientId() != null) {
+            loanJson.addProperty("clientId", createdLoan.getClientId());
+        }
+
+        // Информация о типе кредита
+        JsonObject typeJson = new JsonObject();
+        typeJson.addProperty("id", createdLoan.getLoanTypeId());
+        typeJson.addProperty("name", createdLoan.getLoanTypeName());
+        typeJson.addProperty("rate", createdLoan.getInterestRate().toString());
+
+        if (createdLoan.getBankId() != null) {
+            typeJson.addProperty("bankId", createdLoan.getBankId());
+        }
+
+        loanJson.add("loanType", typeJson);
+
+        JsonObject response = new JsonObject();
+        response.addProperty("status", "success");
+        response.add("loan", loanJson);
+
+        return response;
     }
 
     public LoanDTO convertToDTO(Loan loan) {
         LoanDTO dto = new LoanDTO();
         dto.setLoanId(loan.getLoanId());
-        dto.setClientId(loan.getClient().getUserId());
-        dto.setLoanTypeId(loan.getLoanType().getLoanTypeId());
-        dto.setBankId(loan.getLoanType().getBank().getBankId());
-        dto.setLoanTypeName(loan.getLoanType().getLoanTypeName());
-        dto.setInterestRate(loan.getLoanType().getInterestRate());
         dto.setLoanAmount(loan.getLoanAmount());
         dto.setTermMonths(loan.getTermMonths());
+        dto.setStatus(loan.getStatus());
         dto.setStartDate(loan.getStartDate());
         dto.setEndDate(loan.getEndDate());
-        dto.setStatus(loan.getStatus());
+
+        // Для связанных сущностей используем только ID
+        if (loan.getClient() != null) {
+            dto.setClientId(loan.getClient().getUserId());
+        }
+
+        if (loan.getLoanType() != null) {
+            dto.setLoanTypeId(loan.getLoanType().getLoanTypeId());
+            dto.setLoanTypeName(loan.getLoanType().getLoanTypeName());
+            dto.setInterestRate(loan.getLoanType().getInterestRate());
+
+            if (loan.getLoanType().getBank() != null) {
+                dto.setBankId(loan.getLoanType().getBank().getBankId());
+            }
+        }
+
         return dto;
     }
 
@@ -105,13 +164,15 @@ public class LoanService {
                 .orElseThrow(() -> new NoSuchElementException("Кредит с id " + loanId + " не найден"));
     }
 
-    public Loan updateLoan(LoanDTO loanDTO, Long loanId) {
+    @Transactional
+    public LoanDTO updateLoan(LoanDTO loanDTO, Long loanId) {
         Loan loan = loanRepository.findById(loanId)
-                .orElseThrow(() -> new NoSuchElementException("Кредит с id " + loanId + " не найден"));
+                .orElseThrow(() -> new NoSuchElementException("Кредит не найден"));
 
         LoanType loanType = loanTypeRepository.findById(loanDTO.getLoanTypeId())
-                .orElseThrow(() -> new EntityNotFoundException("Loan type not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Тип кредита не найден"));
 
+        // Обновляем поля
         loan.setLoanType(loanType);
         loan.setLoanAmount(loanDTO.getLoanAmount());
         loan.setTermMonths(loanDTO.getTermMonths());
@@ -119,7 +180,8 @@ public class LoanService {
         loan.setEndDate(calculateEndDate(loanDTO.getStartDate(), loanDTO.getTermMonths()));
         loan.setStatus(loanDTO.getStatus() != null ? loanDTO.getStatus() : loan.getStatus());
 
-        return loanRepository.update(loan);
+        Loan updatedLoan = loanRepository.update(loan);
+        return convertToDTO(updatedLoan);
     }
 
     public void deleteLoan(Long loanId) {
@@ -241,10 +303,55 @@ public class LoanService {
         return loanRepository.findByClientId(clientId);
     }
 
-    public List<LoanDTO> getAllLoansWithBankInfo() {
-        return loanRepository.findAll().stream()
+    public List<LoanDTO> getLoanDTOsByBankName(String bankName) {
+        List<Loan> loans = loanRepository.findByLoanTypeBankName(bankName);
+        return loans.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
+    }
+
+    public List<LoanDTO> getAllLoansWithBankInfo() {
+        List<Loan> loans = loanRepository.getAllLoansWithBankInfo();
+        return loans.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    public List<LoanDTO> getLoanDTOsByClientId(Long clientId) {
+        List<Loan> loans = loanRepository.findByClientId(clientId);
+        return loans.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    public String deleteLoan(Long loanId, Long currentUserId) {
+        try {
+            Loan loan = loanRepository.findById(loanId)
+                    .orElseThrow(() -> new EntityNotFoundException("Кредит не найден"));
+
+            // Проверка прав доступа
+            if (!hasPermissionToDelete(loan, currentUserId)) {
+                return "Недостаточно прав для удаления кредита";
+            }
+
+            loanRepository.delete(loan);
+            LOG.info("Кредит {} удален пользователем {}", loanId, currentUserId);
+            return null;
+
+        } catch (EntityNotFoundException e) {
+            return e.getMessage();
+        } catch (Exception e) {
+            LOG.error("Ошибка при удалении кредита", e);
+            return "Внутренняя ошибка сервера";
+        }
+    }
+
+    private boolean hasPermissionToDelete(Loan loan, Long currentUserId) {
+        User currentUser = userRepository.findById(currentUserId)
+                .orElseThrow(() -> new EntityNotFoundException("Пользователь не найден"));
+
+        return "1".equals(currentUser.getRole()) ||
+                loan.getClient().getUserId().equals(currentUserId);
     }
 }
 

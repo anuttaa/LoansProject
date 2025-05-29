@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import javafx.geometry.Insets?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="client.controllers.LoansViewController"
+            stylesheets="@css/loansView.css"
+            prefHeight="810.0" prefWidth="1440.0">
+
+    <!-- Основной контейнер -->
+    <VBox spacing="20" styleClass="main-container"
+          AnchorPane.topAnchor="20" AnchorPane.rightAnchor="20"
+          AnchorPane.bottomAnchor="20" AnchorPane.leftAnchor="20">
+
+        <!-- Шапка с заголовком -->
+        <HBox styleClass="header-box">
+            <Label text="Мои кредиты" styleClass="header-label"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button fx:id="backButton" text="Назад" onAction="#handleBack" styleClass="secondary-button"/>
+        </HBox>
+
+        <!-- Таблица кредитов -->
+        <TableView fx:id="loansTable" styleClass="data-table" VBox.vgrow="ALWAYS">
+            <columns>
+                <TableColumn fx:id="typeColumn" text="Тип кредита" prefWidth="250"/>
+                <TableColumn fx:id="amountColumn" text="Сумма" prefWidth="150"/>
+                <TableColumn fx:id="rateColumn" text="Ставка" prefWidth="120"/>
+                <TableColumn fx:id="termColumn" text="Срок" prefWidth="100"/>
+                <TableColumn fx:id="statusColumn" text="Статус" prefWidth="150"/>
+                <TableColumn fx:id="actionsColumn" text="Действия" prefWidth="150"/>
+            </columns>
+        </TableView>
+
+        <!-- Детализация кредита -->
+        <GridPane styleClass="details-grid">
+            <columnConstraints>
+                <ColumnConstraints hgrow="NEVER" prefWidth="120"/>
+                <ColumnConstraints hgrow="ALWAYS"/>
+            </columnConstraints>
+
+            <Label text="Детали кредита:" styleClass="details-title" GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.columnSpan="2"/>
+
+            <Label text="Банк:" styleClass="detail-label" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+            <Label fx:id="detailBank" styleClass="detail-value" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+            <Label text="Тип:" styleClass="detail-label" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+            <Label fx:id="detailType" styleClass="detail-value" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+
+            <Label text="Сумма:" styleClass="detail-label" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+            <Label fx:id="detailAmount" styleClass="detail-value" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+
+            <Label text="Ставка:" styleClass="detail-label" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
+            <Label fx:id="detailRate" styleClass="detail-value" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+
+            <Label text="Срок:" styleClass="detail-label" GridPane.columnIndex="0" GridPane.rowIndex="5"/>
+            <Label fx:id="detailTerm" styleClass="detail-value" GridPane.columnIndex="1" GridPane.rowIndex="5"/>
+
+            <Label text="Статус:" styleClass="detail-label" GridPane.columnIndex="0" GridPane.rowIndex="6"/>
+            <Label fx:id="detailStatus" styleClass="detail-value" GridPane.columnIndex="1" GridPane.rowIndex="6"/>
+            <Label text="Даты:" styleClass="detail-label" GridPane.columnIndex="0" GridPane.rowIndex="7"/>
+            <Label fx:id="detailDates" styleClass="detail-value" GridPane.columnIndex="1" GridPane.rowIndex="7"/>
+        </GridPane>
+
+        <!-- Кнопки действий -->
+        <HBox spacing="15" alignment="CENTER_RIGHT">
+            <Button fx:id="paymentButton" text="Сделать платеж" onAction="#handlePayment" styleClass="primary-button"/>
+        </HBox>
+    </VBox>
+</AnchorPane>

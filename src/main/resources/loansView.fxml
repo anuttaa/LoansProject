@@ -4,45 +4,49 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.cell.PropertyValueFactory?>
 <?import javafx.geometry.Insets?>
-<?import java.util.Comparator?>
 
-<AnchorPane xmlns="http://javafx.com/javafx/11.0.1"
+<AnchorPane xmlns="http://javafx.com/javafx/23.0.1"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="client.controllers.LoanTypesViewController"
-            prefHeight="500" prefWidth="800">
+            stylesheets="@css/loanTypes.css">
 
-    <!-- Панель фильтрации и поиска -->
-    <HBox layoutX="10" layoutY="10" spacing="10">
-        <Label text="Банк:"/>
-        <ComboBox fx:id="bankCombo" prefWidth="150"/>
+    <!-- Основной контейнер с отступами -->
+    <VBox spacing="15" styleClass="main-container"
+          AnchorPane.topAnchor="15" AnchorPane.rightAnchor="15"
+          AnchorPane.bottomAnchor="15" AnchorPane.leftAnchor="15">
 
-        <Label text="Тип кредита:"/>
-        <TextField fx:id="typeSearchField" prefWidth="150"/>
+        <!-- Компактная панель фильтрации -->
+        <HBox spacing="10" styleClass="filter-panel" HBox.hgrow="ALWAYS">
+            <Label text="Банк:" styleClass="filter-label"/>
+            <ComboBox fx:id="bankCombo" styleClass="filter-combo" prefWidth="180"/>
 
-        <Label text="Ставка от:"/>
-        <TextField fx:id="minRateField" prefWidth="60"/>
+            <Label text="Тип:" styleClass="filter-label"/>
+            <TextField fx:id="typeSearchField" styleClass="filter-field" prefWidth="180"/>
 
-        <Label text="до:"/>
-        <TextField fx:id="maxRateField" prefWidth="60"/>
+            <Label text="Ставка:" styleClass="filter-label"/>
+            <TextField fx:id="minRateField" styleClass="rate-field" prefWidth="70" promptText="от"/>
 
-        <Button text="Применить фильтры" onAction="#handleApplyFilters"/>
-        <Button text="Сбросить" onAction="#handleResetFilters"/>
-    </HBox>
+            <TextField fx:id="maxRateField" styleClass="rate-field" prefWidth="70" promptText="до"/>
 
-    <!-- Таблица типов кредитов -->
-    <TableView fx:id="loanTypesTable" layoutX="10" layoutY="50" prefHeight="400" prefWidth="780">
-        <columns>
-            <TableColumn fx:id="typeIdColumn" text="ID" prefWidth="50"/>
-            <TableColumn fx:id="typeNameColumn" text="Тип кредита" prefWidth="200"/>
-            <TableColumn fx:id="bankNameColumn" text="Банк" prefWidth="150"/>
-            <TableColumn fx:id="rateColumn" text="Ставка %" prefWidth="100"/>
-            <TableColumn fx:id="actionsColumn" text="Действие" prefWidth="100"/>
-        </columns>
-    </TableView>
+            <Button text="Применить" onAction="#handleApplyFilters" styleClass="filter-button"/>
+            <Button text="Сбросить" onAction="#handleResetFilters" styleClass="secondary-button"/>
+        </HBox>
 
-    <!-- Панель кнопок -->
-    <HBox layoutX="10" layoutY="460" spacing="10">
-        <Button text="Оформить выбранный" onAction="#handleTakeLoan"/>
-        <Button text="Назад" onAction="#handleBack"/>
-    </HBox>
+        <!-- Таблица с фиксированной высотой -->
+        <TableView fx:id="loanTypesTable" styleClass="data-table" prefHeight="600">
+            <columns>
+                <TableColumn fx:id="typeIdColumn" text="ID" prefWidth="60"/>
+                <TableColumn fx:id="typeNameColumn" text="Тип кредита" prefWidth="280"/>
+                <TableColumn fx:id="bankNameColumn" text="Банк" prefWidth="220"/>
+                <TableColumn fx:id="rateColumn" text="Ставка %" prefWidth="100"/>
+                <TableColumn fx:id="actionsColumn" text="Действие" prefWidth="180"/>
+            </columns>
+        </TableView>
+
+        <!-- Компактная панель кнопок -->
+        <HBox spacing="15" alignment="CENTER_RIGHT">
+            <Button text="Оформить" onAction="#handleTakeLoan" styleClass="primary-button" prefWidth="150"/>
+            <Button text="Назад" onAction="#handleBack" styleClass="secondary-button" prefWidth="100"/>
+        </HBox>
+    </VBox>
 </AnchorPane>

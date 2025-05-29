@@ -21,4 +21,18 @@ public class LoanDTO {
     private LocalDate startDate;
     private LocalDate endDate;
     private String status;
+
+    public void setLoanAmount(BigDecimal loanAmount) {
+        if (loanAmount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Сумма кредита должна быть положительной");
+        }
+        this.loanAmount = loanAmount;
+    }
+
+    public void setTermMonths(Integer termMonths) {
+        if (termMonths <= 0) {
+            throw new IllegalArgumentException("Срок кредита должен быть положительным");
+        }
+        this.termMonths = termMonths;
+    }
 }

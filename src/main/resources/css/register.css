@@ -1,0 +1,58 @@
+.root {
+    -fx-font-family: "Arial";
+}
+
+.title-label {
+    -fx-text-fill: #2c3e50;
+    -fx-font-weight: bold;
+}
+
+.field-label {
+    -fx-text-fill: #2c3e50;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+}
+
+.text-field {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 5;
+    -fx-border-color: #568EA3;
+    -fx-border-radius: 5;
+    -fx-border-width: 1;
+    -fx-font-size: 12px;
+    -fx-padding: 0 6 0 6;
+}
+
+.text-field:focused {
+    -fx-border-color: #2c3e50;
+    -fx-effect: dropshadow(gaussian, rgba(86,142,163,0.3), 5, 0, 0, 0);
+}
+
+.register-button {
+    -fx-background-color: #568EA3;
+    -fx-background-radius: 8;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+
+.register-button:hover {
+    -fx-background-color: #457b8b;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0, 0, 0);
+}
+
+.back-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #568EA3;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-border-color: #568EA3;
+    -fx-border-radius: 3;
+    -fx-border-width: 1;
+    -fx-cursor: hand;
+}
+
+.back-button:hover {
+    -fx-background-color: rgba(86,142,163,0.1);
+}

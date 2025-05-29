@@ -5,49 +5,56 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.geometry.Insets?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1"  fx:controller="client.controllers.AdminAccountController">
-    <children>
-        <ImageView fitHeight="406.0" fitWidth="600.0" pickOnBounds="true" preserveRatio="true">
-            <image>
-                <Image url="@img/регистрация.png" />
-            </image>
-        </ImageView>
-        <Button fx:id="backButton" layoutX="510.0" layoutY="20.0" mnemonicParsing="false" onAction="#handleBack" prefHeight="30.0" prefWidth="70.0" style="-fx-background-color: #568EA3; -fx-background-radius: 10;" text="Назад" textFill="#ffe8d1">
-            <font>
-                <Font size="13.0" />
-            </font>
-        </Button>
-        <Button fx:id="banks" layoutX="36.0" layoutY="116.0" mnemonicParsing="false" onAction="#handleBanks" prefHeight="35.0" prefWidth="165.0" style="-fx-background-color: #568EA3; -fx-background-radius: 10;" text="Посмотреть банки" textFill="#ffe8d1">
-            <font>
-                <Font size="13.0" />
-            </font>
-        </Button>
-        <Button fx:id="loans" layoutX="36.0" layoutY="201.0" mnemonicParsing="false" onAction="#handleLoans" prefHeight="35.0" prefWidth="165.0" style="-fx-background-color: #568EA3; -fx-background-radius: 10;" text="Мои кредиты" textFill="#ffe8d1">
-            <font>
-                <Font size="13.0" />
-            </font>
-        </Button>
-        <Button fx:id="payments" layoutX="36.0" layoutY="303.0" mnemonicParsing="false" onAction="#handlePayments" prefHeight="35.0" prefWidth="165.0" style="-fx-background-color: #568EA3; -fx-background-radius: 10;" text="График платежей" textFill="#ffe8d1">
-            <font>
-                <Font size="13.0" />
-            </font>
-        </Button>
-        <Button fx:id="effectiveRate" layoutX="359.0" layoutY="116.0" mnemonicParsing="false" onAction="#handleEffectiveRate" prefHeight="35.0" prefWidth="165.0" style="-fx-background-color: #568EA3; -fx-background-radius: 10;" text="ЭПС по кредитам" textFill="#ffe8d1">
-            <font>
-                <Font size="13.0" />
-            </font>
-        </Button>
-        <Button fx:id="account" layoutX="359.0" layoutY="201.0" mnemonicParsing="false" onAction="#handleAccount" prefHeight="35.0" prefWidth="165.0" style="-fx-background-color: #568EA3; -fx-background-radius: 10;" text="Редактировать аккаунт" textFill="#ffe8d1">
-            <font>
-                <Font size="13.0" />
-            </font>
-        </Button>
-        <Button fx:id="deleteByID" layoutX="359.0" layoutY="286.0" mnemonicParsing="false" onAction="#handleDeleteByID" prefHeight="35.0" prefWidth="165.0" style="-fx-background-color: #568EA3; -fx-background-radius: 10;" text="Удалить пользователя(ID)" textFill="#ffe8d1">
-            <font>
-                <Font size="13.0" />
-            </font>
-        </Button>
-    </children>
+<?import javafx.scene.layout.ColumnConstraints?>
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+            prefHeight="810.0" prefWidth="1440.0" stylesheets="@css/admin.css"
+            xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="client.controllers.AdminAccountController">
+
+    <ImageView fitHeight="810.0" fitWidth="1440.0" pickOnBounds="true" preserveRatio="true">
+        <image>
+            <Image url="@img/главноеОкно.png" />
+        </image>
+    </ImageView>
+
+    <!-- Кнопка Назад -->
+    <Button fx:id="backButton" layoutX="1300.0" layoutY="40.0" mnemonicParsing="false"
+            onAction="#handleBack" styleClass="nav-button" text="Назад"/>
+
+    <!-- Основная сетка кнопок (опущена ниже) -->
+    <GridPane layoutX="370.0" layoutY="350.0" hgap="30" vgap="25">
+        <columnConstraints>
+            <ColumnConstraints prefWidth="300"/>
+            <ColumnConstraints prefWidth="300"/>
+        </columnConstraints>
+
+        <!-- Первый ряд -->
+        <Button fx:id="banks" mnemonicParsing="false" onAction="#handleBanks"
+                styleClass="admin-button" text="Банки" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+
+        <Button fx:id="effectiveRate" mnemonicParsing="false" onAction="#handleEffectiveRate"
+                styleClass="admin-button" text="Расчет ЭПС" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+        <!-- Второй ряд -->
+        <Button fx:id="loans" mnemonicParsing="false" onAction="#handleLoans"
+                styleClass="admin-button" text="Все кредиты" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+
+        <Button fx:id="payments" mnemonicParsing="false" onAction="#handlePayments"
+                styleClass="admin-button" text="Графики платежей" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+        <!-- Третий ряд -->
+        <Button fx:id="allClientsLoans" mnemonicParsing="false" onAction="#handleAllClientsLoans"
+                styleClass="admin-button" text="Кредиты всех клиентов" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+
+        <Button fx:id="account" mnemonicParsing="false" onAction="#handleAccount"
+                styleClass="admin-button" text="Мой аккаунт" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+    </GridPane>
+
+    <!-- Кнопка удаления (под сеткой) -->
+    <Button fx:id="deleteByID" layoutX="580.0" layoutY="650.0" mnemonicParsing="false"
+            onAction="#handleDeleteByID" styleClass="danger-button" text="Удалить пользователя"
+            prefWidth="280.0"/>
 </AnchorPane>
-

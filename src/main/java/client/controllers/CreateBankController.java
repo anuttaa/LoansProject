@@ -5,16 +5,22 @@ import config.LocalDateAdapter;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import lombok.Getter;
 import lombok.Setter;
 import server.Entities.Bank;
 import server.Entities.LoanType;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Optional;
@@ -54,10 +60,24 @@ public class CreateBankController {
         // Настройка столбца с действиями
         actionsColumn.setCellFactory(param -> new TableCell<>() {
             private final Button addLoanButton = new Button("Добавить кредит");
-            private final Button viewLoansButton = new Button("Просмотр кредитов");
-            private final HBox buttons = new HBox(5, addLoanButton, viewLoansButton);
+            private final Button viewLoansButton = new Button("Кредиты");
+            private final Button editButton = new Button("Редактировать");
+            private final Button deleteButton = new Button("Удалить");
+            private final HBox buttons = new HBox(5, addLoanButton, viewLoansButton, editButton, deleteButton);
 
             {
+                // Стилизация кнопок
+                addLoanButton.getStyleClass().add("table-button");
+                viewLoansButton.getStyleClass().add("table-button");
+                editButton.getStyleClass().add("table-button");
+                deleteButton.getStyleClass().add("table-button");
+
+                // Установка минимальной ширины для кнопок
+                addLoanButton.setMinWidth(100);
+                viewLoansButton.setMinWidth(80);
+                editButton.setMinWidth(100);
+                deleteButton.setMinWidth(100);
+
                 addLoanButton.setOnAction(event -> {
                     Bank bank = getTableView().getItems().get(getIndex());
                     showAddLoanDialog(bank);
@@ -66,6 +86,16 @@ public class CreateBankController {
                 viewLoansButton.setOnAction(event -> {
                     Bank bank = getTableView().getItems().get(getIndex());
                     showBankLoans(bank);
+                });
+
+                editButton.setOnAction(event -> {
+                    Bank bank = getTableView().getItems().get(getIndex());
+                    mainApp.editBank(bank);
+                });
+
+                deleteButton.setOnAction(event -> {
+                    Bank bank = getTableView().getItems().get(getIndex());
+                    deleteBank(bank);
                 });
             }
 
@@ -113,6 +143,46 @@ public class CreateBankController {
             showAlert(Alert.AlertType.ERROR, "Ошибка",
                     "Ошибка при загрузке списка банков: " + e.getMessage());
             e.printStackTrace();
+        }
+    }
+
+    private void deleteBank(Bank bank) {
+        // Подсчет связанных сущностей для предупреждения
+        int loanTypesCount = bank.getLoanTypes().size();
+        int totalLoans = bank.getLoanTypes().stream()
+                .mapToInt(lt -> lt.getLoans().size())
+                .sum();
+
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Critical Deletion");
+        alert.setHeaderText("You are about to delete: " + bank.getBankName());
+        alert.setContentText(String.format(
+                "This will permanently delete:\n" +
+                        "- %d loan types\n" +
+                        "- %d active loans\n" +
+                        "- All related payments\n\n" +
+                        "THIS ACTION CANNOT BE UNDONE! Continue?",
+                loanTypesCount, totalLoans
+        ));
+
+        if (alert.showAndWait().filter(r -> r == ButtonType.OK).isPresent()) {
+            try {
+                JsonObject request = new JsonObject();
+                request.addProperty("command", "deleteBank");
+                request.addProperty("bankId", bank.getBankId());
+
+                JsonObject response = mainApp.getClient().sendRequest(request.toString());
+
+                if ("success".equals(response.get("status").getAsString())) {
+                    showSuccess("Bank and all related data deleted");
+                    loadBanks();
+                } else {
+                    showError("Deletion failed: " +
+                            response.get("message").getAsString());
+                }
+            } catch (Exception e) {
+                showError("Error: " + e.getMessage());
+            }
         }
     }
 
@@ -312,5 +382,17 @@ public class CreateBankController {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    private void showError(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Ошибка");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    private void showSuccess(String message) {
+
     }
 }

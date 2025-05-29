@@ -98,4 +98,26 @@ public class LoanTypeDAO extends AbstractDAO<LoanType, Long> {
                     .collect(Collectors.toList());
         }
     }
+
+    public Optional<LoanType> findByIdWithBank(Long loanTypeId) {
+        try (Session session = getCurrentSession()) {
+            return session.createQuery(
+                            "SELECT lt FROM LoanType lt " +
+                                    "LEFT JOIN FETCH lt.bank " +  // Явно загружаем банк
+                                    "WHERE lt.loanTypeId = :loanTypeId", LoanType.class)
+                    .setParameter("loanTypeId", loanTypeId)
+                    .uniqueResultOptional();
+        }
+    }
+
+    public Optional<LoanType> findByIdWithAllRelations(Long loanTypeId) {
+        try (Session session = getCurrentSession()) {
+            return session.createQuery(
+                            "SELECT lt FROM LoanType lt " +
+                                    "LEFT JOIN FETCH lt.bank " +
+                                    "WHERE lt.loanTypeId = :loanTypeId", LoanType.class)
+                    .setParameter("loanTypeId", loanTypeId)
+                    .uniqueResultOptional();
+        }
+    }
 }

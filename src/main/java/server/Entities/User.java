@@ -43,29 +43,11 @@ public class User {
   @JoinColumn(name = "role_id", nullable = false)
   private Role role;
 
-  @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
+  @OneToMany(mappedBy = "client", cascade = {}, orphanRemoval = true)
   private List<Loan> loans = new ArrayList<>();
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    User user = (User) o;
-    return userId == user.userId;
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(userId);
-  }
-
-  @Override
-  public String toString() {
-    return "User{" +
-            "userId=" + userId +
-            ", username='" + username + '\'' +
-            ", passwordHash='" + passwordHash + '\'' +
-            ", role=" + role +
-            '}';
+  // Добавляем метод для безопасного доступа к кредитам
+  public List<Loan> getLoans() {
+    return Collections.unmodifiableList(loans);
   }
 }

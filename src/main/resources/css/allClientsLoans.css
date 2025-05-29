@@ -1,0 +1,113 @@
+/* Основные стили */
+.root {
+    -fx-font-family: 'Arial';
+    -fx-base: #568EA3;
+    -fx-background-color: #f5f5f5;
+}
+
+.main-container {
+    -fx-background-color: transparent;
+}
+
+/* Шапка */
+.header-box {
+    -fx-padding: 0 0 15 0;
+    -fx-border-color: #E0E0E0;
+    -fx-border-width: 0 0 1 0;
+}
+
+.header-label {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2C3E50;
+}
+
+/* Таблица */
+.data-table {
+    -fx-background-color: white;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 0);
+}
+
+.table-column {
+    -fx-alignment: CENTER_LEFT;
+    -fx-font-size: 14px;
+    -fx-padding: 10 15;
+}
+
+.table-row-cell:odd {
+    -fx-background-color: #F9F9F9;
+}
+
+.table-row-cell:selected {
+    -fx-background-color: #568EA3;
+    -fx-text-fill: white;
+}
+
+/* Панель деталей */
+.details-pane {
+    -fx-background-color: white;
+    -fx-padding: 15;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 0);
+}
+
+.details-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2C3E50;
+}
+
+.details-grid {
+    -fx-vgap: 8;
+    -fx-hgap: 15;
+    -fx-padding: 10 0 0 0;
+}
+
+.detail-label {
+    -fx-font-size: 14px;
+    -fx-text-fill: #7F8C8D;
+}
+
+.detail-value {
+    -fx-font-size: 14px;
+    -fx-text-fill: #2C3E50;
+    -fx-font-weight: bold;
+    -fx-wrap-text: true;
+}
+
+/* Стили для кнопок */
+.danger-button {
+    -fx-background-color: #ff4444;
+    -fx-text-fill: white;
+    -fx-pref-width: 70px;
+}
+
+.info-button {
+    -fx-background-color: #33b5e5;
+    -fx-text-fill: white;
+    -fx-pref-width: 70px;
+}
+
+.buttons-container {
+    -fx-padding: 0;
+    -fx-spacing: 5;
+}
+
+.danger-button {
+    -fx-background-color: #ff4444;
+    -fx-text-fill: white;
+    -fx-pref-width: 80px;
+    -fx-font-size: 12px;
+}
+
+.danger-button:hover {
+    -fx-background-color: #cc0000;
+}
+
+.danger-button:disabled {
+    -fx-opacity: 0.7;
+    -fx-background-color: #aaaaaa;
+}

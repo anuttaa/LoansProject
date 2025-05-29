@@ -7,50 +7,47 @@
 
 <AnchorPane xmlns="http://javafx.com/javafx/11.0.1"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="client.controllers.CreateBankController">
+            fx:controller="client.controllers.CreateBankController"
+            stylesheets="@css/bank.css">
 
-    <VBox spacing="10">
+    <VBox spacing="15" style="-fx-background-color: #f5f5f5;"
+          AnchorPane.topAnchor="0" AnchorPane.rightAnchor="0"
+          AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0">
         <padding>
-            <Insets top="10" right="10" bottom="10" left="10"/>
+            <Insets top="20" right="20" bottom="20" left="20"/>
         </padding>
 
-        <!-- Форма создания банка -->
-        <HBox spacing="10">
-            <VBox spacing="10" prefWidth="300">
-                <Label text="Добавление нового банка" style="-fx-font-weight: bold;"/>
+        <!-- Форма + Таблица -->
+        <HBox spacing="20" alignment="TOP_LEFT">
+            <!-- Левая часть: форма (фиксированная ширина) -->
+            <VBox spacing="15" styleClass="form-container" prefWidth="350">
+                <Label text="Добавление нового банка" styleClass="form-title"/>
+                <Label text="Название банка*:" styleClass="form-label"/>
+                <TextField fx:id="bankNameField" styleClass="form-field"/>
+                <Label text="Адрес:" styleClass="form-label"/>
+                <TextField fx:id="addressField" styleClass="form-field"/>
+                <Label text="Телефон:" styleClass="form-label"/>
+                <TextField fx:id="phoneField" styleClass="form-field"/>
+                <Label text="Email:" styleClass="form-label"/>
+                <TextField fx:id="emailField" styleClass="form-field"/>
 
-                <!-- Название банка -->
-                <Label text="Название банка*:"/>
-                <TextField fx:id="bankNameField"/>
+                <HBox spacing="10">
+                    <Button text="Создать банк" onAction="#handleCreateBank" styleClass="primary-button"/>
+                    <Button text="Назад" onAction="#handleBack" styleClass="secondary-button"/>
+                </HBox>
 
-                <!-- Адрес -->
-                <Label text="Адрес:"/>
-                <TextField fx:id="addressField"/>
-
-                <!-- Телефон -->
-                <Label text="Телефон:"/>
-                <TextField fx:id="phoneField"/>
-
-                <!-- Email -->
-                <Label text="Email:"/>
-                <TextField fx:id="emailField"/>
-
-                <!-- Кнопка создания -->
-                <Button text="Создать банк" onAction="#handleCreateBank"/>
-                <Button text="Назад" onAction="#handleBack"/>
-                <!-- Сообщение об ошибке -->
-                <Label fx:id="errorLabel" style="-fx-text-fill: red;"/>
+                <Label fx:id="errorLabel" styleClass="error-label"/>
             </VBox>
 
-            <!-- Таблица банков -->
-            <TableView fx:id="banksTable" prefHeight="400">
+            <!-- Правая часть: таблица (растягивается на всё оставшееся место) -->
+            <TableView fx:id="banksTable" styleClass="data-table" HBox.hgrow="ALWAYS">
                 <columns>
-                    <TableColumn fx:id="idColumn" text="ID" prefWidth="50"/>
-                    <TableColumn fx:id="nameColumn" text="Название" prefWidth="150"/>
-                    <TableColumn fx:id="addressColumn" text="Адрес" prefWidth="200"/>
-                    <TableColumn fx:id="phoneColumn" text="Телефон" prefWidth="120"/>
-                    <TableColumn fx:id="emailColumn" text="Email" prefWidth="150"/>
-                    <TableColumn fx:id="actionsColumn" text="Действия" prefWidth="150"/>
+                    <TableColumn fx:id="idColumn" text="ID" styleClass="table-column" prefWidth="80"/>
+                    <TableColumn fx:id="nameColumn" text="Название" styleClass="table-column" prefWidth="200"/>
+                    <TableColumn fx:id="addressColumn" text="Адрес" styleClass="table-column" prefWidth="50"/>
+                    <TableColumn fx:id="phoneColumn" text="Телефон" styleClass="table-column" prefWidth="150"/>
+                    <TableColumn fx:id="emailColumn" text="Email" styleClass="table-column" prefWidth="200"/>
+                    <TableColumn fx:id="actionsColumn" text="Действия" styleClass="table-column" prefWidth="400"/>
                 </columns>
             </TableView>
         </HBox>

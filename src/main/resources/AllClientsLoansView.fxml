@@ -1,14 +1,72 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="$CONTROLLER_NAME$"
-            prefHeight="400.0" prefWidth="600.0" >
+<AnchorPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="client.controllers.AllClientsLoansController"
+            stylesheets="@css/allClientsLoans.css"
+            prefHeight="810.0" prefWidth="1440.0">
 
+    <!-- Основной контейнер с отступами -->
+    <VBox spacing="20" styleClass="main-container"
+          AnchorPane.topAnchor="20" AnchorPane.rightAnchor="20"
+          AnchorPane.bottomAnchor="20" AnchorPane.leftAnchor="20">
+
+        <!-- Шапка с заголовком -->
+        <HBox styleClass="header-box">
+            <Label text="Кредиты всех клиентов" styleClass="header-label"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button fx:id="backButton" text="Назад" onAction="#handleBack" styleClass="secondary-button"/>
+        </HBox>
+
+        <!-- Основная таблица -->
+        <TableView fx:id="loansTable" styleClass="data-table" VBox.vgrow="ALWAYS">
+            <columns>
+                <TableColumn fx:id="loanIdColumn" text="ID" prefWidth="80"/>
+                <TableColumn fx:id="clientColumn" text="Клиент" prefWidth="200"/>
+                <TableColumn fx:id="bankColumn" text="Банк" prefWidth="200"/>
+                <TableColumn fx:id="typeColumn" text="Тип кредита" prefWidth="200"/>
+                <TableColumn fx:id="amountColumn" text="Сумма" prefWidth="150"/>
+                <TableColumn fx:id="statusColumn" text="Статус" prefWidth="150"/>
+                <TableColumn fx:id="actionsColumn" text="Действия" prefWidth="120"/>
+            </columns>
+        </TableView>
+
+        <!-- Детали кредита -->
+        <VBox fx:id="loanDetailsPane" styleClass="details-pane" spacing="10">
+            <Label text="Детали кредита:" styleClass="details-title"/>
+
+            <GridPane styleClass="details-grid">
+                <columnConstraints>
+                    <ColumnConstraints hgrow="NEVER" prefWidth="120"/>
+                    <ColumnConstraints hgrow="ALWAYS"/>
+                </columnConstraints>
+
+                <Label text="ID кредита:" styleClass="detail-label" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                <Label fx:id="detailLoanId" styleClass="detail-value" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                <Label text="Клиент:" styleClass="detail-label" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                <Label fx:id="detailClient" styleClass="detail-value" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                <Label text="Банк:" styleClass="detail-label" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                <Label fx:id="detailBank" styleClass="detail-value" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+                <Label text="Тип:" styleClass="detail-label" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                <Label fx:id="detailType" styleClass="detail-value" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+                <Label text="Сумма:" styleClass="detail-label" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                <Label fx:id="detailAmount" styleClass="detail-value" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+
+                <Label text="Срок:" styleClass="detail-label" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+                <Label fx:id="detailTerm" styleClass="detail-value" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+
+                <Label text="Статус:" styleClass="detail-label" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+                <Label fx:id="detailStatus" styleClass="detail-value" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+            </GridPane>
+        </VBox>
+    </VBox>
 </AnchorPane>

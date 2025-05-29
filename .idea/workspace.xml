@@ -5,64 +5,70 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="14ceceaf-42a0-42b5-a96b-c86dd60f4bb8" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/client/controllers/AdminAccountController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/client/controllers/CreateBankController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/client/controllers/EditAccountController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/client/controllers/LoanTypesViewController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/client/viewFactories/AdminAccountViewCreator.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/client/viewFactories/BankCreator.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/client/viewFactories/ClientAccountViewCreator.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/client/viewFactories/DeleteByIdCreator.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/client/viewFactories/EditAccountViewCreator.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/client/viewFactories/LoanTypesViewCreator.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/client/viewFactories/MainViewCreator.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/client/viewFactories/RegisterViewCreator.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/client/viewFactories/ViewCreator.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/client/viewFactories/ViewFactory.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/config/LocalDateAdapter.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/server/DAO/LoanTypeDAO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/server/DTO/LoanTypeDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/server/Entities/LoanType.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/server/service/LoanTypeService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/adminAccount.fxml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/editAccount.fxml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/loan_application.fxml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/loansView.fxml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/client/controllers/EditBankController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/client/viewFactories/EditBankCreator.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/config/HibernateProxyTypeAdapter.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/server/service/BankDeletionService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/EditBank.fxml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/css/admin.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/css/allClientsLoans.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/css/bank.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/css/clientAccount.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/css/deleteUser.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/css/editAccount.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/css/loanPayments.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/css/loanTypes.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/css/loansView.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/css/main.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/css/register.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logs/application.log" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/Factories/UserFactory.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/client/BankClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/client/BankClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logs/application.log" beforeDir="false" afterPath="$PROJECT_DIR$/logs/application.log" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/client/MainApp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/client/MainApp.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/client/controllers/AccountController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/client/controllers/AccountController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/client/controllers/BanksViewController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/client/controllers/DeleteUserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/client/controllers/DeleteUserController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/client/controllers/MainController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/client/controllers/MainController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/config/JerseyConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/config/JerseyConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/client/controllers/AdminAccountController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/client/controllers/AdminAccountController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/client/controllers/AllClientsLoansController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/client/controllers/AllClientsLoansController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/client/controllers/CreateBankController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/client/controllers/CreateBankController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/client/controllers/LoanPaymentsController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/client/controllers/LoanPaymentsController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/client/controllers/LoanTypesViewController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/client/controllers/LoanTypesViewController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/client/controllers/LoansViewController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/client/controllers/LoansViewController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/client/controllers/RegisterController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/client/controllers/RegisterController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/client/viewFactories/AllLoansCreator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/client/viewFactories/AllLoansCreator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/client/viewFactories/LoansViewCreator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/client/viewFactories/LoansViewCreator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/client/viewFactories/PaymentsCreator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/client/viewFactories/PaymentsCreator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/client/viewFactories/ViewCreator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/client/viewFactories/ViewCreator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/client/viewFactories/ViewFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/client/viewFactories/ViewFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/enums/PaymentType.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/enums/PaymentType.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/exeption/PaymentConversionException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/exeption/PaymentConversionException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/exeption/PaymentException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/exeption/PaymentException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/exeption/PaymentValidationException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/exeption/PaymentValidationException.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/server/ClientHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/server/ClientHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/server/DAO/AbstractDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/server/DAO/AbstractDAO.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/server/DAO/LoanDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/server/DAO/LoanDAO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/server/DAO/LoanTypeDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/server/DAO/LoanTypeDAO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/server/DAO/PaymentDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/server/DAO/PaymentDAO.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/server/DAO/UserDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/server/DAO/UserDAO.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/server/DTO/LoanDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/server/DTO/LoanDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/server/DTO/PaymentDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/server/DTO/PaymentDTO.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/server/DTO/PaymentScheduleDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/server/DTO/PaymentScheduleDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/server/DTO/UserDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/server/DTO/UserDTO.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/server/Entities/Bank.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/server/Entities/Bank.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/server/Entities/Loan.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/server/Entities/Loan.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/server/Entities/Payment.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/server/Entities/Payment.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/server/Entities/Role.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/server/Entities/Role.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/server/Entities/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/server/Entities/User.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/server/service/BankService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/server/service/BankService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/server/service/LoanService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/server/service/LoanService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/server/service/PaymentService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/server/service/PaymentService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/server/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/server/service/UserService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/account.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/clientAccount.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/AllClientsLoansView.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/AllClientsLoansView.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/adminAccount.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/adminAccount.fxml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/resources/banksView.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/banksView.fxml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/hibernate.cfg.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/hibernate.cfg.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/clientAccount.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/clientAccount.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/deleteByID.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/deleteByID.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/editAccount.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/editAccount.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/img/главноеОкно.png" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/img/главноеОкно.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/img/регистрация.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/loan-payments-view.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/loan-payments-view.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/loan_application.fxml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/loansView.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/loansView.fxml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/resources/main.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/main.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/myLoansView.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/myLoansView.fxml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/resources/register.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/register.fxml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/главноеОкно.png" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/img/главноеОкно.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/регистрация.png" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/img/регистрация.png" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

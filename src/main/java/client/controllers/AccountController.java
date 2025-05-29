@@ -39,24 +39,12 @@ public class AccountController {
     }
 
     @FXML
-    private void handleBanks() {
-        mainApp.showBanksView();
-    }
-    
-    @FXML
-    private void handleDeleteByID() {
-        mainApp.showDeleteByID();
+    private void handleMyLoans() {
+       mainApp.showLoansView();
     }
 
     @FXML
-    private void handleLoans() {
-        openWindow("/loans.fxml", "Мои кредиты");
-    }
-
-    @FXML
-    private void handlePayments() {
-        openWindow("/payments.fxml", "График платежей");
-    }
+    private void handleShowLoans() { mainApp.showLoanTypesView();}
 
     @FXML
     private void handleEffectiveRate() {

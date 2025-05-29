@@ -1,0 +1,95 @@
+/* Основные стили */
+.root {
+    -fx-background-color: #f5f5f5;
+    -fx-font-family: 'Arial';
+}
+
+/* Заголовок */
+.title-label {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2c3e50;
+}
+
+/* Контейнер формы */
+.form-container {
+    -fx-background-color: white;
+    -fx-padding: 20;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 0);
+}
+
+/* Метки */
+.input-label {
+    -fx-font-size: 14px;
+    -fx-text-fill: #2c3e50;
+}
+
+.section-label {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2c3e50;
+}
+
+/* Поля ввода */
+.input-field {
+    -fx-font-size: 14px;
+    -fx-pref-height: 35;
+    -fx-pref-width: 300;
+    -fx-background-radius: 3;
+    -fx-border-radius: 3;
+    -fx-border-color: #C0C0C0;
+    -fx-padding: 5;
+}
+
+.input-field:focused {
+    -fx-border-color: #568EA3;
+}
+
+/* Текстовые области */
+.info-area {
+    -fx-font-size: 14px;
+    -fx-pref-width: 600;
+    -fx-pref-height: 150;
+    -fx-background-color: #fffde8;
+    -fx-border-color: #C0C0C0;
+    -fx-border-radius: 3;
+    -fx-background-radius: 3;
+    -fx-padding: 10;
+}
+
+/* Кнопки */
+.danger-button {
+    -fx-background-color: #E15554;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-pref-width: 120;
+    -fx-pref-height: 40;
+    -fx-background-radius: 3;
+    -fx-cursor: hand;
+}
+
+.secondary-button {
+    -fx-background-color: #568EA3;
+    -fx-text-fill: white;
+    -fx-pref-width: 120;
+    -fx-pref-height: 40;
+    -fx-background-radius: 3;
+    -fx-cursor: hand;
+}
+
+/* Эффекты при наведении */
+.danger-button:hover {
+    -fx-background-color: #C74443;
+}
+
+.secondary-button:hover {
+    -fx-background-color: #457b8b;
+}
+
+/* Эффекты при нажатии */
+.button:pressed {
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+}

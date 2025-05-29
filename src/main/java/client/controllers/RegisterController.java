@@ -6,6 +6,9 @@ import javafx.scene.control.*;
 import client.MainApp;
 
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -41,7 +44,8 @@ public class RegisterController {
             userData.addProperty("password", passwordField.getText().trim());
             userData.addProperty("email", emailField.getText().trim());
             userData.addProperty("fullName", nameField.getText().trim());
-            userData.addProperty("birthDate", dateField.getText().trim());
+            String formattedDate = convertDateToISO(dateField.getText().trim());
+            userData.addProperty("birthDate", formattedDate);
             userData.addProperty("phone", phoneField.getText().trim());
             userData.addProperty("address", addressField.getText().trim());
             userData.addProperty("roleId", 2);
@@ -64,6 +68,20 @@ public class RegisterController {
         } catch (Exception e) {
             showError("Ошибка регистрации: " + e.getMessage());
             e.printStackTrace();
+        }
+    }
+
+    private String convertDateToISO(String dateString) throws IllegalArgumentException {
+        try {
+            // Пытаемся распарсить дату в формате dd.MM.yyyy
+            DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+            LocalDate date = LocalDate.parse(dateString, inputFormatter);
+
+            // Форматируем в yyyy-MM-dd
+            DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            return date.format(outputFormatter);
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException("Неверный формат даты. Используйте ДД.ММ.ГГГГ");
         }
     }
 

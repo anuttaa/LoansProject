@@ -1,12 +1,24 @@
 package client;
 
+import client.controllers.EditBankController;
+import client.controllers.LoanPaymentsController;
 import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.layout.AnchorPane;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import lombok.Getter;
 import lombok.Setter;
 import client.viewFactories.ViewFactory;
+import server.Entities.Bank;
+import server.Entities.Loan;
+
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Getter
 @Setter
@@ -72,6 +84,80 @@ public class MainApp extends Application {
 
     public void showEditAccountView() {
         showView(ViewFactory.ViewType.EDIT_ACCOUNT);
+    }
+
+    public void showAllClientsLoansView() {
+        showView(ViewFactory.ViewType.ALL_LOANS);
+    }
+
+    public void showPaymentsView(Loan selected) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/loan-payments-view.fxml"));
+            Parent root = loader.load();
+
+            LoanPaymentsController controller = loader.getController();
+            controller.setLoan(selected);
+            controller.setMainApp(this);
+
+            Stage stage = new Stage();
+            stage.setTitle("Платежи по кредиту #" + selected.getLoanId());
+
+            // Устанавливаем фиксированный размер окна
+            stage.setMinWidth(1440);
+            stage.setMinHeight(810);
+            stage.setMaxWidth(1440);
+            stage.setMaxHeight(810);
+
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+
+            // Центрируем окно на экране
+            stage.centerOnScreen();
+
+            // Модальное окно (блокирует родительское)
+            stage.initModality(Modality.APPLICATION_MODAL);
+
+            // Запрещаем изменение размера
+            stage.setResizable(false);
+
+            stage.show();
+
+        } catch (IOException e) {
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE, "Ошибка при открытии окна платежей", e);
+
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Ошибка");
+            alert.setHeaderText("Не удалось открыть окно платежей");
+            alert.setContentText(e.getMessage());
+            alert.showAndWait();
+        }
+    }
+
+    public void editBank(Bank bank) {
+        try {
+            // Загрузка FXML
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/EditBank.fxml"));
+            Parent root = loader.load();
+
+            // Настройка контроллера
+            EditBankController controller = loader.getController();
+            controller.setBank(bank);
+            controller.setMainApp(this);
+
+            Scene scene = new Scene(root);
+
+            primaryStage.setScene(scene);
+            primaryStage.setTitle("Редактирование банка #" + bank.getBankId());
+
+        } catch (IOException e) {
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE, "Ошибка при открытии окна редактирования банка", e);
+
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Ошибка");
+            alert.setHeaderText("Не удалось открыть окно редактирования");
+            alert.setContentText(e.getMessage());
+            alert.showAndWait();
+        }
     }
 
     public void showError(String title, String message) {

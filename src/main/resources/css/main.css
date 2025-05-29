@@ -1,0 +1,40 @@
+/* Стили для текстовых полей */
+.text-field {
+    -fx-background-color: #EFEFEF;
+    -fx-background-radius: 10;
+    -fx-border-color: #C0C0C0;
+    -fx-border-radius: 10;
+    -fx-font-family: 'Lato Light';
+    -fx-font-size: 16px;
+    -fx-padding: 0 10 0 10;
+}
+
+.text-field:focused {
+    -fx-border-color: #568EA3;
+}
+
+/* Базовые стили для кнопок */
+.auth-button {
+    -fx-background-color: #568EA3;
+    -fx-background-radius: 10;
+    -fx-text-fill: #ffe8d1;
+    -fx-font-family: 'Lato Light';
+    -fx-font-size: 20px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 5, 0, 0, 0);
+    -fx-transition: all 0.3s ease;
+}
+
+/* Эффекты при наведении */
+.auth-button:hover {
+    -fx-background-color: #457b8b;
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 8, 0, 0, 0);
+}
+
+/* Анимация при нажатии */
+.auth-button:pressed {
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+}
