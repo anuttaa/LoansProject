@@ -1,0 +1,72 @@
+/* Общие стили */
+.root {
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-background-color: #f8f9fa;
+}
+
+/* Панель инструментов */
+.tool-bar {
+    -fx-background-color: #ffffff;
+    -fx-padding: 10;
+    -fx-spacing: 10;
+    -fx-border-color: #e0e0e0;
+    -fx-border-width: 0 0 1 0;
+}
+
+.label {
+    -fx-text-fill: #333333;
+}
+
+/* Заголовок */
+.tool-bar .label {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2c3e50;
+}
+
+/* Кнопки */
+.button {
+    -fx-background-color: #4CAF50;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 5;
+    -fx-padding: 5 15;
+}
+
+.button:hover {
+    -fx-background-color: #45a049;
+}
+
+/* Статистика - жирные метки */
+.label:filled {
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+}
+
+/* Графики */
+.chart {
+    -fx-background-color: transparent;
+}
+
+.chart-title {
+    -fx-text-fill: #2c3e50;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+.axis-label {
+    -fx-text-fill: #2c3e50;
+    -fx-font-weight: bold;
+}
+
+.axis-tick-mark {
+    -fx-stroke: #aaaaaa;
+}
+
+.default-color0.chart-bar {
+    -fx-bar-fill: #3498db;
+}
+
+.default-color1.chart-pie {
+    -fx-pie-color: #e74c3c;
+}

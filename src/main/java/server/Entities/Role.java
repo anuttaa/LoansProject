@@ -1,5 +1,6 @@
 package server.Entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,6 +22,7 @@ public class Role {
     @Column(name = "role_name", nullable = false, unique = true)
     private String roleName;
 
-    @OneToMany(mappedBy = "role")
+    @OneToMany(mappedBy = "role", fetch = FetchType.EAGER)
+    @JsonIgnore
     private List<User> users;
 }

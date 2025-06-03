@@ -32,7 +32,7 @@
                 <TableColumn fx:id="typeColumn" text="Тип кредита" prefWidth="200"/>
                 <TableColumn fx:id="amountColumn" text="Сумма" prefWidth="150"/>
                 <TableColumn fx:id="statusColumn" text="Статус" prefWidth="150"/>
-                <TableColumn fx:id="actionsColumn" text="Действия" prefWidth="120"/>
+                <TableColumn fx:id="actionsColumn" text="Действия" prefWidth="200"/>
             </columns>
         </TableView>
 

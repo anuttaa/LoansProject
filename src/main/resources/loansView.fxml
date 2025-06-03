@@ -39,7 +39,8 @@
                 <TableColumn fx:id="typeNameColumn" text="Тип кредита" prefWidth="280"/>
                 <TableColumn fx:id="bankNameColumn" text="Банк" prefWidth="220"/>
                 <TableColumn fx:id="rateColumn" text="Ставка %" prefWidth="100"/>
-                <TableColumn fx:id="actionsColumn" text="Действие" prefWidth="180"/>
+                <TableColumn fx:id="effectiveRateColumn" text="Эффективная ставка %" prefWidth="120"/>
+                <TableColumn fx:id="actionsColumn" text="Действие" prefWidth="300"/>
             </columns>
         </TableView>
 

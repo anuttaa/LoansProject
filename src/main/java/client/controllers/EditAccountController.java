@@ -5,12 +5,14 @@ import com.google.gson.JsonObject;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
+import lombok.Setter;
+import server.Entities.User;
 
 import java.text.SimpleDateFormat;
 
 import java.util.Arrays;
 import java.util.List;
-
+@Setter
 public class EditAccountController {
     @FXML private TextField usernameField;
     @FXML private PasswordField passwordField;
@@ -24,6 +26,7 @@ public class EditAccountController {
     @FXML private Label statusLabel;
 
     private MainApp mainApp;
+    private JsonObject userData;
 
     @FXML
     public void initialize() {

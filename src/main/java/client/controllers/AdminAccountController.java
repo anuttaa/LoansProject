@@ -85,4 +85,9 @@ public class AdminAccountController {
             e.printStackTrace();
         }
     }
+
+    @FXML
+    public void handleShowStatistics(){
+        mainApp.showLoanStatistics();
+    }
 }

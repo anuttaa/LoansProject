@@ -103,32 +103,6 @@ public class LoanService {
         return response;
     }
 
-    public LoanDTO convertToDTO(Loan loan) {
-        LoanDTO dto = new LoanDTO();
-        dto.setLoanId(loan.getLoanId());
-        dto.setLoanAmount(loan.getLoanAmount());
-        dto.setTermMonths(loan.getTermMonths());
-        dto.setStatus(loan.getStatus());
-        dto.setStartDate(loan.getStartDate());
-        dto.setEndDate(loan.getEndDate());
-
-        // Для связанных сущностей используем только ID
-        if (loan.getClient() != null) {
-            dto.setClientId(loan.getClient().getUserId());
-        }
-
-        if (loan.getLoanType() != null) {
-            dto.setLoanTypeId(loan.getLoanType().getLoanTypeId());
-            dto.setLoanTypeName(loan.getLoanType().getLoanTypeName());
-            dto.setInterestRate(loan.getLoanType().getInterestRate());
-
-            if (loan.getLoanType().getBank() != null) {
-                dto.setBankId(loan.getLoanType().getBank().getBankId());
-            }
-        }
-
-        return dto;
-    }
 
     public Loan convertToEntity(LoanDTO loanDTO) {
         User client = userRepository.findById(loanDTO.getClientId())
@@ -164,24 +138,103 @@ public class LoanService {
                 .orElseThrow(() -> new NoSuchElementException("Кредит с id " + loanId + " не найден"));
     }
 
-    @Transactional
-    public LoanDTO updateLoan(LoanDTO loanDTO, Long loanId) {
+    public LoanDTO updateLoan(Long loanId, LoanDTO loanDTO) {
+        // 1. Валидация входных данных
+        if (loanId == null) {
+            throw new IllegalArgumentException("ID кредита не может быть null");
+        }
+        if (loanDTO == null) {
+            throw new IllegalArgumentException("DTO кредита не может быть null");
+        }
+
+        // 2. Поиск существующего кредита
         Loan loan = loanRepository.findById(loanId)
-                .orElseThrow(() -> new NoSuchElementException("Кредит не найден"));
+                .orElseThrow(() -> new NoSuchElementException("Кредит с ID " + loanId + " не найден"));
 
+        // 3. Проверка и получение типа кредита
+        if (loanDTO.getLoanTypeId() == null) {
+            throw new IllegalArgumentException("ID типа кредита обязательно");
+        }
         LoanType loanType = loanTypeRepository.findById(loanDTO.getLoanTypeId())
-                .orElseThrow(() -> new EntityNotFoundException("Тип кредита не найден"));
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Тип кредита с ID " + loanDTO.getLoanTypeId() + " не найден"));
 
-        // Обновляем поля
+        // 4. Дополнительные проверки
+        if (loanDTO.getLoanAmount() == null || loanDTO.getLoanAmount().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Сумма кредита должна быть положительной");
+        }
+        if (loanDTO.getTermMonths() == null || loanDTO.getTermMonths() <= 0) {
+            throw new IllegalArgumentException("Срок кредита должен быть положительным");
+        }
+        if (loanDTO.getStartDate() == null) {
+            throw new IllegalArgumentException("Дата начала обязательна");
+        }
+
+        // 5. Обновление полей кредита
         loan.setLoanType(loanType);
         loan.setLoanAmount(loanDTO.getLoanAmount());
         loan.setTermMonths(loanDTO.getTermMonths());
         loan.setStartDate(loanDTO.getStartDate());
-        loan.setEndDate(calculateEndDate(loanDTO.getStartDate(), loanDTO.getTermMonths()));
-        loan.setStatus(loanDTO.getStatus() != null ? loanDTO.getStatus() : loan.getStatus());
 
-        Loan updatedLoan = loanRepository.update(loan);
+        // Автоматический расчет даты окончания
+        loan.setEndDate(calculateEndDate(loanDTO.getStartDate(), loanDTO.getTermMonths()));
+
+        // Сохранение текущего статуса, если новый не указан
+        loan.setStatus(loanDTO.getStatus() != null ?
+                validateLoanStatus(loanDTO.getStatus()) :
+                loan.getStatus());
+
+        // 6. Сохранение обновленного кредита
+        Loan updatedLoan = loanRepository.save(loan);
+
+        // 7. Логирование успешного обновления
+        LOG.info("Кредит с ID {} успешно обновлен", loanId);
+
         return convertToDTO(updatedLoan);
+    }
+
+    private String validateLoanStatus(String status) {
+        List<String> validStatuses = Arrays.asList("PENDING", "ACTIVE", "CLOSED", "REJECTED");
+        if (!validStatuses.contains(status.toUpperCase())) {
+            throw new IllegalArgumentException("Недопустимый статус кредита: " + status);
+        }
+        return status.toUpperCase();
+    }
+
+    private LocalDate calculateEndDate(LocalDate startDate, Integer termMonths) {
+        return startDate.plusMonths(termMonths);
+    }
+
+    private LoanDTO convertToDTO(Loan loan) {
+        LoanDTO dto = new LoanDTO();
+        dto.setLoanId(loan.getLoanId());
+
+        // Информация о типе кредита
+        if (loan.getLoanType() != null) {
+            dto.setLoanTypeId(loan.getLoanType().getLoanTypeId());
+            dto.setLoanTypeName(loan.getLoanType().getLoanTypeName());
+            dto.setInterestRate(loan.getLoanType().getInterestRate());
+
+            // Информация о банке
+            if (loan.getLoanType().getBank() != null) {
+                dto.setBankId(loan.getLoanType().getBank().getBankId());
+                dto.setBankName(loan.getLoanType().getBank().getBankName());
+            }
+        }
+
+        dto.setLoanAmount(loan.getLoanAmount());
+        dto.setTermMonths(loan.getTermMonths());
+        dto.setStartDate(loan.getStartDate());
+        dto.setEndDate(loan.getEndDate());
+        dto.setStatus(loan.getStatus());
+
+        // Информация о клиенте
+        if (loan.getClient() != null) {
+            dto.setClientId(loan.getClient().getUserId());
+            dto.setClientName(loan.getClient().getUsername()); // Или другие поля клиента
+        }
+
+        return dto;
     }
 
     public void deleteLoan(Long loanId) {

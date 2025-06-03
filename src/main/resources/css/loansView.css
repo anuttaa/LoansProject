@@ -1,4 +1,4 @@
-/* Основные стили (аналогично предыдущим окнам) */
+
 .root {
     -fx-font-family: 'Arial';
     -fx-base: #568EA3;
@@ -10,7 +10,6 @@
     -fx-spacing: 15;
 }
 
-/* Шапка */
 .header-box {
     -fx-alignment: CENTER_LEFT;
     -fx-padding: 0 0 10 0;
@@ -22,7 +21,6 @@
     -fx-text-fill: #2c3e50;
 }
 
-/* Таблица (единый стиль с другими окнами) */
 .data-table {
     -fx-background-color: white;
     -fx-border-radius: 5;
@@ -45,7 +43,6 @@
     -fx-text-fill: white;
 }
 
-/* Детали кредита */
 .details-grid {
     -fx-background-color: white;
     -fx-padding: 15;
@@ -72,7 +69,6 @@
     -fx-font-weight: bold;
 }
 
-/* Кнопки (единый стиль) */
 .primary-button {
     -fx-background-color: #568EA3;
     -fx-text-fill: white;
@@ -100,4 +96,76 @@
 
 .secondary-button:hover {
     -fx-background-color: #e0e0e0;
+}
+
+.edit-button {
+    -fx-background-color: #4CAF50;
+    -fx-text-fill: white;
+}
+
+.edit-button:hover {
+    -fx-background-color: #45a049;
+}
+
+.edit-button:disabled {
+    -fx-opacity: 0.5;
+    -fx-background-color: #cccccc;
+}
+
+.date-picker {
+    -fx-pref-width: 180px;
+}
+
+.combo-box {
+    -fx-pref-width: 250px;
+}
+
+.status-active {
+    -fx-text-fill: green;
+    -fx-font-weight: bold;
+}
+
+.status-closed {
+    -fx-text-fill: gray;
+}
+
+.status-overdue {
+    -fx-text-fill: red;
+    -fx-font-weight: bold;
+}
+
+.action-buttons-container {
+    -fx-spacing: 5;
+    -fx-alignment: CENTER;
+}
+
+.edit-button {
+    -fx-background-color: #4CAF50;
+    -fx-text-fill: white;
+    -fx-min-width: 80;
+    -fx-max-width: 80;
+    -fx-pref-width: 80;
+    -fx-font-size: 12px;
+}
+
+.delete-button {
+    -fx-background-color: #f44336;
+    -fx-text-fill: white;
+    -fx-min-width: 80;
+    -fx-max-width: 80;
+    -fx-pref-width: 80;
+    -fx-font-size: 12px;
+}
+
+.edit-button:hover {
+    -fx-background-color: #45a049;
+}
+
+.delete-button:hover {
+    -fx-background-color: #d32f2f;
+}
+
+.edit-button:disabled, .delete-button:disabled {
+    -fx-opacity: 0.7;
+    -fx-background-color: #cccccc;
 }

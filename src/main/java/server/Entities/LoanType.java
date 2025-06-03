@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -17,7 +18,7 @@ public class LoanType {
     @Column(name = "loan_type_id")
     private Long loanTypeId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "bank_id", nullable = false)
     private Bank bank;
 
@@ -27,7 +28,12 @@ public class LoanType {
     @Column(name = "interest_rate", nullable = false)
     private BigDecimal interestRate;
 
-    @OneToMany(mappedBy = "loanType")
-    private List<Loan> loans;
+    @OneToMany(
+            mappedBy = "loanType",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.EAGER
+    )
+    private List<Loan> loans = new ArrayList<>();
 }
 

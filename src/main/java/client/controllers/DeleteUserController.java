@@ -2,99 +2,164 @@ package client.controllers;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.geometry.Pos;
+import javafx.scene.control.*;
 
 import client.MainApp;
 import com.google.gson.JsonObject;
+import javafx.scene.layout.HBox;
 
 
 public class DeleteUserController {
-    @FXML private TextField userIdField;
-    @FXML private TextArea statusLabel;
-    @FXML private TextArea usersArea;
+    @FXML private TableView<JsonObject> usersTable;
+    @FXML private TableColumn<JsonObject, String> idColumn;
+    @FXML private TableColumn<JsonObject, String> usernameColumn;
+    @FXML private TableColumn<JsonObject, String> roleColumn;
+    @FXML private TableColumn<JsonObject, String> emailColumn;
+    @FXML private TableColumn<JsonObject, Void> actionsColumn;
+    @FXML private Label statusLabel;
 
     private MainApp mainApp;
+    private ObservableList<JsonObject> users = FXCollections.observableArrayList();
 
     public void setMainApp(MainApp mainApp) {
         this.mainApp = mainApp;
-        System.out.println("Setting mainApp: " + mainApp);
+        initializeTable();
         loadUsers();
-        handleDelete();
     }
 
-    private void loadUsers() {
-        try {
-            if (mainApp == null) {
-                throw new IllegalStateException("MainApp не инициализирован.");
-            }
-            if (mainApp.getClient() == null) {
-                throw new IllegalStateException("Client не инициализирован.");
-            }
-            JsonObject getAllRequest = new JsonObject();
-            getAllRequest.addProperty("command", "findAllUsers");
-            JsonObject allUsersResponse = mainApp.getClient().sendRequest(getAllRequest.toString());
+    private void initializeTable() {
+        // Настройка столбцов
+        idColumn.setCellValueFactory(data ->
+                new SimpleStringProperty(data.getValue().get("userId").getAsString()));
+        usernameColumn.setCellValueFactory(data ->
+                new SimpleStringProperty(data.getValue().get("username").getAsString()));
+        roleColumn.setCellValueFactory(data ->
+                new SimpleStringProperty(getRoleName(data.getValue().get("roleId").getAsInt())));
+        emailColumn.setCellValueFactory(data ->
+                new SimpleStringProperty(data.getValue().get("email").getAsString()));
 
-            if (allUsersResponse != null && allUsersResponse.get("status").getAsString().equals("success")) {
-                JsonArray users = allUsersResponse.getAsJsonArray("users");
+        // Настройка столбца с действиями
+        actionsColumn.setCellFactory(param -> new TableCell<>() {
+            private final Button deleteButton = new Button("Удалить");
+            private final Button editButton = new Button("Редактировать");
+            private final HBox buttons = new HBox(5, editButton, deleteButton);
 
-                StringBuilder sb = new StringBuilder("Текущие пользователи:\n");
-                for (JsonElement userElem : users) {
-                    JsonObject user = userElem.getAsJsonObject();
-                    sb.append("ID: ").append(user.get("userId").getAsLong()).append(", Логин: ")
-                            .append(user.get("username").getAsString()).append("\n");
-                }
-                usersArea.setText(sb.toString());
-            } else {
-                usersArea.setText("Не удалось получить список пользователей.");
+            {
+                buttons.setAlignment(Pos.CENTER);
+
+                deleteButton.getStyleClass().add("danger-button");
+                editButton.getStyleClass().add("primary-button");
+                buttons.getStyleClass().add("buttons-container");
+
+                deleteButton.setOnAction(event -> {
+                    JsonObject user = getTableView().getItems().get(getIndex());
+                    handleDelete(user.get("userId").getAsLong());
+                });
+
+                editButton.setOnAction(event -> {
+                    JsonObject user = getTableView().getItems().get(getIndex());
+                    handleEdit(user);
+                });
             }
-        } catch (Exception e) {
-            usersArea.setText("Ошибка при загрузке пользователей: " + e.getMessage());
+
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                setGraphic(empty ? null : buttons);
+            }
+        });
+    }
+
+    private String getRoleName(int roleId) {
+        switch (roleId) {
+            case 1: return "Администратор";
+            case 2: return "Пользователь";
+            default: return "Неизвестно";
         }
     }
 
     @FXML
-    private void handleDelete() {
-        try {
-            long userId = Long.parseLong(userIdField.getText());
+    private void handleRefresh() {
+        loadUsers();
+    }
 
-            JsonObject deleteRequest = new JsonObject();
-            deleteRequest.addProperty("command", "deleteUser");
+    private void loadUsers() {
+        try {
+            JsonObject request = new JsonObject();
+            request.addProperty("command", "findAllUsers");
+            JsonObject response = mainApp.getClient().sendRequest(request.toString());
+
+            if (response != null && response.get("status").getAsString().equals("success")) {
+                users.clear();
+                JsonArray usersArray = response.getAsJsonArray("users");
+
+                for (JsonElement userElem : usersArray) {
+                    JsonObject user = userElem.getAsJsonObject();
+                    users.add(user);
+                }
+
+                usersTable.setItems(users);
+                statusLabel.setText("Загружено пользователей: " + users.size());
+                statusLabel.setStyle("-fx-text-fill: green;");
+            } else {
+                String error = response != null ? response.get("message").getAsString() : "Неизвестная ошибка";
+                statusLabel.setText("Ошибка загрузки: " + error);
+                statusLabel.setStyle("-fx-text-fill: red;");
+            }
+        } catch (Exception e) {
+            statusLabel.setText("Ошибка: " + e.getMessage());
+            statusLabel.setStyle("-fx-text-fill: red;");
+            e.printStackTrace();
+        }
+    }
+
+    private void handleDelete(long userId) {
+        try {
+            JsonObject request = new JsonObject();
+            request.addProperty("command", "deleteUser");
 
             JsonObject data = new JsonObject();
             data.addProperty("userId", userId);
-            deleteRequest.add("data", data);
+            request.add("data", data);
 
-            JsonObject deleteResponse = mainApp.getClient().sendRequest(deleteRequest.toString());
+            JsonObject response = mainApp.getClient().sendRequest(request.toString());
 
-            if (deleteResponse != null && deleteResponse.get("status").getAsString().equals("success")) {
+            if (response != null && response.get("status").getAsString().equals("success")) {
                 statusLabel.setText("Пользователь успешно удален");
                 statusLabel.setStyle("-fx-text-fill: green;");
-                loadUsers();
+                loadUsers(); // Обновляем список
             } else {
-                String error = deleteResponse != null ? deleteResponse.get("message").getAsString() : "Нет ответа от сервера";
-                statusLabel.setText("Ошибка: " + error);
+                String error = response != null ? response.get("message").getAsString() : "Неизвестная ошибка";
+                statusLabel.setText("Ошибка удаления: " + error);
+                statusLabel.setStyle("-fx-text-fill: red;");
             }
-        } catch (NumberFormatException e) {
-            statusLabel.setText("Ошибка: ID должен быть числом");
         } catch (Exception e) {
             statusLabel.setText("Ошибка: " + e.getMessage());
+            statusLabel.setStyle("-fx-text-fill: red;");
+        }
+    }
+
+    private void handleEdit(JsonObject user) {
+        try {
+            mainApp.showEditUserView(user);
+        } catch (Exception e) {
+            statusLabel.setText("Ошибка перехода к редактированию: " + e.getMessage());
+            statusLabel.setStyle("-fx-text-fill: red;");
         }
     }
 
     @FXML
     private void handleBack() {
-        if(mainApp.getCurrentUserRoleId()==1){
+        if (mainApp.getCurrentUserRoleId() == 1) {
             mainApp.showAdminAccountView();
-            System.out.println("admin role");
-        }
-        else if(mainApp.getCurrentUserRoleId()==2) {
+        } else if (mainApp.getCurrentUserRoleId() == 2) {
             mainApp.showAccountView();
-            System.out.println("user role");
-        }
-        else {
-            System.out.println("Invalid role");
+        } else {
             mainApp.clearCurrentUser();
         }
     }

@@ -31,11 +31,12 @@ public class ViewFactory {
             case PAYMENTS: return new PaymentsCreator();
             case ALL_LOANS: return new AllLoansCreator();
             case EDIT_BANK: return new EditBankCreator();
+            case STATISTICS: return new LoanStatisticsCreator();
             default: throw new IllegalArgumentException("Unknown view type: " + viewType);
         }
     }
 
     public enum ViewType {
-        REGISTER, CLIENT_ACCOUNT, ADMIN_ACCOUNT, BANKS, DELETE_BY_ID, MAIN, EDIT_ACCOUNT, LOANS, LOAN_TYPES, PAYMENTS, ALL_LOANS, EDIT_BANK
+        REGISTER, CLIENT_ACCOUNT, ADMIN_ACCOUNT, BANKS, DELETE_BY_ID, MAIN, EDIT_ACCOUNT, LOANS, LOAN_TYPES, PAYMENTS, ALL_LOANS, EDIT_BANK, STATISTICS
     }
 }

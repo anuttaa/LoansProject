@@ -35,5 +35,6 @@
 
       <Button fx:id="myLoans" layoutX="950.0" layoutY="250.0" mnemonicParsing="false"
               onAction="#handleMyLoans" styleClass="primary-button" text="Мои кредиты" />
+      <Button text="Статистика" onAction="#handleShowStatistics"/>
    </children>
 </AnchorPane>

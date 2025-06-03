@@ -8,6 +8,9 @@ import exeption.PaymentValidationException;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.concurrent.Task;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.StringConverter;
 import javafx.fxml.FXML;
@@ -23,6 +26,7 @@ import server.Entities.Loan;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import server.Entities.LoanType;
+import server.Entities.User;
 import server.service.UserService;
 
 import java.io.IOException;
@@ -105,7 +109,6 @@ public class LoansViewController {
         statusColumn.setCellValueFactory(cellData ->
                 new SimpleStringProperty(cellData.getValue().getStatus()));
 
-        // Форматирование ячеек
         amountColumn.setCellFactory(column -> new TableCell<>() {
             @Override
             protected void updateItem(BigDecimal item, boolean empty) {
@@ -124,25 +127,35 @@ public class LoansViewController {
 
         actionsColumn.setCellFactory(column -> new TableCell<>() {
             private final Button deleteButton = new Button("Удалить");
+            private final HBox buttonsContainer = new HBox(5, deleteButton);
 
             {
-                deleteButton.getStyleClass().add("danger-button");
+                // Применяем стили
+                buttonsContainer.getStyleClass().add("action-buttons-container");
+                deleteButton.getStyleClass().add("delete-button");
+
                 deleteButton.setOnAction(event -> {
                     Loan loan = getTableView().getItems().get(getIndex());
-                    handleDeleteLoan(loan);
+                    if (loan != null) {
+                        handleDeleteLoan(loan);
+                    }
                 });
             }
 
             @Override
             protected void updateItem(Void item, boolean empty) {
                 super.updateItem(item, empty);
-                if (empty) {
+
+                if (empty || getIndex() >= getTableView().getItems().size()) {
                     setGraphic(null);
                 } else {
                     Loan loan = getTableView().getItems().get(getIndex());
-                    // Показываем кнопку только для кредитов со статусом "ACTIVE"
-                    deleteButton.setDisable(!"ACTIVE".equals(loan.getStatus()));
-                    setGraphic(deleteButton);
+                    if (loan != null) {
+                        deleteButton.setDisable(!"ACTIVE".equals(loan.getStatus()));
+                        setGraphic(buttonsContainer);
+                    } else {
+                        setGraphic(null);
+                    }
                 }
             }
         });
@@ -193,6 +206,7 @@ public class LoansViewController {
                     }
                 }
                 loansTable.setItems(loans);
+                System.out.println("Total loans in table: " + loansTable.getItems().size());
             } else {
                 showError(loansResponse != null ? loansResponse.get("message").getAsString() : "Не удалось загрузить кредиты");
             }
@@ -361,25 +375,6 @@ public class LoansViewController {
         }
     }
 
-    private void refreshLoanData(Loan loan) {
-        try {
-            JsonObject response = mainApp.getClient().sendRequest(
-                    new JsonObjectBuilder()
-                            .add("command", "getLoanDetails")
-                            .add("loanId", loan.getLoanId())
-                            .build().toString());
-
-            if (response != null && response.get("status").getAsString().equals("success")) {
-                Loan updatedLoan = gson.fromJson(response.getAsJsonObject("loan"), Loan.class);
-                int index = loansTable.getItems().indexOf(loan);
-                if (index >= 0) {
-                    loansTable.getItems().set(index, updatedLoan);
-                }
-            }
-        } catch (Exception e) {
-            showError("Ошибка обновления: " + e.getMessage());
-        }
-    }
 
     private boolean showConfirmation(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);

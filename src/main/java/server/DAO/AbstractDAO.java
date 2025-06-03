@@ -75,16 +75,17 @@ public abstract class AbstractDAO<T, ID> implements DAO<T, ID> {
 
     @Override
     public void delete(T entity) {
-        Transaction tx = null;
-        try (Session session = getCurrentSession()) {
-            tx = session.beginTransaction();
+        Session session = getCurrentSession();
+        Transaction transaction = null;
+        try {
+            transaction = session.beginTransaction();
             session.delete(entity);
-            tx.commit();
+            transaction.commit();
         } catch (Exception e) {
-            if (tx != null && tx.getStatus().canRollback()) {
-                tx.rollback();
+            if (transaction != null) {
+                transaction.rollback();
             }
-            throw new RuntimeException("Failed to delete " + entityClass.getSimpleName(), e);
+            throw new RuntimeException("Ошибка при удалении: " + e.getMessage(), e);
         }
     }
 

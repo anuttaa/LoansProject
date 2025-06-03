@@ -1,7 +1,10 @@
 package client;
 
+import client.controllers.EditAccountController;
 import client.controllers.EditBankController;
+import client.controllers.EditUserController;
 import client.controllers.LoanPaymentsController;
+import com.google.gson.JsonObject;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -15,6 +18,7 @@ import lombok.Setter;
 import client.viewFactories.ViewFactory;
 import server.Entities.Bank;
 import server.Entities.Loan;
+import server.Entities.User;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -62,12 +66,35 @@ public class MainApp extends Application {
         showView(ViewFactory.ViewType.CLIENT_ACCOUNT);
     }
 
+    public void showEditUserView(JsonObject user) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/editUser.fxml"));
+            Parent root = loader.load();
+
+            EditUserController controller = loader.getController();
+            controller.setMainApp(this);
+            controller.setUserData(user);
+
+
+            Stage stage = (Stage) primaryStage.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showError("Редактирование пользователя","Не удалось открыть форму редактирования");
+        }
+    }
+
     public void showAdminAccountView() {
         showView(ViewFactory.ViewType.ADMIN_ACCOUNT);
     }
 
     public void showBanksView() {
         showView(ViewFactory.ViewType.BANKS);
+    }
+
+    public void showLoanStatistics(){
+        showView(ViewFactory.ViewType.STATISTICS);
     }
 
     public void showLoansView() {

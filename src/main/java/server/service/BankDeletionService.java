@@ -1,6 +1,7 @@
 package server.service;
 
 import config.HibernateConfig;
+import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.slf4j.Logger;
@@ -22,17 +23,28 @@ public class BankDeletionService {
         try {
             tx = session.beginTransaction();
 
-            // 1. Получаем банк со всеми связями
-            Bank bank = session.get(Bank.class, bankId);
-            if (bank == null) {
-                throw new IllegalArgumentException("Bank not found with id: " + bankId);
-            }
+            session.createNativeQuery(
+                            "DELETE FROM payment WHERE loan_id IN " +
+                                    "(SELECT loan_id FROM loan WHERE loan_type_id IN " +
+                                    "(SELECT loan_type_id FROM loan_type WHERE bank_id = :bankId))")
+                    .setParameter("bankId", bankId)
+                    .executeUpdate();
 
-            // 2. Удаляем платежи → кредиты → типы кредитов → банк
-            deleteBankRelationsCascade(session, bank);
+            session.createNativeQuery(
+                            "DELETE FROM loan WHERE loan_type_id IN " +
+                                    "(SELECT loan_type_id FROM loan_type WHERE bank_id = :bankId)")
+                    .setParameter("bankId", bankId)
+                    .executeUpdate();
 
-            // 3. Удаляем сам банк
-            session.delete(bank);
+            session.createNativeQuery(
+                            "DELETE FROM loan_type WHERE bank_id = :bankId")
+                    .setParameter("bankId", bankId)
+                    .executeUpdate();
+
+            session.createNativeQuery(
+                            "DELETE FROM bank WHERE bank_id = :bankId")
+                    .setParameter("bankId", bankId)
+                    .executeUpdate();
 
             tx.commit();
             LOG.info("Bank {} and all related data deleted successfully", bankId);
@@ -45,32 +57,6 @@ public class BankDeletionService {
             throw new RuntimeException("Bank deletion failed", e);
         } finally {
             session.close();
-        }
-    }
-
-    private void deleteBankRelationsCascade(Session session, Bank bank) {
-        // Для каждого типа кредита банка
-        for (LoanType loanType : new ArrayList<>(bank.getLoanTypes())) {
-
-            // Для каждого кредита этого типа
-            for (Loan loan : new ArrayList<>(loanType.getLoans())) {
-
-                // Удаляем все платежи по кредиту
-                session.createQuery("DELETE FROM Payment p WHERE p.loan.loanId = :loanId")
-                        .setParameter("loanId", loan.getLoanId())
-                        .executeUpdate();
-
-                // Удаляем ссылку у пользователя
-                User user = loan.getClient();
-                user.getLoans().remove(loan);
-                session.update(user);
-
-                // Удаляем сам кредит
-                session.delete(loan);
-            }
-
-            // Удаляем тип кредита
-            session.delete(loanType);
         }
     }
 }

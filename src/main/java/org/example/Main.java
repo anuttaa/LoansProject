@@ -19,8 +19,9 @@ public class Main {
         UserService userService = new UserService();
         BankService bankService = new BankService();
         LoanService loanService = new LoanService();
-        LoanTypeService loanTyprService = new LoanTypeService();
+        LoanTypeService loanTypeService = new LoanTypeService();
         PaymentService paymentService = new PaymentService();
+        LoanStatisticsService loanStatisticsService = new LoanStatisticsService();
         userService.initializeFirstAdmin();
 
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
@@ -30,7 +31,7 @@ public class Main {
                 Socket clientSocket = serverSocket.accept();
                 System.out.println("Подключился клиент: " + clientSocket.getInetAddress());
 
-                new Thread(new ClientHandler(clientSocket, userService, paymentService, loanService, loanTyprService, bankService)).start();
+                new Thread(new ClientHandler(clientSocket, userService, paymentService, loanService, loanTypeService, bankService, loanStatisticsService)).start();
 
             }
         } catch (IOException e) {

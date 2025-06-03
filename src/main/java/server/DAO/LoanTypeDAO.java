@@ -2,10 +2,12 @@ package server.DAO;
 
 import org.hibernate.Session;
 import server.DTO.LoanTypeDTO;
+import server.DTO.RateRangeCountDTO;
 import server.Entities.LoanType;
 
 import java.util.List;
 import java.math.BigDecimal;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -118,6 +120,50 @@ public class LoanTypeDAO extends AbstractDAO<LoanType, Long> {
                                     "WHERE lt.loanTypeId = :loanTypeId", LoanType.class)
                     .setParameter("loanTypeId", loanTypeId)
                     .uniqueResultOptional();
+        }
+    }
+
+    public List<RateRangeCountDTO> getRateDistribution() {
+        try (Session session = getCurrentSession()) {
+            List<Object[]> results = session.createQuery(
+                            "SELECT " +
+                                    "CASE " +
+                                    "  WHEN lt.interestRate < 5 THEN '0-5%' " +
+                                    "  WHEN lt.interestRate BETWEEN 5 AND 10 THEN '5-10%' " +
+                                    "  WHEN lt.interestRate BETWEEN 10 AND 15 THEN '10-15%' " +
+                                    "  WHEN lt.interestRate > 15 THEN '15%+' " +
+                                    "END as rateRange, " +
+                                    "COUNT(lt) " +
+                                    "FROM LoanType lt " +
+                                    "GROUP BY rateRange", Object[].class)
+                    .list();
+
+            return results.stream()
+                    .map(o -> new RateRangeCountDTO((String) o[0], ((Long) o[1]).intValue()))
+                    .collect(Collectors.toList());
+        }
+    }
+
+    public Map<String, Long> getLoanCountByRateRange() {
+        try (Session session = getCurrentSession()) {
+            List<Object[]> results = session.createQuery(
+                            "SELECT " +
+                                    "CASE " +
+                                    "  WHEN lt.interestRate < 5 THEN '0-5%' " +
+                                    "  WHEN lt.interestRate BETWEEN 5 AND 10 THEN '5-10%' " +
+                                    "  WHEN lt.interestRate BETWEEN 10 AND 15 THEN '10-15%' " +
+                                    "  WHEN lt.interestRate > 15 THEN '15%+' " +
+                                    "END as rateRange, " +
+                                    "COUNT(lt) " +
+                                    "FROM LoanType lt " +
+                                    "GROUP BY rateRange", Object[].class)
+                    .list();
+
+            return results.stream()
+                    .collect(Collectors.toMap(
+                            o -> (String) o[0],
+                            o -> (Long) o[1]
+                    ));
         }
     }
 }

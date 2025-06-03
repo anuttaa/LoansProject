@@ -23,6 +23,9 @@ import server.Entities.LoanType;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 @Setter
@@ -50,14 +53,12 @@ public class CreateBankController {
 
     @FXML
     public void initialize() {
-        // Настройка столбцов таблицы
         idColumn.setCellValueFactory(new PropertyValueFactory<>("bankId"));
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("bankName"));
         addressColumn.setCellValueFactory(new PropertyValueFactory<>("address"));
         phoneColumn.setCellValueFactory(new PropertyValueFactory<>("phone"));
         emailColumn.setCellValueFactory(new PropertyValueFactory<>("email"));
 
-        // Настройка столбца с действиями
         actionsColumn.setCellFactory(param -> new TableCell<>() {
             private final Button addLoanButton = new Button("Добавить кредит");
             private final Button viewLoansButton = new Button("Кредиты");
@@ -66,13 +67,11 @@ public class CreateBankController {
             private final HBox buttons = new HBox(5, addLoanButton, viewLoansButton, editButton, deleteButton);
 
             {
-                // Стилизация кнопок
                 addLoanButton.getStyleClass().add("table-button");
                 viewLoansButton.getStyleClass().add("table-button");
                 editButton.getStyleClass().add("table-button");
                 deleteButton.getStyleClass().add("table-button");
 
-                // Установка минимальной ширины для кнопок
                 addLoanButton.setMinWidth(100);
                 viewLoansButton.setMinWidth(80);
                 editButton.setMinWidth(100);
@@ -147,42 +146,97 @@ public class CreateBankController {
     }
 
     private void deleteBank(Bank bank) {
-        // Подсчет связанных сущностей для предупреждения
-        int loanTypesCount = bank.getLoanTypes().size();
-        int totalLoans = bank.getLoanTypes().stream()
-                .mapToInt(lt -> lt.getLoans().size())
-                .sum();
+        try {
+            // 1. Загружаем данные о кредитных типах банка
+            JsonObject loanTypesRequest = new JsonObject();
+            loanTypesRequest.addProperty("command", "getLoanTypesByBank");
+            loanTypesRequest.addProperty("bankId", bank.getBankId());
 
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Critical Deletion");
-        alert.setHeaderText("You are about to delete: " + bank.getBankName());
-        alert.setContentText(String.format(
-                "This will permanently delete:\n" +
-                        "- %d loan types\n" +
-                        "- %d active loans\n" +
-                        "- All related payments\n\n" +
-                        "THIS ACTION CANNOT BE UNDONE! Continue?",
-                loanTypesCount, totalLoans
-        ));
+            JsonObject loanTypesResponse = mainApp.getClient().sendRequest(loanTypesRequest.toString());
 
-        if (alert.showAndWait().filter(r -> r == ButtonType.OK).isPresent()) {
-            try {
-                JsonObject request = new JsonObject();
-                request.addProperty("command", "deleteBank");
-                request.addProperty("bankId", bank.getBankId());
-
-                JsonObject response = mainApp.getClient().sendRequest(request.toString());
-
-                if ("success".equals(response.get("status").getAsString())) {
-                    showSuccess("Bank and all related data deleted");
-                    loadBanks();
-                } else {
-                    showError("Deletion failed: " +
-                            response.get("message").getAsString());
-                }
-            } catch (Exception e) {
-                showError("Error: " + e.getMessage());
+            // 2. Проверяем ответ сервера
+            if (loanTypesResponse == null) {
+                showError("Не удалось получить ответ от сервера");
+                return;
             }
+
+            if (!loanTypesResponse.has("status") || !loanTypesResponse.get("status").getAsString().equals("success")) {
+                String errorMsg = loanTypesResponse.has("message")
+                        ? loanTypesResponse.get("message").getAsString()
+                        : "Ошибка при загрузке типов кредитов";
+                showError(errorMsg);
+                return;
+            }
+
+            // 3. Парсим данные о кредитных типах
+            JsonArray loansArray = loanTypesResponse.getAsJsonArray("loanTypes");
+            List<LoanType> loanTypes = new ArrayList<>();
+
+            for (JsonElement loanElement : loansArray) {
+                LoanType loanType = gson.fromJson(loanElement, LoanType.class);
+                loanType.setLoans(loanType.getLoans() != null ? loanType.getLoans() : new ArrayList<>());
+                loanTypes.add(loanType);
+            }
+
+            bank.setLoanTypes(loanTypes);
+
+            int loanTypesCount = loanTypes.size();
+            int totalLoans = loanTypes.stream()
+                    .mapToInt(lt -> lt.getLoans().size())
+                    .sum();
+
+            Alert confirmationDialog = new Alert(Alert.AlertType.CONFIRMATION);
+            confirmationDialog.setTitle("Подтверждение удаления");
+            confirmationDialog.setHeaderText("Вы удаляете банк: " + bank.getBankName());
+            confirmationDialog.setContentText(String.format(
+                    "Будет удалено:\n" +
+                            "- %d типов кредитов\n" +
+                            "- %d активных кредитов\n" +
+                            "- Все связанные платежи\n\n" +
+                            "Действие невозможно отменить! Продолжить?",
+                    loanTypesCount, totalLoans
+            ));
+
+            confirmationDialog.showAndWait().ifPresent(response -> {
+                if (response == ButtonType.OK) {
+                    try {
+                        JsonObject deleteRequest = new JsonObject();
+                        deleteRequest.addProperty("command", "deleteBank");
+                        deleteRequest.addProperty("bankId", bank.getBankId());
+
+                        JsonObject deleteResponse = mainApp.getClient().sendRequest(deleteRequest.toString());
+
+                        // 8. Обрабатываем ответ от сервера
+                        if (deleteResponse == null) {
+                            showError("Нет ответа от сервера");
+                            return;
+                        }
+
+                        if (!deleteResponse.has("status")) {
+                            showError("Некорректный формат ответа");
+                            return;
+                        }
+
+                        String status = deleteResponse.get("status").getAsString();
+                        if ("success".equals(status)) {
+                            showSuccess("Банк и все связанные данные успешно удалены");
+                            loadBanks(); // Обновляем список банков
+                        } else {
+                            String errorMsg = deleteResponse.has("message")
+                                    ? deleteResponse.get("message").getAsString()
+                                    : "Неизвестная ошибка сервера";
+                            showError("Ошибка удаления: " + errorMsg);
+                        }
+                    } catch (Exception e) {
+                        showError("Ошибка при удалении: " + e.getMessage());
+                        e.printStackTrace();
+                    }
+                }
+            });
+
+        } catch (Exception e) {
+            showError("Ошибка при обработке банка: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -301,7 +355,6 @@ public class CreateBankController {
             request.addProperty("command", "getLoanTypesByBank");
             request.addProperty("bankId", bank.getBankId());
 
-            // Получаем строковый ответ от сервера
             JsonObject response = mainApp.getClient().sendRequest(request.toString());
 
 
@@ -313,7 +366,6 @@ public class CreateBankController {
                     loans.add(gson.fromJson(loanElement, LoanType.class));
                 }
 
-                // Создаем диалоговое окно
                 Dialog<Void> dialog = new Dialog<>();
                 dialog.setTitle("Кредиты банка");
                 dialog.setHeaderText("Кредиты банка: " + bank.getBankName());

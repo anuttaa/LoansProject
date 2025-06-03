@@ -19,11 +19,11 @@ public class Loan {
     @Column(name = "loan_id")
     private Long loanId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "client_id", nullable = false)
     private User client;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "loan_type_id", nullable = false)
     private LoanType loanType;
 

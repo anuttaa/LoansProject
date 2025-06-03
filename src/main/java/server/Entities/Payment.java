@@ -20,7 +20,7 @@ public class Payment {
     @Column(name = "payment_id")
     private Long paymentId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "loan_id", nullable = false)
     private Loan loan;
 

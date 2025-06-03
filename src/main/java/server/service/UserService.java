@@ -1,12 +1,17 @@
 package server.service;
 
+import config.HibernateConfig;
 import jakarta.persistence.EntityNotFoundException;
-import org.hibernate.Hibernate;
+import org.hibernate.LockMode;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import server.DAO.UserDAO;
 import server.DAO.RoleDAO;
 import server.DAO.BankDAO;
 import server.DTO.UserDTO;
 import server.Entities.Bank;
+import server.Entities.Loan;
 import server.Entities.Role;
 import server.Entities.User;
 import server.Security.PasswordHasher;
@@ -23,12 +28,21 @@ public class UserService implements Service<UserDTO, Long> {
     private final BankDAO bankDAO;
     private final PasswordHasher passwordHasher;
     private static final Logger LOG = LoggerFactory.getLogger(UserService.class);
+    private final SessionFactory sessionFactory;
+
+
+    // Метод для получения текущей сессии
+    private Session getCurrentSession() {
+        return sessionFactory.getCurrentSession();
+    }
+
 
     public UserService() {
         this.userDAO = new UserDAO();
         this.roleDAO = new RoleDAO();
         this.bankDAO = new BankDAO();
         this.passwordHasher = new PasswordHasher();
+        this.sessionFactory = HibernateConfig.getSessionFactory();
     }
 
     @Override
@@ -63,9 +77,38 @@ public class UserService implements Service<UserDTO, Long> {
 
     @Override
     public void delete(UserDTO userDTO) {
-        User user = userDAO.findById(userDTO.getUserId())
-                .orElseThrow(() -> new EntityNotFoundException("User not found"));
-        userDAO.delete(user);
+        try (Session session = sessionFactory.openSession()) {
+            Transaction transaction = session.beginTransaction();
+
+            try {
+                // 1. Получаем пользователя с блокировкой
+                User user = session.get(User.class, userDTO.getUserId(), LockMode.PESSIMISTIC_WRITE);
+                if (user == null) {
+                    throw new EntityNotFoundException("User not found");
+                }
+
+                // 2. Удаляем все связанные платежи и кредиты
+                session.createQuery("DELETE FROM Payment p WHERE p.loan.client.userId = :userId")
+                        .setParameter("userId", userDTO.getUserId())
+                        .executeUpdate();
+
+                session.createQuery("DELETE FROM Loan l WHERE l.client.userId = :userId")
+                        .setParameter("userId", userDTO.getUserId())
+                        .executeUpdate();
+
+                // 3. Удаляем самого пользователя
+                session.createQuery("DELETE FROM User u WHERE u.userId = :userId")
+                        .setParameter("userId", userDTO.getUserId())
+                        .executeUpdate();
+
+                transaction.commit();
+            } catch (Exception e) {
+                if (transaction != null) {
+                    transaction.rollback();
+                }
+                throw new RuntimeException("Ошибка при удалении пользователя: " + e.getMessage(), e);
+            }
+        }
     }
 
     public User register(UserDTO userDTO) throws AuthExeption {
@@ -100,7 +143,6 @@ public class UserService implements Service<UserDTO, Long> {
         }
     }
 
-    // Вспомогательные методы
     private User convertToEntity(UserDTO dto) {
         User user = new User();
         user.setUsername(dto.getUsername());
@@ -151,7 +193,7 @@ public class UserService implements Service<UserDTO, Long> {
             throw new AuthExeption("Admin registration is not allowed");
         }
         if (userDAO.findByUsername(dto.getUsername()).isPresent()) {
-            throw new AuthExeption("Username already exists");
+            throw new AuthExeption("Логин уже существует!");
         }
     }
 
@@ -182,7 +224,7 @@ public class UserService implements Service<UserDTO, Long> {
         adminDTO.setEmail("admin@bank.com");
         adminDTO.setPhone("+375000000000");
         adminDTO.setAddress("Headquarters");
-        adminDTO.setBirthDate(LocalDate.now().minusYears(30)); // Устанавливаем LocalDate напрямую
+        adminDTO.setBirthDate(LocalDate.now().minusYears(30));
         adminDTO.setRoleId(1L);
         return adminDTO;
     }

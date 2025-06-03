@@ -57,4 +57,5 @@
     <Button fx:id="deleteByID" layoutX="580.0" layoutY="650.0" mnemonicParsing="false"
             onAction="#handleDeleteByID" styleClass="danger-button" text="Удалить пользователя"
             prefWidth="280.0"/>
+    <Button text="Статистика" onAction="#handleShowStatistics"/>
 </AnchorPane>

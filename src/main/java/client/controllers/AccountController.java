@@ -54,6 +54,11 @@ public class AccountController {
     @FXML
     private void handleAccount() { mainApp.showEditAccountView(); }
 
+    @FXML
+    public void handleShowStatistics(){
+        mainApp.showLoanStatistics();
+    }
+
     private void openWindow(String fxmlPath, String title) {
         try {
             Parent root = FXMLLoader.load(getClass().getResource(fxmlPath));

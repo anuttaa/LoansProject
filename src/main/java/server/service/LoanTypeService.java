@@ -10,6 +10,7 @@ import server.Entities.Bank;
 import server.Entities.LoanType;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 import java.math.BigDecimal;
@@ -60,6 +61,38 @@ public class LoanTypeService {
 
     public List<Bank> getAllBanks() {
         return bankDAO.findAll();
+    }
+
+    public LoanTypeDTO updateLoanType(LoanTypeDTO loanTypeDTO) {
+        // 1. Проверка существования типа кредита
+        LoanType existingLoanType = loanTypeDAO.findById(loanTypeDTO.getLoanTypeId())
+                .orElseThrow(() -> new NoSuchElementException("Тип кредита не найден"));
+
+        // 2. Проверка существования банка
+        Bank bank = bankDAO.findByBankName(loanTypeDTO.getBankName())
+                .orElseThrow(() -> new NoSuchElementException("Банк '" + loanTypeDTO.getBankName() + "' не найден"));
+
+
+        // 3. Обновление полей
+        existingLoanType.setLoanTypeName(loanTypeDTO.getLoanTypeName());
+        existingLoanType.setInterestRate(loanTypeDTO.getInterestRate());
+        existingLoanType.setBank(bank);
+
+        // 4. Сохранение
+        LoanType updatedLoanType = loanTypeDAO.save(existingLoanType);
+
+        // 5. Конвертация в DTO
+        return convertToDTO(updatedLoanType);
+    }
+
+    private LoanTypeDTO convertToDTO(LoanType loanType) {
+        LoanTypeDTO dto = new LoanTypeDTO();
+        dto.setLoanTypeId(loanType.getLoanTypeId());
+        dto.setLoanTypeName(loanType.getLoanTypeName());
+        dto.setInterestRate(loanType.getInterestRate());
+        dto.setBankId(loanType.getBank().getBankId());
+        dto.setBankName(loanType.getBank().getBankName());
+        return dto;
     }
 
     private LoanTypeDTO convertToDto(LoanType type) {

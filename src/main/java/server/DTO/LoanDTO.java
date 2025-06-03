@@ -1,5 +1,6 @@
 package server.DTO;
 
+import com.google.gson.annotations.SerializedName;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,11 +12,14 @@ import java.time.LocalDate;
 @Setter
 public class LoanDTO {
     private Long loanId;
-    private Long clientId;
-    private Long loanTypeId;
     private Long bankId;
+    private String bankName;
+    private Long clientId;
+    private String clientName;
+    private Long loanTypeId;
     private String loanTypeName;
     private BigDecimal interestRate;
+    @SerializedName("amount")
     private BigDecimal loanAmount;
     private Integer termMonths;
     private LocalDate startDate;

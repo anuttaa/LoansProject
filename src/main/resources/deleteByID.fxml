@@ -11,34 +11,30 @@
             prefHeight="810.0" prefWidth="1440.0">
 
     <!-- Основной контейнер -->
-    <VBox alignment="CENTER" spacing="30" AnchorPane.topAnchor="150" AnchorPane.bottomAnchor="150"
-          AnchorPane.leftAnchor="400" AnchorPane.rightAnchor="400">
+    <VBox alignment="CENTER" spacing="20" AnchorPane.topAnchor="50" AnchorPane.bottomAnchor="50"
+          AnchorPane.leftAnchor="100" AnchorPane.rightAnchor="100">
 
         <!-- Заголовок -->
-        <Label text="Удаление пользователя" styleClass="title-label"/>
+        <Label text="Управление пользователями" styleClass="title-label"/>
 
-        <!-- Форма ввода -->
-        <VBox spacing="10" styleClass="form-container">
-            <Label text="Введите ID пользователя:" styleClass="input-label"/>
-            <TextField fx:id="userIdField" styleClass="input-field"/>
+        <!-- Таблица пользователей -->
+        <TableView fx:id="usersTable" styleClass="users-table" prefHeight="400">
+            <columns>
+                <TableColumn text="ID" fx:id="idColumn" prefWidth="50"/>
+                <TableColumn text="Логин" fx:id="usernameColumn" prefWidth="150"/>
+                <TableColumn text="Роль" fx:id="roleColumn" prefWidth="100"/>
+                <TableColumn text="Email" fx:id="emailColumn" prefWidth="200"/>
+                <TableColumn text="Действия" fx:id="actionsColumn" prefWidth="400"/>
+            </columns>
+        </TableView>
 
-            <!-- Кнопки -->
-            <HBox spacing="20" alignment="CENTER">
-                <Button text="Удалить" onAction="#handleDelete" styleClass="danger-button"/>
-                <Button text="Назад" onAction="#handleBack" styleClass="secondary-button"/>
-            </HBox>
-        </VBox>
+        <!-- Статус операции -->
+        <Label fx:id="statusLabel" styleClass="status-label"/>
 
-        <!-- Список пользователей -->
-        <VBox spacing="5">
-            <Label text="Список пользователей:" styleClass="section-label"/>
-            <TextArea fx:id="usersArea" styleClass="info-area"/>
-        </VBox>
-
-        <!-- Статус -->
-        <VBox spacing="5">
-            <Label text="Статус операции:" styleClass="section-label"/>
-            <TextArea fx:id="statusLabel" styleClass="info-area"/>
-        </VBox>
+        <!-- Кнопки -->
+        <HBox spacing="20" alignment="CENTER">
+            <Button text="Обновить список" onAction="#handleRefresh" styleClass="primary-button"/>
+            <Button text="Назад" onAction="#handleBack" styleClass="secondary-button"/>
+        </HBox>
     </VBox>
 </AnchorPane>

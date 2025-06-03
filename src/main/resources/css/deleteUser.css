@@ -1,95 +1,127 @@
-/* Основные стили */
+/* Основные стили для AnchorPane */
 .root {
     -fx-background-color: #f5f5f5;
-    -fx-font-family: 'Arial';
+    -fx-font-family: 'Segoe UI', Arial, sans-serif;
 }
 
-/* Заголовок */
+/* Стиль заголовка */
 .title-label {
     -fx-font-size: 24px;
     -fx-font-weight: bold;
     -fx-text-fill: #2c3e50;
+    -fx-padding: 0 0 20px 0;
 }
 
-/* Контейнер формы */
-.form-container {
+/* Стили для таблицы */
+.users-table {
     -fx-background-color: white;
-    -fx-padding: 20;
-    -fx-border-radius: 5;
-    -fx-background-radius: 5;
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 0);
+    -fx-border-color: #dcdcdc;
+    -fx-border-width: 1px;
+    -fx-border-radius: 5px;
+    -fx-padding: 5px;
 }
 
-/* Метки */
-.input-label {
-    -fx-font-size: 14px;
-    -fx-text-fill: #2c3e50;
-}
-
-.section-label {
-    -fx-font-size: 16px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #2c3e50;
-}
-
-/* Поля ввода */
-.input-field {
-    -fx-font-size: 14px;
-    -fx-pref-height: 35;
-    -fx-pref-width: 300;
-    -fx-background-radius: 3;
-    -fx-border-radius: 3;
-    -fx-border-color: #C0C0C0;
-    -fx-padding: 5;
-}
-
-.input-field:focused {
-    -fx-border-color: #568EA3;
-}
-
-/* Текстовые области */
-.info-area {
-    -fx-font-size: 14px;
-    -fx-pref-width: 600;
-    -fx-pref-height: 150;
-    -fx-background-color: #fffde8;
-    -fx-border-color: #C0C0C0;
-    -fx-border-radius: 3;
-    -fx-background-radius: 3;
-    -fx-padding: 10;
-}
-
-/* Кнопки */
-.danger-button {
-    -fx-background-color: #E15554;
+.users-table .column-header {
+    -fx-background-color: #568EA3;
     -fx-text-fill: white;
     -fx-font-weight: bold;
-    -fx-pref-width: 120;
-    -fx-pref-height: 40;
-    -fx-background-radius: 3;
+    -fx-font-size: 14px;
+}
+
+.users-table .column-header-background {
+    -fx-background-color: transparent;
+}
+
+.users-table .table-row-cell {
+    -fx-cell-size: 40px;
+    -fx-border-color: #e0e0e0;
+    -fx-border-width: 0 0 1px 0;
+}
+
+.users-table .table-row-cell:odd {
+    -fx-background-color: #f9f9f9;
+}
+
+.users-table .table-row-cell:selected {
+    -fx-background-color: #bde0ff;
+    -fx-text-fill: black;
+}
+
+.users-table .table-cell {
+    -fx-padding: 5px 10px;
+    -fx-alignment: CENTER_LEFT;
+    -fx-font-size: 13px;
+}
+
+/* Стили для кнопок */
+.primary-button {
+    -fx-background-color: #568EA3;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-padding: 8px 16px;
+    -fx-background-radius: 5px;
     -fx-cursor: hand;
+}
+
+.primary-button:hover {
+    -fx-background-color: #2980b9;
 }
 
 .secondary-button {
-    -fx-background-color: #568EA3;
+    -fx-background-color: #95a5a6;
     -fx-text-fill: white;
-    -fx-pref-width: 120;
-    -fx-pref-height: 40;
-    -fx-background-radius: 3;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-padding: 8px 16px;
+    -fx-background-radius: 5px;
     -fx-cursor: hand;
 }
 
-/* Эффекты при наведении */
-.danger-button:hover {
-    -fx-background-color: #C74443;
-}
-
 .secondary-button:hover {
-    -fx-background-color: #457b8b;
+    -fx-background-color: #7f8c8d;
 }
 
-/* Эффекты при нажатии */
-.button:pressed {
-    -fx-scale-x: 0.98;
-    -fx-scale-y: 0.98;
+.danger-button {
+    -fx-background-color: #e74c3c;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 5px 10px;
+    -fx-background-radius: 3px;
+    -fx-cursor: hand;
+}
+
+.danger-button:hover {
+    -fx-background-color: #c0392b;
+}
+
+/* Стиль для метки статуса */
+.status-label {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 10px 0;
+}
+
+/* Стиль для успешного статуса */
+.status-success {
+    -fx-text-fill: #27ae60;
+}
+
+/* Стиль для ошибки */
+.status-error {
+    -fx-text-fill: #e74c3c;
+}
+
+/* Стиль для кнопок в ячейках таблицы */
+.table-button {
+    -fx-font-size: 12px;
+    -fx-padding: 3px 8px;
+    -fx-background-radius: 3px;
+    -fx-cursor: hand;
+}
+
+/* Стиль для контейнера кнопок в ячейке */
+.buttons-container {
+    -fx-spacing: 5px;
+    -fx-alignment: CENTER;
 }

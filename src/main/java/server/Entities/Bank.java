@@ -28,6 +28,11 @@ public class Bank {
     @Column(name = "email")
     private String email;
 
-    @OneToMany(mappedBy = "bank")
-    private List<LoanType> loanTypes;
+    @OneToMany(
+            mappedBy = "bank",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.EAGER
+    )
+    private List<LoanType> loanTypes = new ArrayList<>();
 }

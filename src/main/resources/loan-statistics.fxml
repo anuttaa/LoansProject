@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.controllers.LoanStatisticsController" stylesheets="@css/statistics.css">
+    <top>
+        <ToolBar>
+            <Label text="Статистика кредитов" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
+            <Button text="Обновить" onAction="#handleRefresh"/>
+            <Button text="Закрыть" onAction="#handleClose"/>
+        </ToolBar>
+    </top>
+
+    <center>
+        <TabPane>
+            <Tab text="Общая статистика">
+                <VBox spacing="10" style="-fx-padding: 10;">
+                    <HBox spacing="20">
+                        <VBox spacing="5">
+                            <Label text="Средняя процентная ставка:"/>
+                            <Label fx:id="avgRateLabel" style="-fx-font-size: 16; -fx-font-weight: bold;"/>
+
+                            <Label text="Самый популярный банк:"/>
+                            <Label fx:id="popularBankLabel" style="-fx-font-size: 16; -fx-font-weight: bold;"/>
+                        </VBox>
+
+                        <VBox spacing="5">
+                            <Label text="Всего кредитов:"/>
+                            <Label fx:id="totalLoansLabel" style="-fx-font-size: 16; -fx-font-weight: bold;"/>
+
+                            <Label text="Общая сумма кредитов:"/>
+                            <Label fx:id="totalAmountLabel" style="-fx-font-size: 16; -fx-font-weight: bold;"/>
+                        </VBox>
+                    </HBox>
+
+                    <BarChart fx:id="loansByBankChart" title="Кредиты по банкам" legendVisible="false" animated="false">
+                        <xAxis>
+                            <CategoryAxis label="Банк"/>
+                        </xAxis>
+                        <yAxis>
+                            <NumberAxis label="Количество"/>
+                        </yAxis>
+                    </BarChart>
+                </VBox>
+            </Tab>
+
+            <Tab text="Распределение ставок">
+                <VBox spacing="10" style="-fx-padding: 10;">
+                    <PieChart fx:id="ratesPieChart" title="Распределение процентных ставок"/>
+                    <LineChart fx:id="ratesTrendChart" title="Динамика ставок">
+                        <xAxis>
+                            <CategoryAxis label="Месяц"/>
+                        </xAxis>
+                        <yAxis>
+                            <NumberAxis label="Средняя ставка"/>
+                        </yAxis>
+                    </LineChart>
+                </VBox>
+            </Tab>
+        </TabPane>
+    </center>
+</BorderPane>
