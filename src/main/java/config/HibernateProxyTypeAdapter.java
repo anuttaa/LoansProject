@@ -14,7 +14,6 @@ public class HibernateProxyTypeAdapter  implements JsonSerializer<HibernateProxy
         if (proxy == null) {
             return JsonNull.INSTANCE;
         }
-        // Получаем реальный объект из прокси
         Object original = proxy.getHibernateLazyInitializer().getImplementation();
         return context.serialize(original);
     }

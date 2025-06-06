@@ -9,7 +9,6 @@
         <appender-ref ref="CONSOLE"/>
     </root>
 
-    <!-- Дополнительные настройки для пакетов -->
     <logger name="org.example" level="DEBUG"/>
     <logger name="org.glassfish.jersey" level="INFO"/>
     <appender name="FILE" class="ch.qos.logback.core.FileAppender">

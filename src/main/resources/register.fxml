@@ -18,17 +18,14 @@
          </image>
       </ImageView>
 
-      <!-- Основной контейнер для формы -->
       <Pane layoutX="240.0" layoutY="220.0" prefHeight="460.0" prefWidth="960.0" style="-fx-background-color: rgba(255,255,255,0.9); -fx-background-radius: 20;">
          <children>
-            <!-- Заголовок -->
             <Label layoutX="380.0" layoutY="20.0" text="Регистрация" styleClass="title-label">
                <font>
                   <Font name="System Bold" size="22.0" />
                </font>
             </Label>
 
-            <!-- Левая колонка -->
             <Pane layoutX="40.0" layoutY="60.0" prefWidth="400.0" prefHeight="250.0">
                <children>
                   <Label layoutY="0.0" text="Логин:" styleClass="field-label" />
@@ -42,7 +39,6 @@
                </children>
             </Pane>
 
-            <!-- Правая колонка -->
             <Pane layoutX="520.0" layoutY="60.0" prefWidth="400.0" prefHeight="250.0">
                <children>
                   <Label layoutY="0.0" text="Дата рождения:" styleClass="field-label" />
@@ -56,7 +52,6 @@
                </children>
             </Pane>
 
-            <!-- Адрес - полностью переработанное позиционирование -->
             <Pane layoutX="40.0" layoutY="320.0" prefWidth="880.0" prefHeight="60.0">
                <children>
                   <Label layoutY="0.0" text="Адрес:" styleClass="field-label" />
@@ -64,7 +59,6 @@
                </children>
             </Pane>
 
-            <!-- Кнопки -->
             <Button fx:id="register" layoutX="280.0" layoutY="390.0" mnemonicParsing="false" onAction="#handleRegister" prefHeight="40.0" prefWidth="400.0" styleClass="register-button" text="Зарегистрироваться" />
 
             <Button fx:id="backButton" layoutX="20.0" layoutY="20.0" mnemonicParsing="false" onAction="#handleBack" prefHeight="28.0" prefWidth="70.0" styleClass="back-button" text="Назад" />

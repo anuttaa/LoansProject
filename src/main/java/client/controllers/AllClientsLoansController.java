@@ -20,26 +20,11 @@ import java.util.List;
 import java.util.Optional;
 import javafx.beans.property.SimpleStringProperty;
 import java.math.BigDecimal;
-import javafx.geometry.Pos;
 import javafx.scene.layout.VBox;
-import server.Entities.Bank;
 import server.Entities.Loan;
 import server.Entities.LoanType;
-import server.Entities.User;
-
-import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
-import javafx.application.Platform;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.collections.FXCollections;
-import javafx.fxml.FXML;
-import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.*;
-import javafx.util.StringConverter;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.*;
+
 
 public class AllClientsLoansController {
     @FXML private TableView<LoanDTO> loansTable;
@@ -194,7 +179,6 @@ public class AllClientsLoansController {
 
     private void handleEditLoan(LoanDTO loanDto) {
         try {
-            // Загружаем детали кредита для редактирования
             JsonObject detailsRequest = new JsonObject();
             detailsRequest.addProperty("command", "getLoanDetails");
             detailsRequest.addProperty("loanId", loanDto.getLoanId());
@@ -209,14 +193,12 @@ public class AllClientsLoansController {
             JsonObject loanJson = detailsResponse.getAsJsonObject("loan");
             Loan loan = gson.fromJson(loanJson, Loan.class);
 
-            // Загружаем доступные типы кредитов
             List<LoanType> availableTypes = loadAvailableLoanTypes();
             if (availableTypes.isEmpty()) {
                 showError("Нет доступных типов кредитов");
                 return;
             }
 
-            // Создаем диалоговое окно
             Dialog<Loan> dialog = new Dialog<>();
             dialog.setTitle("Редактирование кредита");
             dialog.setHeaderText("Изменение параметров кредита");
@@ -244,14 +226,12 @@ public class AllClientsLoansController {
                 }
             });
 
-            // Устанавливаем выбранный тип кредита
             if (loan.getLoanType() != null) {
                 typeCombo.getSelectionModel().select(loan.getLoanType());
             } else if (!availableTypes.isEmpty()) {
                 typeCombo.getSelectionModel().selectFirst();
             }
 
-            // Остальной код метода остается без изменений
             TextField amountField = new TextField(loan.getLoanAmount().toString());
             TextField termField = new TextField(String.valueOf(loan.getTermMonths()));
 
@@ -261,7 +241,6 @@ public class AllClientsLoansController {
             ComboBox<String> statusCombo = new ComboBox<>(FXCollections.observableArrayList("PENDING", "ACTIVE", "CLOSED"));
             statusCombo.getSelectionModel().select(loan.getStatus());
 
-            // Валидация числовых полей
             amountField.textProperty().addListener((observable, oldValue, newValue) -> {
                 if (!newValue.matches("\\d*(\\.\\d*)?")) {
                     amountField.setText(oldValue);
@@ -334,7 +313,7 @@ public class AllClientsLoansController {
 
                     if (updateResponse != null && updateResponse.get("status").getAsString().equals("success")) {
                         showSuccess("Кредит успешно обновлен");
-                        loadLoansData(); // Перезагружаем данные
+                        loadLoansData();
                     } else {
                         String errorMsg = updateResponse != null
                                 ? updateResponse.get("message").getAsString()
@@ -430,22 +409,18 @@ public class AllClientsLoansController {
     }
 
     private void showError(String message) {
-        Platform.runLater(() -> {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Ошибка");
-            alert.setHeaderText(null);
-            alert.setContentText(message);
-            alert.showAndWait();
-        });
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Ошибка");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 
     private void showSuccess(String message) {
-        Platform.runLater(() -> {
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Успешно");
-            alert.setHeaderText(null);
-            alert.setContentText(message);
-            alert.showAndWait();
-        });
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Успешно");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }

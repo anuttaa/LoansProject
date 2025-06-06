@@ -10,12 +10,10 @@
             fx:controller="client.controllers.LoanTypesViewController"
             stylesheets="@css/loanTypes.css">
 
-    <!-- Основной контейнер с отступами -->
     <VBox spacing="15" styleClass="main-container"
           AnchorPane.topAnchor="15" AnchorPane.rightAnchor="15"
           AnchorPane.bottomAnchor="15" AnchorPane.leftAnchor="15">
 
-        <!-- Компактная панель фильтрации -->
         <HBox spacing="10" styleClass="filter-panel" HBox.hgrow="ALWAYS">
             <Label text="Банк:" styleClass="filter-label"/>
             <ComboBox fx:id="bankCombo" styleClass="filter-combo" prefWidth="180"/>
@@ -32,7 +30,6 @@
             <Button text="Сбросить" onAction="#handleResetFilters" styleClass="secondary-button"/>
         </HBox>
 
-        <!-- Таблица с фиксированной высотой -->
         <TableView fx:id="loanTypesTable" styleClass="data-table" prefHeight="600">
             <columns>
                 <TableColumn fx:id="typeIdColumn" text="ID" prefWidth="60"/>
@@ -44,7 +41,6 @@
             </columns>
         </TableView>
 
-        <!-- Компактная панель кнопок -->
         <HBox spacing="15" alignment="CENTER_RIGHT">
             <Button text="Оформить" onAction="#handleTakeLoan" styleClass="primary-button" prefWidth="150"/>
             <Button text="Назад" onAction="#handleBack" styleClass="secondary-button" prefWidth="100"/>

@@ -21,10 +21,9 @@
          </image>
       </ImageView>
 
-      <!-- Центральная панель с полями ввода -->
       <AnchorPane layoutX="470.0" layoutY="250.0" prefWidth="500.0" prefHeight="350.0">
          <children>
-            <!-- Поле логина -->
+
             <TextField fx:id="loginField" layoutX="75.0" layoutY="0.0" prefHeight="50.0" prefWidth="350.0"
                        promptText="Логин" styleClass="text-field">
                <font>
@@ -32,7 +31,6 @@
                </font>
             </TextField>
 
-            <!-- Поле пароля -->
             <PasswordField fx:id="passwordField" layoutX="75.0" layoutY="70.0" prefHeight="50.0" prefWidth="350.0"
                            promptText="Пароль" styleClass="text-field">
                <font>
@@ -40,7 +38,6 @@
                </font>
             </PasswordField>
 
-            <!-- Кнопки -->
             <Button fx:id="exit" layoutX="75.0" layoutY="150.0" mnemonicParsing="false" onAction="#handleExit"
                     prefHeight="50.0" prefWidth="160.0" styleClass="auth-button" text="Вход">
                <font>

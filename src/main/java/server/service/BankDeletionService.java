@@ -6,12 +6,6 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import server.Entities.Bank;
-import server.Entities.Loan;
-import server.Entities.LoanType;
-import server.Entities.User;
-
-import java.util.ArrayList;
 
 public class BankDeletionService {
     private static final Logger LOG = LoggerFactory.getLogger(BankDeletionService.class);

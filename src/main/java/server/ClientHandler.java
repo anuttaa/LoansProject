@@ -32,7 +32,7 @@ public class ClientHandler implements Runnable {
                         try {
                             return new BigDecimal(json.getAsString());
                         } catch (NumberFormatException e) {
-                            throw new JsonParseException("Invalid BigDecimal value: " + json.getAsString());
+                            throw new JsonParseException("Неверное BigDecimal значение: " + json.getAsString());
                         }
                     })
             .create();
@@ -48,7 +48,6 @@ public class ClientHandler implements Runnable {
     private final LoanTypeService loanTypeService;
     private final BankService bankService;
     private final LoanStatisticsService loanStatisticsService;
-    private Long currentUserId;
     private static final Logger LOG = LoggerFactory.getLogger(UserService.class);
 
     public ClientHandler(Socket clientSocket, UserService userService, PaymentService paymentService, LoanService loanService, LoanTypeService loanTypeService, BankService bankService, LoanStatisticsService loanStatisticsService) throws IOException {
@@ -149,18 +148,18 @@ public class ClientHandler implements Runnable {
 
     private String handleRegister(JsonObject data, String unused) {
         try {
-            System.out.println("[SERVER] Received full request: " + data);
+            System.out.println("[SERVER] Получен запрос: " + data);
 
             if (!data.has("user")) {
-                System.err.println("[SERVER] User object is missing");
-                return errorResponse("User data is missing");
+                System.err.println("[SERVER] Объект пользователя не найден");
+                return errorResponse("Объект пользователя не найден");
             }
 
             JsonObject userJson = data.getAsJsonObject("user");
             UserDTO userDTO = gson.fromJson(userJson, UserDTO.class);
 
             if (userDTO.getUsername() == null || userDTO.getPassword() == null) {
-                return errorResponse("Username and password are required");
+                return errorResponse("Логин и пароль обязательны");
             }
 
             User registeredUser = userService.register(userDTO);
@@ -183,7 +182,7 @@ public class ClientHandler implements Runnable {
         try {
             JsonObject authData = data.getAsJsonObject("data");
             if (authData == null) {
-                return errorResponse("Authentication data is missing");
+                return errorResponse("Данные авторизации не найдены");
             }
 
             String username = authData.get("username").getAsString();
@@ -208,16 +207,13 @@ public class ClientHandler implements Runnable {
 
     private String handleAddBank(JsonObject data, String unused) {
         try {
-            System.out.println("Incoming data: " + data.toString());
             JsonObject bankData = data.getAsJsonObject("data");
 
-            // Проверяем обязательное поле bankName
             if (!bankData.has("bankName") || bankData.get("bankName").isJsonNull()
                     || bankData.get("bankName").getAsString().trim().isEmpty()) {
                 return errorResponse("Название банка обязательно для заполнения");
             }
 
-            // Получаем значения полей
             String bankName = bankData.get("bankName").getAsString().trim();
             String address = bankData.has("address") && !bankData.get("address").isJsonNull()
                     ? bankData.get("address").getAsString().trim() : null;
@@ -226,7 +222,6 @@ public class ClientHandler implements Runnable {
             String email = bankData.has("email") && !bankData.get("email").isJsonNull()
                     ? bankData.get("email").getAsString().trim() : null;
 
-            // Создаем DTO
             BankDTO bankDTO = new BankDTO();
             bankDTO.setBankName(bankName);
             bankDTO.setAddress(address);
@@ -235,7 +230,6 @@ public class ClientHandler implements Runnable {
 
             Bank createdBank = bankService.createBank(bankDTO);
 
-            // Формируем успешный ответ
             JsonObject response = new JsonObject();
             response.addProperty("status", "success");
             response.add("bank", gson.toJsonTree(createdBank));
@@ -299,16 +293,13 @@ public class ClientHandler implements Runnable {
 
     private String handleUpdateBank(JsonObject data, String unused) {
         try {
-            // 1. Проверка наличия данных
             if (!data.has("data")) {
                 return errorResponse("Данные Bank не найдены");
             }
 
-            // 2. Парсинг входных данных
             JsonObject bankData = data.getAsJsonObject("data");
             BankDTO bankDTO = gson.fromJson(bankData, BankDTO.class);
 
-            // 3. Валидация обязательных полей
             if (bankDTO.getBankId() == null) {
                 return errorResponse("ID банка обязателен");
             }
@@ -319,20 +310,18 @@ public class ClientHandler implements Runnable {
                 return errorResponse("Email обязателен");
             }
 
-            // 4. Обновление банка через сервис
             BankDTO updatedBank = bankService.updateBank(bankDTO.getBankId(), bankDTO);
 
-            // 5. Формирование успешного ответа
             JsonObject response = new JsonObject();
             response.addProperty("status", "success");
             response.add("bank", gson.toJsonTree(updatedBank));
             return gson.toJson(response);
 
         } catch (NoSuchElementException e) {
-            LOG.error("Bank not found: " + e.getMessage());
+            LOG.error("Банк не найден: " + e.getMessage());
             return errorResponse("Банк не найден");
         } catch (Exception e) {
-            LOG.error("Error updating bank: " + e.getMessage());
+            LOG.error("Ошибка при обновлении банка: " + e.getMessage());
             return errorResponse("Ошибка при обновлении банка: " + e.getMessage());
         }
     }
@@ -366,28 +355,25 @@ public class ClientHandler implements Runnable {
         try {
             Long loanId = data.get("loanId").getAsLong();
 
-            // Получаем график платежей из сервиса
             List<PaymentScheduleDTO> schedule = paymentService.generateSchedule(loanId);
 
-            // Формируем ответ
             JsonObject response = new JsonObject();
             response.addProperty("status", "success");
             response.add("schedule", gson.toJsonTree(schedule));
 
-            // Логирование
-            LOG.info("Successfully generated payment schedule for loan ID: {}", loanId);
+            LOG.info("Успешно получено расписание для loan ID: {}", loanId);
             return gson.toJson(response);
 
         } catch (EntityNotFoundException e) {
-            LOG.warn("Loan not found for schedule generation: {}", e.getMessage());
+            LOG.warn("Кредит не найден: {}", e.getMessage());
             return errorResponse("Кредит не найден: " + e.getMessage());
 
         } catch (IllegalStateException e) {
-            LOG.error("Invalid loan state for schedule generation", e);
+            LOG.error("Невозможно сгенерировать график", e);
             return errorResponse("Невозможно сгенерировать график: " + e.getMessage());
 
         } catch (Exception e) {
-            LOG.error("Error generating payment schedule", e);
+            LOG.error("Ошибка генерации графика", e);
             return errorResponse("Ошибка генерации графика: " + e.getMessage());
         }
     }
@@ -396,28 +382,25 @@ public class ClientHandler implements Runnable {
         try {
             Long loanId = data.get("loanId").getAsLong();
 
-            // Получаем историю платежей из сервиса
             List<PaymentDTO> payments = paymentService.getPaymentHistory(loanId);
 
-            // Формируем ответ
             JsonObject response = new JsonObject();
             response.addProperty("status", "success");
             response.add("payments", gson.toJsonTree(payments));
 
-            // Логирование успешного выполнения
-            LOG.info("Successfully retrieved payment history for loan ID: {}", loanId);
+            LOG.info("Успешно получена история платежей для loan ID: {}", loanId);
             return gson.toJson(response);
 
         } catch (EntityNotFoundException e) {
-            LOG.warn("Payment history not found for loan: {}", e.getMessage());
+            LOG.warn("История платежей не найдена: {}", e.getMessage());
             return errorResponse("История платежей не найдена: " + e.getMessage());
 
         } catch (JsonSyntaxException e) {
-            LOG.error("JSON parsing error in payment history", e);
+            LOG.error("Ошибка формата данных", e);
             return errorResponse("Ошибка формата данных");
 
         } catch (Exception e) {
-            LOG.error("Error retrieving payment history", e);
+            LOG.error("Ошибка при получении истории платежей", e);
             return errorResponse("Ошибка при получении истории платежей: " + e.getMessage());
         }
     }
@@ -597,25 +580,10 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    private String handleCreateAdmin(JsonObject data) {
-        try {
-            JsonObject userJson = data.getAsJsonObject("user");
-            UserDTO adminDTO = gson.fromJson(userJson, UserDTO.class);
-            adminDTO.setRoleId(1L);
-
-            User newAdmin = userService.register(adminDTO);
-            return successResponse(newAdmin);
-
-        } catch (Exception e) {
-            return errorResponse("Ошибка создания администратора: " + e.getMessage());
-        }
-    }
-
     private String handleGetClientLoans(JsonObject data, String unused) {
         try {
             List<LoanDTO> loans;
 
-            // Определяем тип запроса
             if (data.has("bankName")) {
                 String bankName = data.get("bankName").getAsString();
                 loans = loanService.getLoanDTOsByBankName(bankName);
@@ -628,31 +596,26 @@ public class ClientHandler implements Runnable {
                 loans = loanService.getAllLoansWithBankInfo();
             }
 
-            // Преобразуем список DTO в JSON
             JsonArray loansArray = new JsonArray();
             for (LoanDTO loan : loans) {
                 JsonObject loanJson = new JsonObject();
-                // Основные поля кредита
                 loanJson.addProperty("id", loan.getLoanId());
                 loanJson.addProperty("amount", loan.getLoanAmount());
                 loanJson.addProperty("termMonths", loan.getTermMonths());
                 loanJson.addProperty("status", loan.getStatus());
                 loanJson.addProperty("startDate", loan.getStartDate().toString());
 
-                // Обработка endDate (может быть null)
                 if (loan.getEndDate() != null) {
                     loanJson.addProperty("endDate", loan.getEndDate().toString());
                 } else {
                     loanJson.add("endDate", JsonNull.INSTANCE);
                 }
 
-                // Информация о типе кредита
                 JsonObject typeJson = new JsonObject();
                 typeJson.addProperty("id", loan.getLoanTypeId());
                 typeJson.addProperty("name", loan.getLoanTypeName());
                 typeJson.addProperty("rate", loan.getInterestRate());
 
-                // Дополнительная информация о банке
                 typeJson.addProperty("bankId", loan.getBankId());
 
                 loanJson.add("loanType", typeJson);
@@ -660,7 +623,6 @@ public class ClientHandler implements Runnable {
                 loansArray.add(loanJson);
             }
 
-            // Формируем ответ
             JsonObject response = new JsonObject();
             response.addProperty("status", "success");
             response.add("loans", loansArray);
@@ -674,14 +636,12 @@ public class ClientHandler implements Runnable {
 
     private String handleTakeLoan(JsonObject data, String unused) {
         try {
-            // 1. Проверка входных данных
             if (!data.has("loanData") || data.get("loanData").isJsonNull()) {
                 return errorResponse("Отсутствует объект loanData в запросе");
             }
 
             JsonObject loanData = data.getAsJsonObject("loanData");
 
-            // 2. Валидация обязательных полей
             String[] requiredFields = {"userId", "loanTypeId", "amount", "termMonths"};
             for (String field : requiredFields) {
                 if (!loanData.has(field)) {
@@ -692,7 +652,6 @@ public class ClientHandler implements Runnable {
                 }
             }
 
-            // 3. Парсинг данных
             BigDecimal amount = new BigDecimal(loanData.get("amount").getAsString());
             if (amount.compareTo(BigDecimal.ZERO) <= 0) {
                 return errorResponse("Сумма кредита должна быть положительной");
@@ -703,14 +662,12 @@ public class ClientHandler implements Runnable {
                 return errorResponse("Срок кредита должен быть положительным");
             }
 
-            // 4. Создание DTO
             LoanDTO loanDTO = new LoanDTO();
             loanDTO.setClientId(loanData.get("userId").getAsLong());
             loanDTO.setLoanTypeId(loanData.get("loanTypeId").getAsLong());
             loanDTO.setLoanAmount(amount);
             loanDTO.setTermMonths(termMonths);
 
-            // 5. Создание кредита и получение JSON
             JsonObject response = loanService.createLoanAndReturnJson(loanDTO);
             return new Gson().toJson(response);
 
@@ -724,31 +681,6 @@ public class ClientHandler implements Runnable {
             LOG.error("Ошибка при оформлении кредита", e);
             return errorResponse("Внутренняя ошибка сервера при оформлении кредита");
         }
-    }
-
-    private JsonObject convertLoanToJson(Loan loan) {
-        JsonObject loanJson = new JsonObject();
-        loanJson.addProperty("id", loan.getLoanId());
-        loanJson.addProperty("amount", loan.getLoanAmount());
-        loanJson.addProperty("termMonths", loan.getTermMonths());
-        loanJson.addProperty("startDate", loan.getStartDate().toString());
-        loanJson.addProperty("status", loan.getStatus());
-
-        // Теперь loanType и bank уже загружены благодаря JOIN FETCH
-        LoanType loanType = loan.getLoanType();
-        JsonObject typeJson = new JsonObject();
-        typeJson.addProperty("id", loanType.getLoanTypeId());
-        typeJson.addProperty("name", loanType.getLoanTypeName());
-        typeJson.addProperty("rate", loanType.getInterestRate());
-
-        if (loanType.getBank() != null) {
-            typeJson.addProperty("bankId", loanType.getBank().getBankId());
-            typeJson.addProperty("bankName", loanType.getBank().getBankName());
-        }
-
-        loanJson.add("loanType", typeJson);
-
-        return loanJson;
     }
 
     private String handleGetLoanTypesByBank(JsonObject data, String unused) {
@@ -771,10 +703,8 @@ public class ClientHandler implements Runnable {
 
     private String handleGetLoanTypes(JsonObject data, String unused) {
         try {
-            // Получаем DTO объекты из сервиса
             List<LoanTypeDTO> loanTypes = loanTypeService.getAllLoanTypesWithBankInfo();
 
-            // Создаем JSON ответ
             JsonObject response = new JsonObject();
             response.addProperty("status", "success");
 
@@ -821,24 +751,19 @@ public class ClientHandler implements Runnable {
 
     private String handleCreateLoanType(JsonObject data, String unused) {
         try {
-            // 1. Получаем вложенный объект data
             JsonObject loanData = data.getAsJsonObject("data");
 
-            // 2. Проверяем наличие всех обязательных полей
             if (!loanData.has("bankId") || !loanData.has("loanTypeName") || !loanData.has("interestRate")) {
                 return errorResponse("Необходимо указать bankId, loanTypeName и interestRate");
             }
 
-            // 3. Извлекаем и валидируем данные
             long bankId = loanData.get("bankId").getAsLong();
             String loanTypeName = loanData.get("loanTypeName").getAsString();
 
-            // 4. Проверяем название кредита
             if (loanTypeName.trim().isEmpty()) {
                 return errorResponse("Название типа кредита не может быть пустым");
             }
 
-            // 5. Проверяем процентную ставку
             BigDecimal interestRate;
             try {
                 interestRate = new BigDecimal(loanData.get("interestRate").getAsString());
@@ -849,17 +774,14 @@ public class ClientHandler implements Runnable {
                 return errorResponse("Некорректный формат процентной ставки");
             }
 
-            // 6. Создаем DTO
             LoanTypeDTO dto = LoanTypeDTO.builder()
                     .bankId(bankId)
                     .loanTypeName(loanTypeName)
                     .interestRate(interestRate)
                     .build();
 
-            // 7. Создаем тип кредита
             LoanType created = loanTypeService.createLoanType(dto);
 
-            // 8. Формируем ответ
             JsonObject response = new JsonObject();
             response.addProperty("status", "success");
             response.add("loanType", convertLoanTypeToJson(created));
@@ -985,32 +907,25 @@ public class ClientHandler implements Runnable {
 
     private String handleGetLoanDetails(JsonObject data, String unused) {
         try {
-            // Валидация входных данных
             if (!data.has("loanId") || data.get("loanId").isJsonNull()) {
                 return errorResponse("Не указан ID кредита");
             }
 
             Long loanId = data.get("loanId").getAsLong();
 
-            // Получаем данные кредита из сервиса
             Loan loan = loanService.getLoanById(loanId);
 
-            // Конвертируем Loan в LoanDetailsDTO
             LoanDetailsDTO loanDetails = convertToLoanDetailsDTO(loan);
 
-            // Получаем актуальный график платежей
             List<PaymentScheduleDTO> schedule = paymentService.generateSchedule(loanId);
             loanDetails.setSchedule(schedule);
 
-            // Получаем остаток долга
             BigDecimal remainingDebt = paymentService.calculateRemainingDebt(loan);
             loanDetails.setRemainingDebt(remainingDebt);
 
-            // Получаем следующий платеж (если есть)
             PaymentScheduleDTO nextPayment = paymentService.getNextPaymentSchedule(loan);
             loanDetails.setNextPayment(nextPayment);
 
-            // Формируем ответ
             JsonObject response = new JsonObject();
             response.addProperty("status", "success");
             response.add("loan", gson.toJsonTree(loanDetails));
@@ -1028,7 +943,6 @@ public class ClientHandler implements Runnable {
     private LoanDetailsDTO convertToLoanDetailsDTO(Loan loan) {
         LoanDetailsDTO dto = new LoanDetailsDTO();
 
-        // Копируем основные поля
         dto.setLoanId(loan.getLoanId());
         dto.setLoanAmount(loan.getLoanAmount());
         dto.setTermMonths(loan.getTermMonths());
@@ -1036,7 +950,6 @@ public class ClientHandler implements Runnable {
         dto.setEndDate(loan.getEndDate());
         dto.setStatus(loan.getStatus());
 
-        // Обрабатываем связанные сущности через DTO
         if (loan.getLoanType() != null) {
             LoanTypeDTO typeDto = new LoanTypeDTO();
             typeDto.setLoanTypeId(loan.getLoanType().getLoanTypeId());
@@ -1094,7 +1007,6 @@ public class ClientHandler implements Runnable {
                 return errorResponse("Required fields are missing");
             }
 
-            // 4. Проверка типа bankId (альтернативный способ)
             try {
                 long bankId = data.get("bankId").getAsLong();
 
@@ -1124,23 +1036,14 @@ public class ClientHandler implements Runnable {
         return gson.toJson(response);
     }
 
-    private JsonObject successResponse() {
-        JsonObject response = new JsonObject();
-        response.addProperty("status", "success");
-        return response;
-    }
-
     private String handleUpdateLoan(JsonObject data, String unused) {
         try {
-            // 1. Проверка наличия данных
             if (!data.has("data")) {
                 return errorResponse("Данные Loan не найдены");
             }
 
-            // 2. Извлекаем и объединяем данные из корня и объекта data
             JsonObject loanData = data.getAsJsonObject("data").deepCopy();
 
-            // Добавляем поля из корня, если они отсутствуют в data
             if (data.has("status") && !loanData.has("status")) {
                 loanData.addProperty("status", data.get("status").getAsString());
             }
@@ -1151,7 +1054,6 @@ public class ClientHandler implements Runnable {
                 loanData.addProperty("userId", data.get("userId").getAsInt());
             }
 
-            // 3. Преобразование суммы
             if (loanData.has("amount")) {
                 try {
                     String amountStr = loanData.get("amount").getAsString();
@@ -1161,10 +1063,8 @@ public class ClientHandler implements Runnable {
                 }
             }
 
-            // 4. Парсинг DTO
             LoanDTO loanDTO = gson.fromJson(loanData, LoanDTO.class);
 
-            // 5. Валидация обязательных полей
             if (loanDTO.getLoanId() == null) {
                 return errorResponse("ID кредита обязательно");
             }
@@ -1184,10 +1084,8 @@ public class ClientHandler implements Runnable {
                 return errorResponse("Статус кредита обязателен");
             }
 
-            // 6. Обновление кредита через сервис
             LoanDTO updatedLoan = loanService.updateLoan(loanDTO.getLoanId(), loanDTO);
 
-            // 7. Формирование ответа
             JsonObject response = new JsonObject();
             response.addProperty("status", "success");
             response.add("loan", gson.toJsonTree(updatedLoan));
@@ -1207,16 +1105,13 @@ public class ClientHandler implements Runnable {
 
     private String handleUpdateLoanType(JsonObject data, String unused) {
         try {
-            // 1. Проверка наличия данных
             if (!data.has("loanTypeData")) {
                 return errorResponse("Данные для обновления не найдены");
             }
 
-            // 2. Парсинг данных
             JsonObject loanTypeData = data.getAsJsonObject("loanTypeData");
             LoanTypeDTO loanTypeDTO = gson.fromJson(loanTypeData, LoanTypeDTO.class);
 
-            // 3. Валидация
             if (loanTypeDTO.getLoanTypeId() == null) {
                 return errorResponse("ID типа кредита обязательно");
             }
@@ -1230,10 +1125,8 @@ public class ClientHandler implements Runnable {
                 return errorResponse("Банк обязателен");
             }
 
-            // 4. Обновление через сервис
             LoanTypeDTO updatedLoanType = loanTypeService.updateLoanType(loanTypeDTO);
 
-            // 5. Формирование ответа
             JsonObject response = new JsonObject();
             response.addProperty("status", "success");
             response.add("loanType", gson.toJsonTree(updatedLoanType));
@@ -1253,21 +1146,17 @@ public class ClientHandler implements Runnable {
 
     private String handleGetLoanStatistics(JsonObject data, String unused) {
         try {
-            // Получаем статистику из сервиса
             LoanStatisticsDTO stats = loanStatisticsService.getLoanStatistics();
 
-            // Создаем JSON ответ
             JsonObject response = new JsonObject();
             response.addProperty("status", "success");
 
-            // Основная статистика
             JsonObject statistics = new JsonObject();
             statistics.addProperty("avgRate", stats.getAverageRate());
             statistics.addProperty("popularBank", stats.getMostPopularBank());
             statistics.addProperty("totalLoans", stats.getTotalLoans());
             statistics.addProperty("totalAmount", stats.getTotalAmount());
 
-            // Кредиты по банкам
             JsonArray loansByBankArray = new JsonArray();
             for (BankLoanCountDTO bankCount : stats.getLoansByBank()) {
                 JsonObject bankJson = new JsonObject();
@@ -1277,7 +1166,6 @@ public class ClientHandler implements Runnable {
             }
             statistics.add("loansByBank", loansByBankArray);
 
-            // Распределение ставок
             JsonArray ratesDistributionArray = new JsonArray();
             for (RateRangeCountDTO rateRange : stats.getRatesDistribution()) {
                 JsonObject rangeJson = new JsonObject();
@@ -1287,7 +1175,6 @@ public class ClientHandler implements Runnable {
             }
             statistics.add("ratesDistribution", ratesDistributionArray);
 
-            // Динамика ставок по месяцам
             JsonArray ratesTrendArray = new JsonArray();
             for (MonthlyRateDTO monthlyRate : stats.getRatesTrend()) {
                 JsonObject monthJson = new JsonObject();

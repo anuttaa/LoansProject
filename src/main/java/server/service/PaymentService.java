@@ -126,58 +126,12 @@ public class PaymentService {
                 date1.getYear() == date2.getYear();
     }
 
-    public List<PaymentScheduleDTO> getFullPaymentSchedule(Loan loan) {
-        return generateSchedule(loan.getLoanId());
-    }
-
-    private void updateLoanStatus(Loan loan) {
-        BigDecimal totalPaid = paymentRepository.sumPaymentsByLoan(loan.getLoanId());
-        if (totalPaid.compareTo(loan.getLoanAmount()) >= 0) {
-            loan.setStatus("PAID");
-            loanRepository.save(loan);
-        }
-    }
-
-    public Payment getPaymentById(Long paymentId) {
-        return paymentRepository.findById(paymentId)
-                .orElseThrow(() -> new NoSuchElementException("Платеж с id " + paymentId + " не найден"));
-    }
-
-    public List<Payment> getPaymentsByLoan(Long loanId) {
-        Loan loan = loanRepository.findById(loanId)
-                .orElseThrow(() -> new NoSuchElementException("Кредит с id " + loanId + " не найден"));
-
-        return new ArrayList<>(loan.getPayments());
-    }
-
-    public void deletePayment(Long paymentId) {
-        Payment payment = paymentRepository.findById(paymentId)
-                .orElseThrow(() -> new NoSuchElementException("Платеж с id " + paymentId + " не найден"));
-
-        paymentRepository.delete(payment);
-    }
-
     public PaymentDTO convertToDTO(Payment payment) {
         PaymentDTO dto = new PaymentDTO();
         dto.setPaymentDate(payment.getPaymentDate());
         dto.setAmount(payment.getAmount());
         dto.setPaymentType(payment.getPaymentType().name());
         return dto;
-    }
-
-    public Payment convertToEntity(PaymentDTO dto, Loan loan) {
-        Payment payment = new Payment();
-        payment.setLoan(loan);
-        payment.setPaymentDate(dto.getPaymentDate());
-        payment.setAmount(dto.getAmount());
-
-        try {
-            payment.setPaymentType(PaymentType.valueOf(dto.getPaymentType()));
-        } catch (IllegalArgumentException | NullPointerException e) {
-            throw new PaymentConversionException("Неверный тип платежа: " + dto.getPaymentType());
-        }
-
-        return payment;
     }
 
     public BigDecimal calculateRemainingDebt(Loan loan) {
@@ -187,25 +141,6 @@ public class PaymentService {
         return loan.getLoanAmount().subtract(totalPaid).max(BigDecimal.ZERO);
     }
 
-    public JsonObject getLoanDetails(Long loanId) {
-        Loan loan = loanRepository.findById(loanId)
-                .orElseThrow(() -> new EntityNotFoundException("Loan not found"));
-
-        JsonObject response = new JsonObject();
-        response.addProperty("status", "success");
-        response.add("loan", gson.toJsonTree(loan));
-        response.add("schedule", gson.toJsonTree(generateSchedule(loanId)));
-        response.addProperty("remainingDebt", calculateRemainingDebt(loan).toString());
-
-        PaymentScheduleDTO nextPayment = getNextPaymentSchedule(loan);
-        if (nextPayment != null) {
-            response.add("nextPayment", gson.toJsonTree(nextPayment));
-        }
-
-        return response;
-    }
-
-    // Метод генерации графика платежей
     @Transactional
     public List<PaymentScheduleDTO> generateSchedule(Long loanId) {
         Loan loan = loanRepository.findByIdWithLoanType(loanId)
@@ -263,58 +198,6 @@ public class PaymentService {
             schedule.add(dto);
             currentBalance = currentBalance.subtract(principal);
             nextDate = nextDate.plusMonths(1);
-        }
-
-        return schedule;
-    }
-
-    public List<PaymentScheduleDTO> regenerateSchedule(Loan loan, List<Payment> payments) {
-        BigDecimal totalLoanAmount = loan.getLoanAmount();
-        BigDecimal annualInterestRate = loan.getLoanType().getInterestRate();
-        int totalMonths = loan.getTermMonths();
-
-        BigDecimal totalPaid = payments.stream()
-                .map(Payment::getAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        BigDecimal remainingPrincipal = totalLoanAmount.subtract(totalPaid);
-
-        if (remainingPrincipal.compareTo(BigDecimal.ZERO) <= 0) {
-            return Collections.emptyList();
-        }
-
-        int monthsPaid = payments.size();
-        int remainingMonths = totalMonths - monthsPaid;
-
-        BigDecimal monthlyRate = annualInterestRate
-                .divide(BigDecimal.valueOf(100), 10, RoundingMode.HALF_UP)
-                .divide(BigDecimal.valueOf(12), 10, RoundingMode.HALF_UP);
-
-        BigDecimal one = BigDecimal.ONE;
-        BigDecimal temp = one.add(monthlyRate).pow(remainingMonths);
-        BigDecimal monthlyPayment = remainingPrincipal
-                .multiply(monthlyRate)
-                .multiply(temp)
-                .divide(temp.subtract(one), 2, RoundingMode.HALF_UP);
-
-        // Находим максимальную дату из существующих платежей или используем дату начала кредита
-        LocalDate lastPaymentDate = payments.stream()
-                .map(Payment::getPaymentDate)
-                .max(LocalDate::compareTo)
-                .orElse(loan.getStartDate());
-
-        LocalDate nextPaymentDate = lastPaymentDate.plusMonths(1); // Следующий месяц после последнего платежа
-
-        List<PaymentScheduleDTO> schedule = new ArrayList<>();
-
-        for (int i = 0; i < remainingMonths; i++) {
-            PaymentScheduleDTO dto = new PaymentScheduleDTO();
-            dto.setPaymentNumber(monthsPaid + i + 1);
-            dto.setAmount(monthlyPayment);
-            dto.setDueDate(nextPaymentDate);
-            schedule.add(dto);
-
-            nextPaymentDate = nextPaymentDate.plusMonths(1);
         }
 
         return schedule;

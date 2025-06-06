@@ -62,29 +62,7 @@ public class AdminAccountController {
     private void handleAllClientsLoans() { mainApp.showAllClientsLoansView(); }
 
     @FXML
-    private void handlePayments() {
-        openWindow("/payments.fxml", "График платежей");
-    }
-
-    @FXML
-    private void handleEffectiveRate() {
-        openWindow("/rate_calculator.fxml", "Расчет ЭПС");
-    }
-
-    @FXML
     private void handleAccount() { mainApp.showEditAccountView(); }
-
-    private void openWindow(String fxmlPath, String title) {
-        try {
-            Parent root = FXMLLoader.load(getClass().getResource(fxmlPath));
-            Stage stage = new Stage();
-            stage.setTitle(title);
-            stage.setScene(new Scene(root));
-            stage.show();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
     @FXML
     public void handleShowStatistics(){

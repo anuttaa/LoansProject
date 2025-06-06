@@ -47,27 +47,10 @@ public class AccountController {
     private void handleShowLoans() { mainApp.showLoanTypesView();}
 
     @FXML
-    private void handleEffectiveRate() {
-        openWindow("/rate_calculator.fxml", "Расчет ЭПС");
-    }
-
-    @FXML
     private void handleAccount() { mainApp.showEditAccountView(); }
 
     @FXML
     public void handleShowStatistics(){
         mainApp.showLoanStatistics();
-    }
-
-    private void openWindow(String fxmlPath, String title) {
-        try {
-            Parent root = FXMLLoader.load(getClass().getResource(fxmlPath));
-            Stage stage = new Stage();
-            stage.setTitle(title);
-            stage.setScene(new Scene(root));
-            stage.show();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 }

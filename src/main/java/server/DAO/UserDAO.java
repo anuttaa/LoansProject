@@ -17,30 +17,10 @@ public class UserDAO extends AbstractDAO<User, Long> {
         }
     }
 
-
-    public Optional<User> findByEmail(String email) {
-        try (Session session = getCurrentSession()) {
-            return session.createQuery("FROM User WHERE email = :email", User.class)
-                    .setParameter("email", email)
-                    .uniqueResultOptional();
-        }
-    }
-
     public long count() {
         try (Session session = getCurrentSession()) {
             return session.createQuery("SELECT COUNT(*) FROM User", Long.class)
                     .uniqueResult();
-        }
-    }
-
-    public Optional<User> findByIdWithLoans(Long userId) {
-        try (Session session = getCurrentSession()) {
-            return session.createQuery(
-                            "SELECT DISTINCT u FROM User u " +
-                                    "LEFT JOIN FETCH u.loans " +
-                                    "WHERE u.userId = :userId", User.class)
-                    .setParameter("userId", userId)
-                    .uniqueResultOptional();
         }
     }
 }

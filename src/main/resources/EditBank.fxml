@@ -11,17 +11,13 @@
             prefHeight="810.0" prefWidth="1440.0"
             style="-fx-background-color: #f5f5f5;">
 
-    <!-- Основной контейнер формы -->
     <VBox alignment="TOP_CENTER" spacing="30"
           AnchorPane.topAnchor="150" AnchorPane.bottomAnchor="150"
           AnchorPane.leftAnchor="350" AnchorPane.rightAnchor="350">
 
-        <!-- Заголовок -->
         <Label text="Редактирование банка" style="-fx-text-fill: #2c3e50; -fx-font-size: 28px; -fx-font-weight: bold;"/>
 
-        <!-- Две колонки с полями -->
         <HBox spacing="50" alignment="CENTER">
-            <!-- Левая колонка -->
             <VBox spacing="25">
                 <Label text="Название банка:" style="-fx-text-fill: #2c3e50; -fx-font-size: 16px;"/>
                 <TextField fx:id="bankNameField" prefWidth="350" prefHeight="40"
@@ -32,7 +28,6 @@
                            style="-fx-background-color: #FFFFFF; -fx-background-radius: 5; -fx-border-color: #C0C0C0; -fx-border-radius: 5; -fx-font-size: 14; -fx-padding: 5;"/>
             </VBox>
 
-            <!-- Правая колонка -->
             <VBox spacing="25">
                 <Label text="Email:" style="-fx-text-fill: #2c3e50; -fx-font-size: 16px;"/>
                 <TextField fx:id="emailField" prefWidth="350" prefHeight="40"
@@ -44,11 +39,9 @@
             </VBox>
         </HBox>
 
-        <!-- Статусная строка -->
         <Label fx:id="statusLabel" style="-fx-text-fill: #d9534f; -fx-font-size: 14; -fx-text-alignment: center;"
                prefWidth="700" wrapText="true"/>
 
-        <!-- Кнопки -->
         <HBox spacing="40" alignment="CENTER">
             <Button fx:id="backButton" text="Назад" onAction="#handleBack"
                     prefWidth="150" prefHeight="45"

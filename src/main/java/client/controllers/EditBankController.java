@@ -34,7 +34,6 @@ public class EditBankController {
 
     public void setBank(Bank bank) {
         this.currentBank = bank;
-        // Заполняем поля данными банка
         bankNameField.setText(bank.getBankName());
         addressField.setText(bank.getAddress());
         phoneField.setText(bank.getPhone());
@@ -64,7 +63,6 @@ public class EditBankController {
 
             if (response != null && response.get("status").getAsString().equals("success")) {
                 showSuccess("Данные банка успешно обновлены");
-                // Обновляем данные в текущем объекте
                 currentBank.setBankName(bankNameField.getText().trim());
                 currentBank.setAddress(addressField.getText().trim());
                 currentBank.setPhone(phoneField.getText().trim());

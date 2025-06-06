@@ -4,11 +4,11 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.text.Font?>
 <?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.RowConstraints?>
 <?import javafx.geometry.Insets?>
 
-<?import javafx.scene.layout.ColumnConstraints?>
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
             prefHeight="810.0" prefWidth="1440.0" stylesheets="@css/admin.css"
             xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1"
@@ -20,42 +20,42 @@
         </image>
     </ImageView>
 
-    <!-- Кнопка Назад -->
     <Button fx:id="backButton" layoutX="1300.0" layoutY="40.0" mnemonicParsing="false"
-            onAction="#handleBack" styleClass="nav-button" text="Назад"/>
+            onAction="#handleBack" styleClass="nav-button" text="Назад" prefWidth="100"/>
 
-    <!-- Основная сетка кнопок (опущена ниже) -->
-    <GridPane layoutX="370.0" layoutY="350.0" hgap="30" vgap="25">
+    <GridPane layoutX="370.0" layoutY="250.0" hgap="30" vgap="30">
         <columnConstraints>
             <ColumnConstraints prefWidth="300"/>
             <ColumnConstraints prefWidth="300"/>
         </columnConstraints>
+        <rowConstraints>
+            <RowConstraints prefHeight="80"/>
+            <RowConstraints prefHeight="80"/>
+            <RowConstraints prefHeight="80"/>
+        </rowConstraints>
 
-        <!-- Первый ряд -->
         <Button fx:id="banks" mnemonicParsing="false" onAction="#handleBanks"
-                styleClass="admin-button" text="Банки" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
-
-        <Button fx:id="effectiveRate" mnemonicParsing="false" onAction="#handleEffectiveRate"
-                styleClass="admin-button" text="Расчет ЭПС" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
-
-        <!-- Второй ряд -->
-        <Button fx:id="loans" mnemonicParsing="false" onAction="#handleLoans"
-                styleClass="admin-button" text="Все кредиты" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
-
-        <Button fx:id="payments" mnemonicParsing="false" onAction="#handlePayments"
-                styleClass="admin-button" text="Графики платежей" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
-
-        <!-- Третий ряд -->
-        <Button fx:id="allClientsLoans" mnemonicParsing="false" onAction="#handleAllClientsLoans"
-                styleClass="admin-button" text="Кредиты всех клиентов" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                styleClass="admin-button" text="Банки" GridPane.columnIndex="0" GridPane.rowIndex="0"
+                prefWidth="300" prefHeight="70"/>
 
         <Button fx:id="account" mnemonicParsing="false" onAction="#handleAccount"
-                styleClass="admin-button" text="Мой аккаунт" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                styleClass="admin-button" text="Мой аккаунт" GridPane.columnIndex="1" GridPane.rowIndex="0"
+                prefWidth="300" prefHeight="70"/>
+
+        <Button fx:id="loans" mnemonicParsing="false" onAction="#handleLoans"
+                styleClass="admin-button" text="Все кредиты" GridPane.columnIndex="0" GridPane.rowIndex="1"
+                prefWidth="300" prefHeight="70"/>
+
+        <Button fx:id="statistics" mnemonicParsing="false" onAction="#handleShowStatistics"
+                styleClass="admin-button" text="Статистика" GridPane.columnIndex="1" GridPane.rowIndex="1"
+                prefWidth="300" prefHeight="70"/>
+
+        <Button fx:id="allClientsLoans" mnemonicParsing="false" onAction="#handleAllClientsLoans"
+                styleClass="admin-button" text="Кредиты клиентов" GridPane.columnIndex="0" GridPane.rowIndex="2"
+                prefWidth="300" prefHeight="70" GridPane.columnSpan="2"/>
     </GridPane>
 
-    <!-- Кнопка удаления (под сеткой) -->
-    <Button fx:id="deleteByID" layoutX="580.0" layoutY="650.0" mnemonicParsing="false"
-            onAction="#handleDeleteByID" styleClass="danger-button" text="Удалить пользователя"
-            prefWidth="280.0"/>
-    <Button text="Статистика" onAction="#handleShowStatistics"/>
+    <Button fx:id="deleteByID" layoutX="580.0" layoutY="700.0" mnemonicParsing="false"
+            onAction="#handleDeleteByID" styleClass="danger-button" text="Пользователи"
+            prefWidth="280.0" prefHeight="50"/>
 </AnchorPane>

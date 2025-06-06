@@ -5,26 +5,18 @@ import config.LocalDateAdapter;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
 import lombok.Getter;
 import lombok.Setter;
 import server.Entities.Bank;
 import server.Entities.LoanType;
-
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -147,14 +139,12 @@ public class CreateBankController {
 
     private void deleteBank(Bank bank) {
         try {
-            // 1. Загружаем данные о кредитных типах банка
             JsonObject loanTypesRequest = new JsonObject();
             loanTypesRequest.addProperty("command", "getLoanTypesByBank");
             loanTypesRequest.addProperty("bankId", bank.getBankId());
 
             JsonObject loanTypesResponse = mainApp.getClient().sendRequest(loanTypesRequest.toString());
 
-            // 2. Проверяем ответ сервера
             if (loanTypesResponse == null) {
                 showError("Не удалось получить ответ от сервера");
                 return;
@@ -168,7 +158,6 @@ public class CreateBankController {
                 return;
             }
 
-            // 3. Парсим данные о кредитных типах
             JsonArray loansArray = loanTypesResponse.getAsJsonArray("loanTypes");
             List<LoanType> loanTypes = new ArrayList<>();
 
@@ -206,7 +195,6 @@ public class CreateBankController {
 
                         JsonObject deleteResponse = mainApp.getClient().sendRequest(deleteRequest.toString());
 
-                        // 8. Обрабатываем ответ от сервера
                         if (deleteResponse == null) {
                             showError("Нет ответа от сервера");
                             return;
@@ -220,7 +208,7 @@ public class CreateBankController {
                         String status = deleteResponse.get("status").getAsString();
                         if ("success".equals(status)) {
                             showSuccess("Банк и все связанные данные успешно удалены");
-                            loadBanks(); // Обновляем список банков
+                            loadBanks();
                         } else {
                             String errorMsg = deleteResponse.has("message")
                                     ? deleteResponse.get("message").getAsString()
@@ -264,7 +252,7 @@ public class CreateBankController {
             if (response != null && response.get("status").getAsString().equals("success")) {
                 showAlert(Alert.AlertType.INFORMATION, "Успех", "Банк успешно создан");
                 clearFields();
-                loadBanks(); // Обновляем таблицу
+                loadBanks();
             } else {
                 String errorMessage = response != null && response.has("message")
                         ? response.get("message").getAsString()
@@ -283,17 +271,14 @@ public class CreateBankController {
         dialog.setTitle("Добавление кредита");
         dialog.setHeaderText("Добавить кредит для банка: " + bank.getBankName());
 
-        // Кнопки диалога
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 
-        // Поля формы
         TextField loanNameField = new TextField();
         loanNameField.setPromptText("Название кредита");
 
         TextField interestRateField = new TextField();
         interestRateField.setPromptText("Процентная ставка (например, 5.5)");
 
-        // Валидация числового поля
         interestRateField.textProperty().addListener((obs, oldVal, newVal) -> {
             if (!newVal.matches("\\d*(\\.\\d*)?")) {
                 interestRateField.setText(oldVal);
@@ -311,7 +296,6 @@ public class CreateBankController {
 
         dialog.getDialogPane().setContent(grid);
 
-        // Преобразование результата
         dialog.setResultConverter(buttonType -> {
             if (buttonType == ButtonType.OK) {
                 if (loanNameField.getText().isEmpty() || interestRateField.getText().isEmpty()) {
@@ -357,7 +341,6 @@ public class CreateBankController {
 
             JsonObject response = mainApp.getClient().sendRequest(request.toString());
 
-
             if (response.get("status").getAsString().equals("success")) {
                 ObservableList<LoanType> loans = FXCollections.observableArrayList();
                 JsonArray loansArray = response.getAsJsonArray("loanTypes");
@@ -369,15 +352,20 @@ public class CreateBankController {
                 Dialog<Void> dialog = new Dialog<>();
                 dialog.setTitle("Кредиты банка");
                 dialog.setHeaderText("Кредиты банка: " + bank.getBankName());
+                dialog.getDialogPane().setMinWidth(500);
 
                 TableView<LoanType> tableView = new TableView<>();
                 tableView.setItems(loans);
 
+                // Колонка с названием кредита
                 TableColumn<LoanType, String> nameCol = new TableColumn<>("Название");
                 nameCol.setCellValueFactory(new PropertyValueFactory<>("loanTypeName"));
+                nameCol.setMinWidth(200);
 
+                // Колонка с процентной ставкой
                 TableColumn<LoanType, BigDecimal> rateCol = new TableColumn<>("Ставка");
                 rateCol.setCellValueFactory(new PropertyValueFactory<>("interestRate"));
+                rateCol.setMinWidth(100);
 
                 tableView.getColumns().addAll(nameCol, rateCol);
                 tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
@@ -445,6 +433,10 @@ public class CreateBankController {
     }
 
     private void showSuccess(String message) {
-
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Успешно");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }

@@ -17,9 +17,7 @@
             <Insets top="20" right="20" bottom="20" left="20"/>
         </padding>
 
-        <!-- Форма + Таблица -->
         <HBox spacing="20" alignment="TOP_LEFT">
-            <!-- Левая часть: форма (фиксированная ширина) -->
             <VBox spacing="15" styleClass="form-container" prefWidth="350">
                 <Label text="Добавление нового банка" styleClass="form-title"/>
                 <Label text="Название банка*:" styleClass="form-label"/>
@@ -39,7 +37,6 @@
                 <Label fx:id="errorLabel" styleClass="error-label"/>
             </VBox>
 
-            <!-- Правая часть: таблица (растягивается на всё оставшееся место) -->
             <TableView fx:id="banksTable" styleClass="data-table" HBox.hgrow="ALWAYS">
                 <columns>
                     <TableColumn fx:id="idColumn" text="ID" styleClass="table-column" prefWidth="80"/>

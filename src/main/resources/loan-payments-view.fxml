@@ -11,15 +11,12 @@
             stylesheets="@css/loanPayments.css"
             prefHeight="810.0" prefWidth="1440.0">
 
-    <!-- Основной контейнер с отступами и центрированием -->
     <VBox alignment="CENTER" spacing="30" styleClass="main-container"
           AnchorPane.topAnchor="40" AnchorPane.bottomAnchor="40"
           AnchorPane.leftAnchor="40" AnchorPane.rightAnchor="40">
 
-        <!-- Заголовок -->
         <Label fx:id="titleLabel" styleClass="title-label"/>
 
-        <!-- Информация о кредите -->
         <GridPane hgap="20" vgap="15" styleClass="info-grid">
             <columnConstraints>
                 <ColumnConstraints hgrow="NEVER" minWidth="200"/>
@@ -33,7 +30,6 @@
             <Label fx:id="statusLabel" styleClass="info-value" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
         </GridPane>
 
-        <!-- Таблицы платежей -->
         <TabPane prefWidth="1200.0" prefHeight="500.0" styleClass="custom-tab-pane">
             <Tab text="История платежей" styleClass="custom-tab">
                 <TableView fx:id="paymentsTable" styleClass="data-table">
@@ -85,7 +81,6 @@
             </Tab>
         </TabPane>
 
-        <!-- Кнопки -->
         <HBox spacing="20" alignment="CENTER_RIGHT">
             <Button text="Новый платеж" onAction="#handleNewPayment" styleClass="primary-button" prefWidth="150"/>
             <Button text="Закрыть" onAction="#handleClose" styleClass="secondary-button" prefWidth="150"/>

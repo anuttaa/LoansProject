@@ -25,14 +25,6 @@ public class LoanTypeDAO extends AbstractDAO<LoanType, Long> {
         }
     }
 
-    public Optional<LoanType> findByTypeName(String typeName) {
-        try (Session session = getCurrentSession()) {
-            return session.createQuery("FROM LoanType WHERE loanTypeName = :typeName", LoanType.class)
-                    .setParameter("typeName", typeName)
-                    .uniqueResultOptional();
-        }
-    }
-
     public List<LoanType> findWithFilters(Long bankId, String namePart,
                                           BigDecimal minRate, BigDecimal maxRate) {
         try (Session session = getCurrentSession()) {
@@ -70,17 +62,6 @@ public class LoanTypeDAO extends AbstractDAO<LoanType, Long> {
         }
     }
 
-    public List<LoanType> findByInterestRateBetween(BigDecimal minRate, BigDecimal maxRate) {
-        try (Session session = getCurrentSession()) {
-            return session.createQuery(
-                            "FROM LoanType WHERE interestRate BETWEEN :minRate AND :maxRate",
-                            LoanType.class)
-                    .setParameter("minRate", minRate)
-                    .setParameter("maxRate", maxRate)
-                    .list();
-        }
-    }
-
     public List<LoanTypeDTO> getAllLoanTypesWithBankInfo() {
         try (Session session = getCurrentSession()) {
             String hql = "SELECT lt.loanTypeId, lt.loanTypeName, lt.interestRate, " +
@@ -98,17 +79,6 @@ public class LoanTypeDAO extends AbstractDAO<LoanType, Long> {
                             .bankName((String) o[4])
                             .build())
                     .collect(Collectors.toList());
-        }
-    }
-
-    public Optional<LoanType> findByIdWithBank(Long loanTypeId) {
-        try (Session session = getCurrentSession()) {
-            return session.createQuery(
-                            "SELECT lt FROM LoanType lt " +
-                                    "LEFT JOIN FETCH lt.bank " +  // Явно загружаем банк
-                                    "WHERE lt.loanTypeId = :loanTypeId", LoanType.class)
-                    .setParameter("loanTypeId", loanTypeId)
-                    .uniqueResultOptional();
         }
     }
 
@@ -144,26 +114,32 @@ public class LoanTypeDAO extends AbstractDAO<LoanType, Long> {
         }
     }
 
-    public Map<String, Long> getLoanCountByRateRange() {
+    public Optional<LoanType> findById(Long loanTypeId) {
         try (Session session = getCurrentSession()) {
-            List<Object[]> results = session.createQuery(
-                            "SELECT " +
-                                    "CASE " +
-                                    "  WHEN lt.interestRate < 5 THEN '0-5%' " +
-                                    "  WHEN lt.interestRate BETWEEN 5 AND 10 THEN '5-10%' " +
-                                    "  WHEN lt.interestRate BETWEEN 10 AND 15 THEN '10-15%' " +
-                                    "  WHEN lt.interestRate > 15 THEN '15%+' " +
-                                    "END as rateRange, " +
-                                    "COUNT(lt) " +
-                                    "FROM LoanType lt " +
-                                    "GROUP BY rateRange", Object[].class)
-                    .list();
+            return session.createQuery(
+                            "FROM LoanType WHERE loanTypeId = :loanTypeId", LoanType.class)
+                    .setParameter("loanTypeId", loanTypeId)
+                    .uniqueResultOptional();
+        }
+    }
 
-            return results.stream()
-                    .collect(Collectors.toMap(
-                            o -> (String) o[0],
-                            o -> (Long) o[1]
-                    ));
+    public boolean hasActiveLoans(Long loanTypeId) {
+        try (Session session = getCurrentSession()) {
+            Long count = session.createQuery(
+                            "SELECT COUNT(l) FROM Loan l WHERE l.loanType.loanTypeId = :loanTypeId", Long.class)
+                    .setParameter("loanTypeId", loanTypeId)
+                    .uniqueResult();
+            return count != null && count > 0;
+        }
+    }
+
+    @Override
+    public void deleteById(Long loanTypeId) {
+        try (Session session = getCurrentSession()) {
+            LoanType loanType = session.get(LoanType.class, loanTypeId);
+            if (loanType != null) {
+                session.remove(loanType);
+            }
         }
     }
 }

@@ -61,7 +61,6 @@ public abstract class AbstractDAO<T, ID> implements DAO<T, ID> {
         Transaction tx = null;
         try (Session session = getCurrentSession()) {
             tx = session.beginTransaction();
-            // Используем merge, чтобы получить обновлённый объект
             T updatedEntity = (T) session.merge(entity);
             tx.commit();
             return updatedEntity;

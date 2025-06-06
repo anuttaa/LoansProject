@@ -6,11 +6,14 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import lombok.Setter;
-import server.Entities.User;
 
 import java.text.SimpleDateFormat;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 @Setter
 public class EditAccountController {
@@ -125,7 +128,12 @@ public class EditAccountController {
             data.addProperty("email", emailField.getText().trim());
             data.addProperty("phone", phoneField.getText().trim());
             data.addProperty("fullName", nameField.getText().trim());
-            data.addProperty("birthDate", dateField.getText().trim());
+            if (!dateField.getText().trim().isEmpty()) {
+                SimpleDateFormat fromUI = new SimpleDateFormat("dd.MM.yyyy");
+                SimpleDateFormat toServer = new SimpleDateFormat("yyyy-MM-dd");
+                Date date = fromUI.parse(dateField.getText().trim());
+                data.addProperty("birthDate", toServer.format(date));
+            }
             data.addProperty("address", addressField.getText().trim());
 
             request.add("data", data);
@@ -150,67 +158,113 @@ public class EditAccountController {
         boolean isValid = true;
         resetFieldStyles();
 
-        if (usernameField.getText().trim().isEmpty()) {
+        String login = usernameField.getText().trim();
+        if (login.isEmpty()) {
             markFieldInvalid(usernameField, "Логин обязателен");
             isValid = false;
-        } else if (usernameField.getText().trim().length() < 4) {
-            markFieldInvalid(usernameField, "Минимум 4 символа");
-            isValid = false;
+        } else {
+            if (login.length() < 4) {
+                markFieldInvalid(usernameField, "Минимум 4 символа");
+                isValid = false;
+            }
+            if (login.matches(".*[а-яА-ЯёЁ].*")) {
+                markFieldInvalid(usernameField, "Только латинские буквы");
+                isValid = false;
+            }
+            if (login.contains(" ")) {
+                markFieldInvalid(usernameField, "Пробелы недопустимы");
+                isValid = false;
+            }
+            if (!login.matches("^[a-zA-Z].*")) {
+                markFieldInvalid(usernameField, "Должен начинаться с буквы");
+                isValid = false;
+            }
         }
 
-        // Пароль может быть пустым (не изменяется)
-        if (!passwordField.getText().isEmpty() && passwordField.getText().length() < 6) {
-            markFieldInvalid(passwordField, "Минимум 6 символов");
-            isValid = false;
+        String password = passwordField.getText();
+        if(!password.isEmpty()) {
+            if (password.length() < 6) {
+                markFieldInvalid(passwordField, "Минимум 6 символов");
+                isValid = false;
+            } else if (!password.matches(".*[A-Z].*")) {
+                markFieldInvalid(passwordField, "Добавьте заглавную букву");
+                isValid = false;
+            } else if (!password.matches(".*\\d.*")) {
+                markFieldInvalid(passwordField, "Добавьте цифру");
+                isValid = false;
+            } else if (!password.matches(".*[!@#$%^&*].*")) {
+                markFieldInvalid(passwordField, "Добавьте спецсимвол (!@#$%^&*)");
+                isValid = false;
+            }
         }
 
-        if (emailField.getText().trim().isEmpty()) {
+        String email = emailField.getText().trim();
+        if (email.isEmpty()) {
             markFieldInvalid(emailField, "Email обязателен");
             isValid = false;
-        } else if (!isValidEmail(emailField.getText().trim())) {
+        } else if (!email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
             markFieldInvalid(emailField, "Некорректный email");
             isValid = false;
         }
 
-        if (nameField.getText().trim().isEmpty()) {
+        String name = nameField.getText().trim();
+        if (name.isEmpty()) {
             markFieldInvalid(nameField, "ФИО обязательно");
             isValid = false;
+        } else {
+            if (!name.matches("^[А-ЯЁ][а-яё]+(\\s[А-ЯЁ][а-яё]+){1,2}$")) {
+                markFieldInvalid(nameField, "Формат: Иванов Иван Иванович");
+                isValid = false;
+            }
+            if (name.matches(".*\\d.*")) {
+                markFieldInvalid(nameField, "Цифры недопустимы");
+                isValid = false;
+            }
         }
 
-        if (dateField.getText().trim().isEmpty()) {
+        String date = dateField.getText().trim();
+        if (date.isEmpty()) {
             markFieldInvalid(dateField, "Дата рождения обязательна");
             isValid = false;
-        } else if (!isValidDate(dateField.getText().trim())) {
-            markFieldInvalid(dateField, "Формат даты: ДД.ММ.ГГГГ");
+        } else if (!date.matches("^(0[1-9]|[12][0-9]|3[01])\\.(0[1-9]|1[0-2])\\.(19|20)\\d{2}$")) {
+            markFieldInvalid(dateField, "Формат: ДД.ММ.ГГГГ");
             isValid = false;
+        } else {
+            try {
+                LocalDate birthDate = LocalDate.parse(date, DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+                if (birthDate.isAfter(LocalDate.now().minusYears(14))) {
+                    markFieldInvalid(dateField, "Минимальный возраст - 14 лет");
+                    isValid = false;
+                }
+                if (birthDate.isBefore(LocalDate.now().minusYears(100))) {
+                    markFieldInvalid(dateField, "Проверьте дату рождения");
+                    isValid = false;
+                }
+            } catch (DateTimeParseException e) {
+                markFieldInvalid(dateField, "Некорректная дата");
+                isValid = false;
+            }
         }
 
-        if (phoneField.getText().trim().isEmpty()) {
+        String phone = phoneField.getText().trim();
+        if (phone.isEmpty()) {
             markFieldInvalid(phoneField, "Телефон обязателен");
             isValid = false;
-        } else if (!isValidPhone(phoneField.getText().trim())) {
+        } else if (!phone.matches("^\\+375(17|25|29|33|44)\\d{7}$")) {
             markFieldInvalid(phoneField, "Формат: +375XXXXXXXXX");
             isValid = false;
         }
 
-        if (addressField.getText().trim().isEmpty()) {
+        String address = addressField.getText().trim();
+        if (address.isEmpty()) {
             markFieldInvalid(addressField, "Адрес обязателен");
+            isValid = false;
+        } else if (address.length() < 10) {
+            markFieldInvalid(addressField, "Слишком короткий адрес");
             isValid = false;
         }
 
         return isValid;
-    }
-
-    private boolean isValidEmail(String email) {
-        return email.matches("^[\\w-.]+@([\\w-]+\\.)+[\\w-]{2,4}$");
-    }
-
-    private boolean isValidDate(String date) {
-        return date.matches("^(0[1-9]|[12][0-9]|3[01])\\.(0[1-9]|1[012])\\.\\d{4}$");
-    }
-
-    private boolean isValidPhone(String phone) {
-        return phone.matches("^\\+375\\d{9}$");
     }
 
     private void markFieldInvalid(Control field, String message) {

@@ -3,7 +3,6 @@ package client.controllers;
 import client.MainApp;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -13,7 +12,6 @@ import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import com.google.gson.JsonObject;
 
@@ -23,16 +21,11 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
-
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.scene.layout.HBox;
-import javafx.util.Callback;
 import lombok.Getter;
 import lombok.Setter;
-import server.Entities.Bank;
-import server.Entities.LoanType;
 
 @Setter
 @Getter
@@ -64,7 +57,6 @@ public class LoanTypesViewController {
     public void initialize() {
         setupTableColumns();
         setupFiltering();
-
     }
 
     private void setupTableColumns() {
@@ -148,94 +140,89 @@ public class LoanTypesViewController {
         });
     }
 
-    // Добавляем новый метод для обработки редактирования
     private void handleEditLoanType(JsonObject loanType) {
-        Dialog<JsonObject> dialog = new Dialog<>();
-        dialog.setTitle("Редактирование типа кредита");
-        dialog.setHeaderText("Измените данные типа кредита");
+        if(mainApp.getCurrentUserRoleId()==1) {
+            Dialog<JsonObject> dialog = new Dialog<>();
+            dialog.setTitle("Редактирование типа кредита");
+            dialog.setHeaderText("Измените данные типа кредита");
 
-        // Добавляем кнопки OK и Cancel
-        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+            dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 
-        // Создаем поля для ввода
-        TextField nameField = new TextField(loanType.get("loan_type_name").getAsString());
-        TextField rateField = new TextField(String.valueOf(loanType.get("interest_rate").getAsDouble()));
+            TextField nameField = new TextField(loanType.get("loan_type_name").getAsString());
+            TextField rateField = new TextField(String.valueOf(loanType.get("interest_rate").getAsDouble()));
 
-        // Загружаем список банков для ComboBox
-        ComboBox<String> bankCombo = new ComboBox<>();
-        bankCombo.setItems(FXCollections.observableArrayList(getBankNames()));
-        bankCombo.getSelectionModel().select(loanType.getAsJsonObject("bank").get("bank_name").getAsString());
+            ComboBox<String> bankCombo = new ComboBox<>();
+            bankCombo.setItems(FXCollections.observableArrayList(getBankNames()));
+            bankCombo.getSelectionModel().select(loanType.getAsJsonObject("bank").get("bank_name").getAsString());
 
-        // Валидация числового поля
-        rateField.textProperty().addListener((obs, oldVal, newVal) -> {
-            if (!newVal.matches("\\d*(\\.\\d*)?")) {
-                rateField.setText(oldVal);
-            }
-        });
-
-        // Создаем и настраиваем GridPane
-        GridPane grid = new GridPane();
-        grid.setHgap(10);
-        grid.setVgap(10);
-        grid.setPadding(new Insets(20, 150, 10, 10));
-
-        grid.add(new Label("Название:"), 0, 0);
-        grid.add(nameField, 1, 0);
-        grid.add(new Label("Процентная ставка:"), 0, 1);
-        grid.add(rateField, 1, 1);
-        grid.add(new Label("Банк:"), 0, 2);
-        grid.add(bankCombo, 1, 2);
-
-        dialog.getDialogPane().setContent(grid);
-
-        // Преобразуем результат диалога
-        dialog.setResultConverter(dialogButton -> {
-            if (dialogButton == ButtonType.OK) {
-                if (nameField.getText().isEmpty() || rateField.getText().isEmpty() || bankCombo.getValue() == null) {
-                    showError("Заполните все поля");
-                    return null;
+            rateField.textProperty().addListener((obs, oldVal, newVal) -> {
+                if (!newVal.matches("\\d*(\\.\\d*)?")) {
+                    rateField.setText(oldVal);
                 }
+            });
 
+            GridPane grid = new GridPane();
+            grid.setHgap(10);
+            grid.setVgap(10);
+            grid.setPadding(new Insets(20, 150, 10, 10));
+
+            grid.add(new Label("Название:"), 0, 0);
+            grid.add(nameField, 1, 0);
+            grid.add(new Label("Процентная ставка:"), 0, 1);
+            grid.add(rateField, 1, 1);
+            grid.add(new Label("Банк:"), 0, 2);
+            grid.add(bankCombo, 1, 2);
+
+            dialog.getDialogPane().setContent(grid);
+
+            dialog.setResultConverter(dialogButton -> {
+                if (dialogButton == ButtonType.OK) {
+                    if (nameField.getText().isEmpty() || rateField.getText().isEmpty() || bankCombo.getValue() == null) {
+                        showError("Заполните все поля");
+                        return null;
+                    }
+
+                    try {
+                        JsonObject updatedData = new JsonObject();
+                        updatedData.addProperty("loanTypeId", loanType.get("loan_type_id").getAsString());
+                        updatedData.addProperty("loanTypeName", nameField.getText());
+                        updatedData.addProperty("interestRate", Double.parseDouble(rateField.getText()));
+                        updatedData.addProperty("bankName", bankCombo.getValue());
+
+                        return updatedData;
+                    } catch (NumberFormatException e) {
+                        showError("Некорректное значение процентной ставки");
+                        return null;
+                    }
+                }
+                return null;
+            });
+
+            Optional<JsonObject> result = dialog.showAndWait();
+            result.ifPresent(updatedData -> {
                 try {
-                    JsonObject updatedData = new JsonObject();
-                    updatedData.addProperty("loanTypeId", loanType.get("loan_type_id").getAsString());
-                    updatedData.addProperty("loanTypeName", nameField.getText());
-                    updatedData.addProperty("interestRate", Double.parseDouble(rateField.getText()));
-                    updatedData.addProperty("bankName", bankCombo.getValue());
+                    JsonObject request = new JsonObject();
+                    request.addProperty("command", "updateLoanType");
+                    request.add("loanTypeData", updatedData);
 
-                    return updatedData;
-                } catch (NumberFormatException e) {
-                    showError("Некорректное значение процентной ставки");
-                    return null;
+                    JsonObject response = mainApp.getClient().sendRequest(request.toString());
+
+                    if (response != null && response.get("status").getAsString().equals("success")) {
+                        showSuccess("Тип кредита успешно обновлен");
+                        loadLoanTypes();
+                    } else {
+                        String error = response != null ? response.get("message").getAsString() : "Нет ответа от сервера";
+                        showError("Не удалось обновить тип кредита: " + error);
+                    }
+                } catch (Exception e) {
+                    showError("Ошибка: " + e.getMessage());
                 }
-            }
-            return null;
-        });
-
-        // Показываем диалог и обрабатываем результат
-        Optional<JsonObject> result = dialog.showAndWait();
-        result.ifPresent(updatedData -> {
-            try {
-                JsonObject request = new JsonObject();
-                request.addProperty("command", "updateLoanType");
-                request.add("loanTypeData", updatedData);
-
-                JsonObject response = mainApp.getClient().sendRequest(request.toString());
-
-                if (response != null && response.get("status").getAsString().equals("success")) {
-                    showSuccess("Тип кредита успешно обновлен");
-                    loadLoanTypes(); // Обновляем список
-                } else {
-                    String error = response != null ? response.get("message").getAsString() : "Нет ответа от сервера";
-                    showError("Не удалось обновить тип кредита: " + error);
-                }
-            } catch (Exception e) {
-                showError("Ошибка: " + e.getMessage());
-            }
-        });
+            });
+        }else {
+            showError("Вам недоступна эта функция!");
+        }
     }
 
-    // Вспомогательный метод для получения списка банков
     private List<String> getBankNames() {
         List<String> bankNames = new ArrayList<>();
         try {
@@ -256,13 +243,11 @@ public class LoanTypesViewController {
     }
 
     private void setupFiltering() {
-        // Настройка фильтрации данных в таблице
         typeSearchField.textProperty().addListener((obs, oldVal, newVal) -> applyFilters());
         minRateField.textProperty().addListener((obs, oldVal, newVal) -> applyFilters());
         maxRateField.textProperty().addListener((obs, oldVal, newVal) -> applyFilters());
         bankCombo.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> applyFilters());
 
-        // Установка фильтрованного и отсортированного списка в таблицу
         SortedList<JsonObject> sortedData = new SortedList<>(filteredLoanTypes);
         sortedData.comparatorProperty().bind(loanTypesTable.comparatorProperty());
         loanTypesTable.setItems(sortedData);
@@ -270,7 +255,6 @@ public class LoanTypesViewController {
 
     private void applyFilters() {
         filteredLoanTypes.setPredicate(loanType -> {
-            // Фильтр по названию типа кредита
             if (!typeSearchField.getText().isEmpty()) {
                 String searchText = typeSearchField.getText().toLowerCase();
                 String loanTypeName = loanType.get("loan_type_name").getAsString().toLowerCase();
@@ -279,7 +263,6 @@ public class LoanTypesViewController {
                 }
             }
 
-            // Фильтр по банку
             if (bankCombo.getSelectionModel().getSelectedItem() != null) {
                 String selectedBank = bankCombo.getSelectionModel().getSelectedItem();
                 String loanBank = loanType.getAsJsonObject("bank").get("bank_name").getAsString();
@@ -288,7 +271,6 @@ public class LoanTypesViewController {
                 }
             }
 
-            // Фильтр по минимальной ставке
             if (!minRateField.getText().isEmpty()) {
                 try {
                     double minRate = Double.parseDouble(minRateField.getText());
@@ -301,7 +283,6 @@ public class LoanTypesViewController {
                 }
             }
 
-            // Фильтр по максимальной ставке
             if (!maxRateField.getText().isEmpty()) {
                 try {
                     double maxRate = Double.parseDouble(maxRateField.getText());
@@ -327,7 +308,6 @@ public class LoanTypesViewController {
 
             if (response != null && response.get("status").getAsString().equals("success")) {
                 bankCombo.getItems().clear();
-                bankCombo.getItems().add("Все банки"); // Добавляем опцию "Все банки"
                 response.getAsJsonArray("banks").forEach(bank -> {
                     bankCombo.getItems().add(bank.getAsJsonObject().get("bankName").getAsString());
                 });
@@ -356,7 +336,6 @@ public class LoanTypesViewController {
 
                         JsonObject loanJson = element.getAsJsonObject();
 
-                        // Проверяем наличие всех обязательных полей
                         if (!loanJson.has("loanTypeId") || !loanJson.has("loanTypeName") ||
                                 !loanJson.has("interestRate") || !loanJson.has("bankId") ||
                                 !loanJson.has("bankName")) {
@@ -384,7 +363,7 @@ public class LoanTypesViewController {
                 }
 
                 if (loanTypesTable != null) {
-                    loanTypesTable.getSortOrder().clear(); // Сбросить текущую сортировку
+                    loanTypesTable.getSortOrder().clear();
                     loanTypesTable.getSortOrder().add(rateColumn);
                     loanTypesTable.sort();
                 }
@@ -402,7 +381,7 @@ public class LoanTypesViewController {
 
     @FXML
     private void handleApplyFilters() {
-        applyFilters(); // Применяем фильтры
+        applyFilters();
     }
 
     @FXML
@@ -411,7 +390,7 @@ public class LoanTypesViewController {
         typeSearchField.clear();
         minRateField.clear();
         maxRateField.clear();
-        applyFilters(); // Сбрасываем фильтры
+        applyFilters();
     }
 
     @FXML
@@ -429,16 +408,13 @@ public class LoanTypesViewController {
         dialog.setTitle("Оформление кредита");
         dialog.setHeaderText("Введите данные для кредита: " + loanType.get("loan_type_name").getAsString());
 
-        // Добавляем кнопки OK и Cancel
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 
-        // Создаем поля для ввода
         TextField amountField = new TextField();
         amountField.setPromptText("Сумма кредита");
         TextField termField = new TextField();
         termField.setPromptText("Срок (месяцы)");
 
-        // Валидация числовых полей
         amountField.textProperty().addListener((obs, oldVal, newVal) -> {
             if (!newVal.matches("\\d*(\\.\\d*)?")) {
                 amountField.setText(oldVal);
@@ -451,7 +427,6 @@ public class LoanTypesViewController {
             }
         });
 
-        // Создаем и настраиваем GridPane
         GridPane grid = new GridPane();
         grid.setHgap(10);
         grid.setVgap(10);
@@ -462,7 +437,6 @@ public class LoanTypesViewController {
         grid.add(termField, 1, 1);
         dialog.getDialogPane().setContent(grid);
 
-        // Преобразуем результат диалога
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == ButtonType.OK) {
                 if (amountField.getText().isEmpty() || termField.getText().isEmpty()) {
@@ -480,7 +454,6 @@ public class LoanTypesViewController {
             return null;
         });
 
-        // Показываем диалог и обрабатываем результат
         Optional<JsonObject> result = dialog.showAndWait();
         result.ifPresent(loanData -> {
             try {
@@ -492,7 +465,7 @@ public class LoanTypesViewController {
 
                 if (response != null && response.get("status").getAsString().equals("success")) {
                     showSuccess("Кредит успешно оформлен");
-                    loadLoanTypes(); // Обновляем список кредитов
+                    loadLoanTypes();
                 } else {
                     String error = response != null ? response.get("message").getAsString() : "Нет ответа от сервера";
                     showError("Не удалось оформить кредит: " + error);
@@ -511,26 +484,22 @@ public class LoanTypesViewController {
             double monthlyCommissionPercent,
             double insurancePercent) {
 
-        // 1. Рассчитываем, сколько клиент фактически получает (после вычета разовых комиссий)
         BigDecimal receivedAmount = amount.subtract(oneTimeCommission)
                 .subtract(amount.multiply(BigDecimal.valueOf(insurancePercent)));
 
-        // 2. Рассчитываем ежемесячный платёж (аннуитетный + комиссии)
         double monthlyInterestRate = baseRate / 100 / 12;
         BigDecimal monthlyPayment = calculateAnnuityPayment(amount, monthlyInterestRate, termMonths);
         BigDecimal monthlyCommission = amount.multiply(BigDecimal.valueOf(monthlyCommissionPercent / 100));
         BigDecimal totalMonthlyPayment = monthlyPayment.add(monthlyCommission);
 
-        // 3. Метод бинарного поиска для нахождения ЭПС
         double low = 0.0;
-        double high = 100.0; // Максимально возможная ставка (100%)
-        double eps = 0.001; // Точность расчёта (0.1%)
+        double high = 100.0;
+        double eps = 0.001;
 
-        for (int i = 0; i < 100; i++) { // Защита от бесконечного цикла
+        for (int i = 0; i < 100; i++) {
             double mid = (low + high) / 2;
             double monthlyEffectiveRate = mid / 100 / 12;
 
-            // 4. Рассчитываем NPV всех платежей по текущей ставке
             BigDecimal npv = BigDecimal.ZERO;
             for (int month = 1; month <= termMonths; month++) {
                 BigDecimal discountedPayment = totalMonthlyPayment.divide(
@@ -540,17 +509,16 @@ public class LoanTypesViewController {
                 npv = npv.add(discountedPayment);
             }
 
-            // 5. Сравниваем с полученной суммой
             if (npv.compareTo(receivedAmount) > 0) {
-                low = mid; // NPV слишком большой → ставка слишком низкая
+                low = mid;
             } else {
-                high = mid; // NPV слишком мал → ставка слишком высокая
+                high = mid;
             }
 
-            if (high - low < eps) break; // Достигнута достаточная точность
+            if (high - low < eps) break;
         }
 
-        return (low + high) / 2; // Среднее значение как итоговая ЭПС
+        return (low + high) / 2;
     }
 
     private BigDecimal calculateAnnuityPayment(BigDecimal amount, double monthlyRate, int termMonths) {
@@ -563,34 +531,6 @@ public class LoanTypesViewController {
 
         return amount.multiply(BigDecimal.valueOf(annuityCoeff))
                 .setScale(2, RoundingMode.HALF_UP);
-    }
-
-    private BigDecimal calculateTotalCost(
-            BigDecimal amount,
-            double monthlyRate,
-            int termMonths,
-            BigDecimal oneTimeCommission,
-            double monthlyCommission,
-            double insurance) {
-
-        BigDecimal total = BigDecimal.ZERO;
-
-        // Аннуитетные платежи
-        BigDecimal payment = calculateAnnuityPayment(amount, monthlyRate, termMonths);
-        total = total.add(payment.multiply(BigDecimal.valueOf(termMonths)));
-
-        // Разовые комиссии
-        total = total.add(oneTimeCommission);
-
-        // Страховка
-        total = total.add(amount.multiply(BigDecimal.valueOf(insurance)));
-
-        // Ежемесячные комиссии
-        if (monthlyCommission > 0) {
-            total = total.add(amount.multiply(BigDecimal.valueOf(monthlyCommission * termMonths)));
-        }
-
-        return total;
     }
 
     @FXML

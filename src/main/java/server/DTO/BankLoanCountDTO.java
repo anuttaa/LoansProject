@@ -13,6 +13,4 @@ public class BankLoanCountDTO {
         this.bankName = bankName;
         this.loanCount = loanCount;
     }
-    // Геттеры и сеттеры
-    // ...
 }

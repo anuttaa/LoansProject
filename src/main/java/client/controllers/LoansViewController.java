@@ -130,7 +130,6 @@ public class LoansViewController {
             private final HBox buttonsContainer = new HBox(5, deleteButton);
 
             {
-                // Применяем стили
                 buttonsContainer.getStyleClass().add("action-buttons-container");
                 deleteButton.getStyleClass().add("delete-button");
 
@@ -159,8 +158,6 @@ public class LoansViewController {
                 }
             }
         });
-
-        // Обработка выбора строки
         loansTable.getSelectionModel().selectedItemProperty().addListener(
                 (obs, oldSelection, newSelection) -> showLoanDetails(newSelection));
     }
@@ -217,32 +214,36 @@ public class LoansViewController {
     }
 
     private void handleDeleteLoan(Loan loan) {
-        if (loan == null) return;
+        if (mainApp.getCurrentUserRoleId()==1) {
+            if (loan == null) return;
 
-        if (!showConfirmation("Подтверждение удаления",
-                "Вы уверены, что хотите удалить кредит " + loan.getLoanType().getLoanTypeName() + "?")) {
-            return;
-        }
-
-        try {
-            JsonObject request = new JsonObject();
-            request.addProperty("command", "deleteLoan");
-            request.addProperty("loanId", loan.getLoanId());
-            request.addProperty("userId", mainApp.getCurrentUserId());
-
-            JsonObject response = mainApp.getClient().sendRequest(request.toString());
-
-            if (response != null && response.get("status").getAsString().equals("success")) {
-                showSuccess("Кредит успешно удален");
-                loans.remove(loan);
-                clearDetails();
-            } else {
-                String errorMsg = response != null ? response.get("message").getAsString() : "Неизвестная ошибка";
-                showError("Не удалось удалить кредит: " + errorMsg);
+            if (!showConfirmation("Подтверждение удаления",
+                    "Вы уверены, что хотите удалить кредит " + loan.getLoanType().getLoanTypeName() + "?")) {
+                return;
             }
-        } catch (Exception e) {
-            showError("Ошибка при удалении кредита: " + e.getMessage());
-            e.printStackTrace();
+
+            try {
+                JsonObject request = new JsonObject();
+                request.addProperty("command", "deleteLoan");
+                request.addProperty("loanId", loan.getLoanId());
+                request.addProperty("userId", mainApp.getCurrentUserId());
+
+                JsonObject response = mainApp.getClient().sendRequest(request.toString());
+
+                if (response != null && response.get("status").getAsString().equals("success")) {
+                    showSuccess("Кредит успешно удален");
+                    loans.remove(loan);
+                    clearDetails();
+                } else {
+                    String errorMsg = response != null ? response.get("message").getAsString() : "Неизвестная ошибка";
+                    showError("Не удалось удалить кредит: " + errorMsg);
+                }
+            } catch (Exception e) {
+                showError("Ошибка при удалении кредита: " + e.getMessage());
+                e.printStackTrace();
+            }
+        } else {
+            showError("Вам недоступна эта функция!");
         }
     }
 
@@ -267,7 +268,6 @@ public class LoansViewController {
 
             if (typeJson.has("bankId")) {
                 Long bankId = typeJson.get("bankId").getAsLong();
-                // Создаем объект Bank с именем из кэша
                 Bank bank = new Bank();
                 bank.setBankId(bankId);
                 bank.setBankName(bankNames.getOrDefault(bankId, "Банк ID: " + bankId));
@@ -341,41 +341,6 @@ public class LoansViewController {
         mainApp.showPaymentsView(selected);
     }
 
-    private BigDecimal calculateRemainingDebt(Loan loan) {
-        try {
-            JsonObject response = mainApp.getClient().sendRequest(
-                    new JsonObjectBuilder()
-                            .add("command", "getRemainingDebt")
-                            .add("loanId", loan.getLoanId())
-                            .build().toString());
-
-            if (response != null && response.get("status").getAsString().equals("success")) {
-                return new BigDecimal(response.get("amount").getAsString());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return loan.getLoanAmount();
-    }
-
-    private void validateRegularPayment(Loan loan, BigDecimal amount) throws Exception {
-        JsonObject response = mainApp.getClient().sendRequest(
-                new JsonObjectBuilder()
-                        .add("command", "getNextPayment")
-                        .add("loanId", loan.getLoanId())
-                        .build().toString());
-
-        if (response != null && response.get("status").getAsString().equals("success")) {
-            PaymentScheduleDTO nextPayment = gson.fromJson(
-                    response.get("nextPayment"), PaymentScheduleDTO.class);
-
-            if (amount.compareTo(nextPayment.getAmount()) < 0) {
-                throw new Exception(String.format("Минимальный платеж: %,.2f ₽", nextPayment.getAmount()));
-            }
-        }
-    }
-
-
     private boolean showConfirmation(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle(title);
@@ -398,39 +363,6 @@ public class LoansViewController {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
-    }
-
-    private static class JsonObjectBuilder {
-        private JsonObject json = new JsonObject();
-
-        public JsonObjectBuilder add(String property, String value) {
-            json.addProperty(property, value);
-            return this;
-        }
-
-        public JsonObjectBuilder add(String property, Number value) {
-            json.addProperty(property, value);
-            return this;
-        }
-
-        public JsonObjectBuilder add(String property, Boolean value) {
-            json.addProperty(property, value);
-            return this;
-        }
-
-        public JsonObjectBuilder add(String property, Character value) {
-            json.addProperty(property, value);
-            return this;
-        }
-
-        public JsonObjectBuilder add(String property, JsonElement value) {
-            json.add(property, value);
-            return this;
-        }
-
-        public JsonObject build() {
-            return json;
-        }
     }
 
     @FXML

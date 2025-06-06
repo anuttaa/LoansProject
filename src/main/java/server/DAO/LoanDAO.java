@@ -29,14 +29,6 @@ public class LoanDAO extends AbstractDAO<Loan, Long> {
         }
     }
 
-    public List<Loan> findByStatus(String status) {
-        try (Session session = getCurrentSession()) {
-            return session.createQuery("FROM Loan WHERE status = :status", Loan.class)
-                    .setParameter("status", status)
-                    .list();
-        }
-    }
-
     public List<Loan> findByLoanTypeBankName(String bankName) {
         try (Session session = getCurrentSession()) {
             return session.createQuery(
@@ -53,19 +45,6 @@ public class LoanDAO extends AbstractDAO<Loan, Long> {
                             "SELECT l FROM Loan l JOIN l.loanType lt WHERE lt.bank.bankId = :bankId",
                             Loan.class)
                     .setParameter("bankId", bankId)
-                    .list();
-        }
-    }
-
-    public List<Loan> findClientLoansWithDetails(Long clientId) {
-        try (Session session = getCurrentSession()) {
-            return session.createQuery(
-                            "SELECT DISTINCT l FROM Loan l " +
-                                    "JOIN FETCH l.loanType lt " +
-                                    "JOIN FETCH lt.bank " +
-                                    "JOIN FETCH l.client " +
-                                    "WHERE l.client.userId = :clientId", Loan.class)
-                    .setParameter("clientId", clientId)
                     .list();
         }
     }

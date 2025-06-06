@@ -30,13 +30,6 @@ public class UserService implements Service<UserDTO, Long> {
     private static final Logger LOG = LoggerFactory.getLogger(UserService.class);
     private final SessionFactory sessionFactory;
 
-
-    // Метод для получения текущей сессии
-    private Session getCurrentSession() {
-        return sessionFactory.getCurrentSession();
-    }
-
-
     public UserService() {
         this.userDAO = new UserDAO();
         this.roleDAO = new RoleDAO();
@@ -81,13 +74,11 @@ public class UserService implements Service<UserDTO, Long> {
             Transaction transaction = session.beginTransaction();
 
             try {
-                // 1. Получаем пользователя с блокировкой
                 User user = session.get(User.class, userDTO.getUserId(), LockMode.PESSIMISTIC_WRITE);
                 if (user == null) {
                     throw new EntityNotFoundException("User not found");
                 }
 
-                // 2. Удаляем все связанные платежи и кредиты
                 session.createQuery("DELETE FROM Payment p WHERE p.loan.client.userId = :userId")
                         .setParameter("userId", userDTO.getUserId())
                         .executeUpdate();
@@ -96,7 +87,6 @@ public class UserService implements Service<UserDTO, Long> {
                         .setParameter("userId", userDTO.getUserId())
                         .executeUpdate();
 
-                // 3. Удаляем самого пользователя
                 session.createQuery("DELETE FROM User u WHERE u.userId = :userId")
                         .setParameter("userId", userDTO.getUserId())
                         .executeUpdate();
@@ -204,16 +194,6 @@ public class UserService implements Service<UserDTO, Long> {
                     return new AuthExeption(String.format("Role not found with id: %d", roleId));
                 });
         user.setRole(role);
-    }
-
-    private User getUserById(Long userId) {
-        return userDAO.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User not found"));
-    }
-
-    private Bank getBankById(Long bankId) {
-        return bankDAO.findById(bankId)
-                .orElseThrow(() -> new EntityNotFoundException("Bank not found"));
     }
 
     private UserDTO createAdminDTO() {

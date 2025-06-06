@@ -73,11 +73,9 @@ public class RegisterController {
 
     private String convertDateToISO(String dateString) throws IllegalArgumentException {
         try {
-            // Пытаемся распарсить дату в формате dd.MM.yyyy
             DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
             LocalDate date = LocalDate.parse(dateString, inputFormatter);
 
-            // Форматируем в yyyy-MM-dd
             DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
             return date.format(outputFormatter);
         } catch (DateTimeParseException e) {

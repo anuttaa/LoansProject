@@ -4,37 +4,34 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.text.Font?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.geometry.Insets?>
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
-            prefHeight="810.0" prefWidth="1440.0"
-            stylesheets="@css/clientAccount.css"
-            xmlns="http://javafx.com/javafx/23.0.1"
-            xmlns:fx="http://javafx.com/fxml/1"
+            prefHeight="810.0" prefWidth="1440.0" stylesheets="@css/clientAccount.css"
+            xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="client.controllers.AccountController">
-   <children>
-      <ImageView fitHeight="810.0" fitWidth="1440.0" pickOnBounds="true" preserveRatio="true">
-         <image>
-            <Image url="@img/главноеОкно.png" />
-         </image>
-      </ImageView>
 
-      <!-- Кнопка Назад -->
-      <Button fx:id="backButton" layoutX="1300.0" layoutY="40.0" mnemonicParsing="false"
-              onAction="#handleBack" styleClass="nav-button" text="Назад" />
+   <ImageView fitHeight="810.0" fitWidth="1440.0" pickOnBounds="true" preserveRatio="true">
+      <image>
+         <Image url="@img/главноеОкно.png" />
+      </image>
+   </ImageView>
 
-      <!-- Основные кнопки -->
-      <Button fx:id="payments" layoutX="150.0" layoutY="600.0" mnemonicParsing="false"
-              onAction="#handleShowLoans" styleClass="main-button" text="Посмотреть кредиты" />
+   <Button fx:id="backButton" layoutX="1300.0" layoutY="40.0" mnemonicParsing="false"
+           onAction="#handleBack" styleClass="nav-button" text="Назад" prefWidth="120"/>
 
-      <Button fx:id="effectiveRate" layoutX="550.0" layoutY="300.0" mnemonicParsing="false"
-              onAction="#handleEffectiveRate" styleClass="main-button" text="ЭПС по кредитам" />
+   <VBox layoutX="470.0" layoutY="300.0" spacing="30" alignment="CENTER">
+      <Button fx:id="myLoans" mnemonicParsing="false" onAction="#handleMyLoans"
+              styleClass="primary-button" text="Мои кредиты" prefWidth="300" prefHeight="70"/>
 
-      <Button fx:id="account" layoutX="550.0" layoutY="400.0" mnemonicParsing="false"
-              onAction="#handleAccount" styleClass="main-button" text="Редактировать аккаунт" />
+      <Button fx:id="payments" mnemonicParsing="false" onAction="#handleShowLoans"
+              styleClass="main-button" text="Посмотреть кредиты" prefWidth="300" prefHeight="70"/>
 
-      <Button fx:id="myLoans" layoutX="950.0" layoutY="250.0" mnemonicParsing="false"
-              onAction="#handleMyLoans" styleClass="primary-button" text="Мои кредиты" />
-      <Button text="Статистика" onAction="#handleShowStatistics"/>
-   </children>
+      <Button fx:id="account" mnemonicParsing="false" onAction="#handleAccount"
+              styleClass="main-button" text="Редактировать аккаунт" prefWidth="300" prefHeight="70"/>
+
+      <Button fx:id="statistics" mnemonicParsing="false" onAction="#handleShowStatistics"
+              styleClass="main-button" text="Статистика" prefWidth="300" prefHeight="70"/>
+   </VBox>
 </AnchorPane>

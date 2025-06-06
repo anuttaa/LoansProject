@@ -19,11 +19,8 @@ import javafx.util.StringConverter;
 import server.DTO.PaymentDTO;
 import server.DTO.PaymentScheduleDTO;
 import server.Entities.Loan;
-
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -65,25 +62,13 @@ public class LoanPaymentsController {
         loadPaymentSchedule();
     }
 
-    private void updateNextPaymentInfo() {
-        if (!scheduleData.isEmpty()) {
-            this.nextPayment = scheduleData.stream()
-                    .filter(p -> p.getDueDate().isAfter(LocalDate.now()) ||
-                            p.getDueDate().isEqual(LocalDate.now()))
-                    .min(Comparator.comparing(PaymentScheduleDTO::getDueDate))
-                    .orElse(null);
-        }
-    }
-
     @FXML
     private void initialize() {
-        // Инициализация таблицы истории платежей
         paymentDateColumn.setCellValueFactory(new PropertyValueFactory<>("paymentDate"));
         paymentAmountColumn.setCellValueFactory(new PropertyValueFactory<>("amount"));
         paymentTypeColumn.setCellValueFactory(new PropertyValueFactory<>("paymentType"));
         paymentsTable.setItems(paymentsData);
 
-        // Инициализация таблицы графика платежей
         scheduleDateColumn.setCellValueFactory(new PropertyValueFactory<>("dueDate"));
         scheduleAmountColumn.setCellValueFactory(new PropertyValueFactory<>("amount"));
         principalColumn.setCellValueFactory(new PropertyValueFactory<>("principalPart"));
@@ -228,13 +213,6 @@ public class LoanPaymentsController {
         return minPrepayment.max(minPercent);
     }
 
-    private BigDecimal calculateRemainingDebt() {
-        return scheduleData.stream()
-                .filter(p -> p.getDueDate().isAfter(LocalDate.now().minusDays(1)))
-                .map(PaymentScheduleDTO::getAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-    }
-
     private void validatePayment(PaymentType type, BigDecimal amount,
                                  BigDecimal remainingAmount, BigDecimal minPayment) throws Exception {
         switch (type) {
@@ -377,23 +355,6 @@ public class LoanPaymentsController {
             e.printStackTrace();
         }
         return loan.getLoanAmount();
-    }
-
-    private void validateRegularPayment(Loan loan, BigDecimal amount) throws Exception {
-        JsonObject response = mainApp.getClient().sendRequest(
-                new LoanPaymentsController.JsonObjectBuilder()
-                        .add("command", "getNextPayment")
-                        .add("loanId", loan.getLoanId())
-                        .build().toString());
-
-        if (response != null && response.get("status").getAsString().equals("success")) {
-            PaymentScheduleDTO nextPayment = gson.fromJson(
-                    response.get("nextPayment"), PaymentScheduleDTO.class);
-
-            if (amount.compareTo(nextPayment.getAmount()) < 0) {
-                throw new Exception(String.format("Минимальный платеж: %,.2f ₽", nextPayment.getAmount()));
-            }
-        }
     }
 
     private boolean showConfirmation(String title, String message) {

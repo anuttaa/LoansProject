@@ -11,22 +11,6 @@ public class PaymentDAO extends AbstractDAO<Payment, Long> {
         super(Payment.class);
     }
 
-    public List<Payment> findByLoanId(Long loanId) {
-        try (Session session = getCurrentSession()) {
-            return session.createQuery("FROM Payment WHERE loan.loanId = :loanId", Payment.class)
-                    .setParameter("loanId", loanId)
-                    .list();
-        }
-    }
-
-    public List<Payment> findByPaymentType(String paymentType) {
-        try (Session session = getCurrentSession()) {
-            return session.createQuery("FROM Payment WHERE paymentType = :paymentType", Payment.class)
-                    .setParameter("paymentType", paymentType)
-                    .list();
-        }
-    }
-
     public BigDecimal sumPaymentsByLoan(Long loanId) {
         try (Session session = getCurrentSession()) {
             return session.createQuery(
@@ -34,16 +18,6 @@ public class PaymentDAO extends AbstractDAO<Payment, Long> {
                             BigDecimal.class)
                     .setParameter("loanId", loanId)
                     .uniqueResult();
-        }
-    }
-
-    public List<Payment> findPaymentsByLoanId(Long loanId) {
-        try (Session session = getCurrentSession()) {
-            return session.createQuery(
-                            "SELECT p FROM Payment p WHERE p.loan.loanId = :loanId ORDER BY p.paymentDate DESC",
-                            Payment.class)
-                    .setParameter("loanId", loanId)
-                    .list();
         }
     }
 
@@ -64,17 +38,6 @@ public class PaymentDAO extends AbstractDAO<Payment, Long> {
                             Payment.class)
                     .setParameter("loanId", loanId)
                     .list();
-        }
-    }
-
-    public boolean existsByLoanId(Long loanId) {
-        try (Session session = getCurrentSession()) {
-            return session.createQuery(
-                            "SELECT 1 FROM Payment p WHERE p.loan.loanId = :loanId",
-                            Integer.class)
-                    .setParameter("loanId", loanId)
-                    .setMaxResults(1)
-                    .uniqueResult() != null;
         }
     }
 }

@@ -40,12 +40,6 @@ public class LoanTypeService {
                 .collect(Collectors.toList());
     }
 
-    public List<LoanTypeDTO> getAllLoanTypes() {
-        return loanTypeDAO.findAll().stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
-    }
-
     public List<LoanTypeDTO> getLoanTypesWithFilters(Long bankId, String namePart,
                                                      BigDecimal minRate, BigDecimal maxRate) {
         return loanTypeDAO.findWithFilters(bankId, namePart, minRate, maxRate).stream()
@@ -59,29 +53,19 @@ public class LoanTypeService {
                 .collect(Collectors.toList());
     }
 
-    public List<Bank> getAllBanks() {
-        return bankDAO.findAll();
-    }
-
     public LoanTypeDTO updateLoanType(LoanTypeDTO loanTypeDTO) {
-        // 1. Проверка существования типа кредита
         LoanType existingLoanType = loanTypeDAO.findById(loanTypeDTO.getLoanTypeId())
                 .orElseThrow(() -> new NoSuchElementException("Тип кредита не найден"));
 
-        // 2. Проверка существования банка
         Bank bank = bankDAO.findByBankName(loanTypeDTO.getBankName())
                 .orElseThrow(() -> new NoSuchElementException("Банк '" + loanTypeDTO.getBankName() + "' не найден"));
 
-
-        // 3. Обновление полей
         existingLoanType.setLoanTypeName(loanTypeDTO.getLoanTypeName());
         existingLoanType.setInterestRate(loanTypeDTO.getInterestRate());
         existingLoanType.setBank(bank);
 
-        // 4. Сохранение
         LoanType updatedLoanType = loanTypeDAO.save(existingLoanType);
 
-        // 5. Конвертация в DTO
         return convertToDTO(updatedLoanType);
     }
 
@@ -93,10 +77,6 @@ public class LoanTypeService {
         dto.setBankId(loanType.getBank().getBankId());
         dto.setBankName(loanType.getBank().getBankName());
         return dto;
-    }
-
-    private LoanTypeDTO convertToDto(LoanType type) {
-        return convertToDto(type, type.getBank());
     }
 
     private LoanTypeDTO convertToDto(LoanType type, Bank bank) {
@@ -111,5 +91,12 @@ public class LoanTypeService {
 
     public List<LoanTypeDTO> getAllLoanTypesWithBankInfo() {
         return loanTypeDAO.getAllLoanTypesWithBankInfo();
+    }
+
+    public void deleteLoanType(long loanTypeId) {
+        LoanType loanType = loanTypeDAO.findById(loanTypeId)
+                .orElseThrow(() -> new EntityNotFoundException("LoanType not found with id: " + loanTypeId));
+
+        loanTypeDAO.delete(loanType);
     }
 }

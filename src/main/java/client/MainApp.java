@@ -129,7 +129,6 @@ public class MainApp extends Application {
             Stage stage = new Stage();
             stage.setTitle("Платежи по кредиту #" + selected.getLoanId());
 
-            // Устанавливаем фиксированный размер окна
             stage.setMinWidth(1440);
             stage.setMinHeight(810);
             stage.setMaxWidth(1440);
@@ -138,13 +137,10 @@ public class MainApp extends Application {
             Scene scene = new Scene(root);
             stage.setScene(scene);
 
-            // Центрируем окно на экране
             stage.centerOnScreen();
 
-            // Модальное окно (блокирует родительское)
             stage.initModality(Modality.APPLICATION_MODAL);
 
-            // Запрещаем изменение размера
             stage.setResizable(false);
 
             stage.show();

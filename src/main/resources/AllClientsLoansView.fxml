@@ -11,19 +11,17 @@
             stylesheets="@css/allClientsLoans.css"
             prefHeight="810.0" prefWidth="1440.0">
 
-    <!-- Основной контейнер с отступами -->
     <VBox spacing="20" styleClass="main-container"
           AnchorPane.topAnchor="20" AnchorPane.rightAnchor="20"
           AnchorPane.bottomAnchor="20" AnchorPane.leftAnchor="20">
 
-        <!-- Шапка с заголовком -->
         <HBox styleClass="header-box">
             <Label text="Кредиты всех клиентов" styleClass="header-label"/>
             <Region HBox.hgrow="ALWAYS"/>
             <Button fx:id="backButton" text="Назад" onAction="#handleBack" styleClass="secondary-button"/>
         </HBox>
 
-        <!-- Основная таблица -->
+
         <TableView fx:id="loansTable" styleClass="data-table" VBox.vgrow="ALWAYS">
             <columns>
                 <TableColumn fx:id="loanIdColumn" text="ID" prefWidth="80"/>
@@ -36,7 +34,6 @@
             </columns>
         </TableView>
 
-        <!-- Детали кредита -->
         <VBox fx:id="loanDetailsPane" styleClass="details-pane" spacing="10">
             <Label text="Детали кредита:" styleClass="details-title"/>
 

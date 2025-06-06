@@ -10,14 +10,11 @@
             stylesheets="@css/deleteUser.css"
             prefHeight="810.0" prefWidth="1440.0">
 
-    <!-- Основной контейнер -->
     <VBox alignment="CENTER" spacing="20" AnchorPane.topAnchor="50" AnchorPane.bottomAnchor="50"
           AnchorPane.leftAnchor="100" AnchorPane.rightAnchor="100">
 
-        <!-- Заголовок -->
         <Label text="Управление пользователями" styleClass="title-label"/>
 
-        <!-- Таблица пользователей -->
         <TableView fx:id="usersTable" styleClass="users-table" prefHeight="400">
             <columns>
                 <TableColumn text="ID" fx:id="idColumn" prefWidth="50"/>
@@ -28,10 +25,8 @@
             </columns>
         </TableView>
 
-        <!-- Статус операции -->
         <Label fx:id="statusLabel" styleClass="status-label"/>
 
-        <!-- Кнопки -->
         <HBox spacing="20" alignment="CENTER">
             <Button text="Обновить список" onAction="#handleRefresh" styleClass="primary-button"/>
             <Button text="Назад" onAction="#handleBack" styleClass="secondary-button"/>

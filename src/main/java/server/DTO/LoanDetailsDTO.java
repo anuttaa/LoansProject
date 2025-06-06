@@ -21,6 +21,4 @@ public class LoanDetailsDTO {
     private List<PaymentScheduleDTO> schedule;
     private BigDecimal remainingDebt;
     private PaymentScheduleDTO nextPayment;
-
-    // Геттеры и сеттеры
 }

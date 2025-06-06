@@ -30,14 +30,12 @@ public class LoanService {
 
     @Transactional
     public LoanDTO createLoan(LoanDTO loanDTO) {
-        // 1. Загружаем сущности с полными связями
         User client = userRepository.findById(loanDTO.getClientId())
                 .orElseThrow(() -> new EntityNotFoundException("Клиент не найден"));
 
         LoanType loanType = loanTypeRepository.findByIdWithAllRelations(loanDTO.getLoanTypeId())
                 .orElseThrow(() -> new EntityNotFoundException("Тип кредита не найден"));
 
-        // 2. Создаем и сохраняем кредит
         Loan loan = new Loan();
         loan.setClient(client);
         loan.setLoanType(loanType);
@@ -49,19 +47,10 @@ public class LoanService {
 
         Loan savedLoan = loanRepository.save(loan);
 
-        // 3. Перезагружаем с полными связями
         Loan fullLoan = loanRepository.findByIdWithAllRelations(savedLoan.getLoanId())
                 .orElseThrow(() -> new EntityNotFoundException("Кредит не найден после сохранения"));
 
-        // 4. Конвертируем в DTO
         return convertToDTO(fullLoan);
-    }
-
-    @Transactional
-    public LoanDTO getLoanDTOById(Long loanId) {
-        Loan loan = loanRepository.findByIdWithAllRelations(loanId)
-                .orElseThrow(() -> new NoSuchElementException("Кредит не найден"));
-        return convertToDTO(loan);
     }
 
     @Transactional
@@ -79,12 +68,10 @@ public class LoanService {
             loanJson.addProperty("endDate", createdLoan.getEndDate().toString());
         }
 
-        // Информация о клиенте
         if (createdLoan.getClientId() != null) {
             loanJson.addProperty("clientId", createdLoan.getClientId());
         }
 
-        // Информация о типе кредита
         JsonObject typeJson = new JsonObject();
         typeJson.addProperty("id", createdLoan.getLoanTypeId());
         typeJson.addProperty("name", createdLoan.getLoanTypeName());
@@ -103,26 +90,6 @@ public class LoanService {
         return response;
     }
 
-
-    public Loan convertToEntity(LoanDTO loanDTO) {
-        User client = userRepository.findById(loanDTO.getClientId())
-                .orElseThrow(() -> new EntityNotFoundException("Client not found"));
-
-        LoanType loanType = loanTypeRepository.findById(loanDTO.getLoanTypeId())
-                .orElseThrow(() -> new EntityNotFoundException("Loan type not found"));
-
-        Loan loan = new Loan();
-        loan.setClient(client);
-        loan.setLoanType(loanType);
-        loan.setLoanAmount(loanDTO.getLoanAmount());
-        loan.setTermMonths(loanDTO.getTermMonths());
-        loan.setStartDate(loanDTO.getStartDate());
-        loan.setEndDate(calculateEndDate(loanDTO.getStartDate(), loanDTO.getTermMonths()));
-        loan.setStatus(loanDTO.getStatus() != null ? loanDTO.getStatus() : "ACTIVE");
-
-        return loan;
-    }
-
     public Loan assignLoanToClient(Long loanId, Long clientId) {
         Loan loan = loanRepository.findById(loanId)
                 .orElseThrow(() -> new EntityNotFoundException("Loan not found"));
@@ -139,7 +106,6 @@ public class LoanService {
     }
 
     public LoanDTO updateLoan(Long loanId, LoanDTO loanDTO) {
-        // 1. Валидация входных данных
         if (loanId == null) {
             throw new IllegalArgumentException("ID кредита не может быть null");
         }
@@ -147,11 +113,9 @@ public class LoanService {
             throw new IllegalArgumentException("DTO кредита не может быть null");
         }
 
-        // 2. Поиск существующего кредита
         Loan loan = loanRepository.findById(loanId)
                 .orElseThrow(() -> new NoSuchElementException("Кредит с ID " + loanId + " не найден"));
 
-        // 3. Проверка и получение типа кредита
         if (loanDTO.getLoanTypeId() == null) {
             throw new IllegalArgumentException("ID типа кредита обязательно");
         }
@@ -159,7 +123,6 @@ public class LoanService {
                 .orElseThrow(() -> new EntityNotFoundException(
                         "Тип кредита с ID " + loanDTO.getLoanTypeId() + " не найден"));
 
-        // 4. Дополнительные проверки
         if (loanDTO.getLoanAmount() == null || loanDTO.getLoanAmount().compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("Сумма кредита должна быть положительной");
         }
@@ -170,31 +133,26 @@ public class LoanService {
             throw new IllegalArgumentException("Дата начала обязательна");
         }
 
-        // 5. Обновление полей кредита
         loan.setLoanType(loanType);
         loan.setLoanAmount(loanDTO.getLoanAmount());
         loan.setTermMonths(loanDTO.getTermMonths());
         loan.setStartDate(loanDTO.getStartDate());
 
-        // Автоматический расчет даты окончания
         loan.setEndDate(calculateEndDate(loanDTO.getStartDate(), loanDTO.getTermMonths()));
 
-        // Сохранение текущего статуса, если новый не указан
         loan.setStatus(loanDTO.getStatus() != null ?
                 validateLoanStatus(loanDTO.getStatus()) :
                 loan.getStatus());
 
-        // 6. Сохранение обновленного кредита
         Loan updatedLoan = loanRepository.save(loan);
 
-        // 7. Логирование успешного обновления
         LOG.info("Кредит с ID {} успешно обновлен", loanId);
 
         return convertToDTO(updatedLoan);
     }
 
     private String validateLoanStatus(String status) {
-        List<String> validStatuses = Arrays.asList("PENDING", "ACTIVE", "CLOSED", "REJECTED");
+        List<String> validStatuses = Arrays.asList("PENDING", "ACTIVE", "CLOSED");
         if (!validStatuses.contains(status.toUpperCase())) {
             throw new IllegalArgumentException("Недопустимый статус кредита: " + status);
         }
@@ -209,13 +167,11 @@ public class LoanService {
         LoanDTO dto = new LoanDTO();
         dto.setLoanId(loan.getLoanId());
 
-        // Информация о типе кредита
         if (loan.getLoanType() != null) {
             dto.setLoanTypeId(loan.getLoanType().getLoanTypeId());
             dto.setLoanTypeName(loan.getLoanType().getLoanTypeName());
             dto.setInterestRate(loan.getLoanType().getInterestRate());
 
-            // Информация о банке
             if (loan.getLoanType().getBank() != null) {
                 dto.setBankId(loan.getLoanType().getBank().getBankId());
                 dto.setBankName(loan.getLoanType().getBank().getBankName());
@@ -228,60 +184,12 @@ public class LoanService {
         dto.setEndDate(loan.getEndDate());
         dto.setStatus(loan.getStatus());
 
-        // Информация о клиенте
         if (loan.getClient() != null) {
             dto.setClientId(loan.getClient().getUserId());
-            dto.setClientName(loan.getClient().getUsername()); // Или другие поля клиента
+            dto.setClientName(loan.getClient().getUsername());
         }
 
         return dto;
-    }
-
-    public void deleteLoan(Long loanId) {
-        Loan loan = loanRepository.findById(loanId)
-                .orElseThrow(() -> new NoSuchElementException("Кредит с id " + loanId + " не найден"));
-        loanRepository.delete(loan);
-    }
-
-    public List<Loan> getLoansByUser(Long userId) {
-        userRepository.findById(userId)
-                .orElseThrow(() -> new NoSuchElementException("Пользователь с id " + userId + " не найден"));
-        return loanRepository.findByClientId(userId);
-    }
-
-    public List<Payment> getPaymentsByLoan(Long loanId) {
-        Loan loan = getLoanById(loanId);
-        return new ArrayList<>(loan.getPayments());
-    }
-
-    public List<PaymentScheduleDTO> generatePaymentSchedule(Long loanId) {
-        Loan loan = getLoanById(loanId);
-        BigDecimal principal = loan.getLoanAmount();
-        BigDecimal monthlyRate = loan.getLoanType().getInterestRate()
-                .divide(BigDecimal.valueOf(100), 10, RoundingMode.HALF_UP)
-                .divide(BigDecimal.valueOf(12), 10, RoundingMode.HALF_UP);
-        int months = loan.getTermMonths();
-
-        List<PaymentScheduleDTO> schedule = new ArrayList<>();
-        LocalDate paymentDate = loan.getStartDate(); // Теперь LocalDate
-
-        // Формула аннуитетного платежа
-        BigDecimal monthlyPayment = principal.multiply(monthlyRate)
-                .divide(BigDecimal.ONE.subtract(
-                                BigDecimal.ONE.add(monthlyRate).pow(-months, MathContext.DECIMAL64)),
-                        10, RoundingMode.HALF_UP);
-
-        for (int i = 0; i < months; i++) {
-            PaymentScheduleDTO dto = new PaymentScheduleDTO();
-            dto.setPaymentNumber(i + 1);
-            dto.setAmount(monthlyPayment.setScale(2, RoundingMode.HALF_UP));
-            dto.setDueDate(paymentDate);
-            schedule.add(dto);
-
-            paymentDate = paymentDate.plusMonths(1); // Корректно для LocalDate
-        }
-
-        return schedule;
     }
 
     public BigDecimal calculateEffectiveInterestRate(Loan loan) {
@@ -325,37 +233,6 @@ public class LoanService {
         throw new ArithmeticException("Не удалось рассчитать эффективную процентную ставку");
     }
 
-    private LocalDate calculateEndDate(LocalDate startDate, int termMonths) {
-        return startDate.plusMonths(termMonths);
-    }
-
-    public List<Loan> getAllLoans() {
-        return loanRepository.findAll();
-    }
-
-    public List<Loan> getLoansByBank(Long bankId) {
-        bankRepository.findById(bankId)
-                .orElseThrow(() -> new NoSuchElementException("Банк с id " + bankId + " не найден"));
-
-        return loanRepository.findByLoanTypeBankId(bankId);
-    }
-
-    public List<Loan> getLoansByBankName(String bankName) {
-        return loanRepository.findByLoanTypeBankName(bankName);
-    }
-
-    public List<PaymentScheduleDTO> getPaymentSchedule(Long loanId) {
-        return generatePaymentSchedule(loanId);
-    }
-
-    public List<Loan> getLoansByLoanTypeBankName(String bankName) {
-        return loanRepository.findByLoanTypeBankName(bankName);
-    }
-
-    public List<Loan> getLoansByClientId(Long clientId) {
-        return loanRepository.findByClientId(clientId);
-    }
-
     public List<LoanDTO> getLoanDTOsByBankName(String bankName) {
         List<Loan> loans = loanRepository.findByLoanTypeBankName(bankName);
         return loans.stream()
@@ -382,11 +259,6 @@ public class LoanService {
             Loan loan = loanRepository.findById(loanId)
                     .orElseThrow(() -> new EntityNotFoundException("Кредит не найден"));
 
-            // Проверка прав доступа
-            if (!hasPermissionToDelete(loan, currentUserId)) {
-                return "Недостаточно прав для удаления кредита";
-            }
-
             loanRepository.delete(loan);
             LOG.info("Кредит {} удален пользователем {}", loanId, currentUserId);
             return null;
@@ -397,14 +269,6 @@ public class LoanService {
             LOG.error("Ошибка при удалении кредита", e);
             return "Внутренняя ошибка сервера";
         }
-    }
-
-    private boolean hasPermissionToDelete(Loan loan, Long currentUserId) {
-        User currentUser = userRepository.findById(currentUserId)
-                .orElseThrow(() -> new EntityNotFoundException("Пользователь не найден"));
-
-        return "1".equals(currentUser.getRole()) ||
-                loan.getClient().getUserId().equals(currentUserId);
     }
 }
 

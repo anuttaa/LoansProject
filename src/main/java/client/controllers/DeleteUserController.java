@@ -33,7 +33,6 @@ public class DeleteUserController {
     }
 
     private void initializeTable() {
-        // Настройка столбцов
         idColumn.setCellValueFactory(data ->
                 new SimpleStringProperty(data.getValue().get("userId").getAsString()));
         usernameColumn.setCellValueFactory(data ->
@@ -43,7 +42,6 @@ public class DeleteUserController {
         emailColumn.setCellValueFactory(data ->
                 new SimpleStringProperty(data.getValue().get("email").getAsString()));
 
-        // Настройка столбца с действиями
         actionsColumn.setCellFactory(param -> new TableCell<>() {
             private final Button deleteButton = new Button("Удалить");
             private final Button editButton = new Button("Редактировать");
@@ -132,7 +130,7 @@ public class DeleteUserController {
             if (response != null && response.get("status").getAsString().equals("success")) {
                 statusLabel.setText("Пользователь успешно удален");
                 statusLabel.setStyle("-fx-text-fill: green;");
-                loadUsers(); // Обновляем список
+                loadUsers();
             } else {
                 String error = response != null ? response.get("message").getAsString() : "Неизвестная ошибка";
                 statusLabel.setText("Ошибка удаления: " + error);

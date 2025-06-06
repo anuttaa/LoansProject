@@ -63,14 +63,12 @@ public class LoanStatisticsController {
             JsonObject response = mainApp.getClient().sendRequest(typesRequest.toString());
 
             if (response != null && response.get("status").getAsString().equals("success")) {
-                // Основная статистика
                 JsonObject stats = response.getAsJsonObject("statistics");
                 avgRateLabel.setText(String.format("%.2f%%", stats.get("avgRate").getAsDouble()));
                 popularBankLabel.setText(stats.get("popularBank").getAsString());
                 totalLoansLabel.setText(stats.get("totalLoans").getAsString());
                 totalAmountLabel.setText(String.format("%,.2f BYN", stats.get("totalAmount").getAsDouble()));
 
-                // График по банкам
                 loansByBankChart.getData().clear();
                 XYChart.Series<String, Number> bankSeries = new XYChart.Series<>();
                 JsonArray banksData = stats.getAsJsonArray("loansByBank");
@@ -83,7 +81,6 @@ public class LoanStatisticsController {
                 }
                 loansByBankChart.getData().add(bankSeries);
 
-                // Круговая диаграмма ставок
                 ratesPieChart.getData().clear();
                 JsonArray ratesData = stats.getAsJsonArray("ratesDistribution");
                 for (JsonElement item : ratesData) {
@@ -93,8 +90,6 @@ public class LoanStatisticsController {
                             rate.get("count").getAsDouble()
                     ));
                 }
-
-                // График динамики ставок
                 ratesTrendChart.getData().clear();
                 XYChart.Series<String, Number> trendSeries = new XYChart.Series<>();
                 trendSeries.setName("Средняя ставка");

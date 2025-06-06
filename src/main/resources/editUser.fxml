@@ -11,24 +11,19 @@
             fx:controller="client.controllers.EditUserController"
             prefHeight="810.0" prefWidth="1440.0">
 
-    <!-- Фоновая картинка (полноэкранная) -->
     <ImageView fitHeight="810.0" fitWidth="1440.0" pickOnBounds="true" preserveRatio="true">
         <image>
             <Image url="@img/главноеОкно.png" />
         </image>
     </ImageView>
 
-    <!-- Основной контейнер формы (смещен вниз) -->
     <VBox alignment="TOP_CENTER" spacing="30"
           AnchorPane.topAnchor="300" AnchorPane.bottomAnchor="100"
           AnchorPane.leftAnchor="350" AnchorPane.rightAnchor="350">
 
-        <!-- Заголовок -->
         <Label text="Редактирование аккаунта" style="-fx-text-fill: #2c3e50; -fx-font-size: 24px; -fx-font-weight: bold;"/>
 
-        <!-- Две колонки с полями -->
         <HBox spacing="100" alignment="CENTER">
-            <!-- Левая колонка -->
             <VBox spacing="20">
                 <TextField fx:id="usernameField" prefWidth="250" prefHeight="35"
                            promptText="Логин" style="-fx-background-color: #EFEFEF; -fx-background-radius: 10; -fx-border-color: #C0C0C0; -fx-border-radius: 10; -fx-font-size: 13;"/>
@@ -49,7 +44,6 @@
                            promptText="ФИО" style="-fx-background-color: #EFEFEF; -fx-background-radius: 10; -fx-border-color: #C0C0C0; -fx-border-radius: 10; -fx-font-size: 13;"/>
             </VBox>
 
-            <!-- Правая колонка -->
             <VBox spacing="20">
                 <TextField fx:id="dateField" prefWidth="250" prefHeight="35"
                            promptText="Дата рождения" style="-fx-background-color: #EFEFEF; -fx-background-radius: 10; -fx-border-color: #C0C0C0; -fx-border-radius: 10; -fx-font-size: 13;"/>
@@ -62,15 +56,12 @@
             </VBox>
         </HBox>
 
-        <!-- Адрес -->
         <TextField fx:id="addressField" prefWidth="600" prefHeight="35"
                    promptText="Адрес" style="-fx-background-color: #EFEFEF; -fx-background-radius: 10; -fx-border-color: #C0C0C0; -fx-border-radius: 10; -fx-font-size: 13;"/>
 
-        <!-- Статусная строка -->
         <Label fx:id="statusLabel" style="-fx-text-fill: #ffe8d1; -fx-font-size: 12; -fx-text-alignment: center;"
                prefWidth="600" wrapText="true"/>
 
-        <!-- Кнопки -->
         <HBox spacing="30" alignment="CENTER">
             <Button fx:id="backButton" text="Назад" onAction="#handleBack"
                     prefWidth="120" prefHeight="40"
